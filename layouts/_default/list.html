@@ -1,0 +1,68 @@
+{{- define "main" }}
+<div class="cage-page">
+  <div class="col-main">
+
+    {{- if not .IsHome | and .Title }}
+    <section class="cage-card cage-hero">
+      <div class="cage-hero__eyebrow">{{ .Kind | upper }}</div>
+      <h1 class="cage-hero__title">{{ .Title }}</h1>
+      {{- if .Description }}
+      <p class="cage-hero__lede">{{ .Description | markdownify }}</p>
+      {{- end }}
+    </section>
+    {{- end }}
+
+    {{- if .Content }}
+    <div class="cage-card cage-article" style="padding: 36px 48px;">
+      <div class="cage-article__prose">{{ .Content }}</div>
+    </div>
+    {{- end }}
+
+    {{- $pages := union .RegularPages .Sections }}
+    {{- if .IsHome }}
+    {{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
+    {{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true"  }}
+    {{- end }}
+    {{- $paginator := .Paginate $pages }}
+
+    <section>
+      <!-- <h2 class="cage-section-label">{{ if .IsHome }}RECENT POSTS{{ else }}POSTS{{ end }}</h2> -->
+      <div class="cage-post-list">
+        {{- range $paginator.Pages }}
+        <a class="cage-post-card" href="{{ .Permalink }}">
+          <div class="cage-post-card__head">
+            <h3 class="cage-post-card__title">{{ .Title }}</h3>
+            <span class="cage-post-card__date">{{ .Date.Format "2006-01-02" }}</span>
+          </div>
+          {{- with .Summary }}
+          <p class="cage-post-card__excerpt">{{ . | plainify | htmlUnescape }}{{ if $.Truncated }}…{{ end }}</p>
+          {{- end }}
+          <div class="cage-post-card__meta">
+            {{- range .Params.tags }}
+            <span class="cage-post-card__tag">{{ . | upper }}</span>
+            {{- end }}
+            <span class="cage-post-card__tag">{{ .ReadingTime }} MIN</span>
+          </div>
+        </a>
+        {{- end }}
+      </div>
+    </section>
+
+    {{- if gt $paginator.TotalPages 1 }}
+    <footer class="page-footer">
+      <nav class="pagination" style="display: flex; gap: 12px; justify-content: center;">
+        {{- if $paginator.HasPrev }}
+        <a class="cage-btn cage-btn--ghost" href="{{ $paginator.Prev.URL | absURL }}">«&nbsp;{{ i18n "prev_page" }}</a>
+        {{- end }}
+        {{- if $paginator.HasNext }}
+        <a class="cage-btn cage-btn--ghost" href="{{ $paginator.Next.URL | absURL }}">{{ i18n "next_page" }}&nbsp;»</a>
+        {{- end }}
+      </nav>
+    </footer>
+    {{- end }}
+
+  </div>
+
+  {{- partial "cage_side.html" . }}
+</div>
+{{- end }}

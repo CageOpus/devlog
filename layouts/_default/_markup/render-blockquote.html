@@ -1,0 +1,9 @@
+{{- /* Blockquote render hook.
+       - `> [!TYPE] ...`  → glass card with TYPE slug + jade square (cage-callout look)
+       - `> ...` plain    → pull-quote with ❝ ❞ corner marks
+*/ -}}
+{{- if eq .Type "alert" -}}
+<blockquote data-alert="{{ .AlertType | upper }}">{{ .Text }}</blockquote>
+{{- else -}}
+<blockquote>{{ .Text }}</blockquote>
+{{- end -}}

@@ -1,0 +1,3 @@
+[submodule "themes/cage"]
+	path = themes/cage
+	url = git@github.com:CageOpus/hugo-PaperMod-cage.git

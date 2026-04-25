@@ -1,0 +1,752 @@
+/* CAGE devlog — component library
+   ----------------------------------------------------------------------------
+   Single source of truth for the devlog's reusable components. Both the
+   live ui_kit pages (index, post, roadmap) and the preview cards in the
+   /preview folder import this file and consume the same class names, so
+   the article view never drifts from the standalone component.
+
+   Naming: everything is prefixed `cage-*`. Element/modifier follows BEM
+   (`cage-card`, `cage-card__head`, `cage-card--side`). The instrument
+   panel (`cage-instrument`) lives in signature.css and is consumed
+   alongside this file.
+
+   Required tokens (defined in colors_and_type.css + signature.css):
+     --ink-1..ink-4, --surface-1..surface-3, --surface-glass
+     --neon-jade/-glow, --neon-ice/-glow, --neon-magenta/-glow,
+     --neon-amber/-glow, --neon-rose/-glow
+     --radius-sm, --radius-md, --hairline-soft, --hairline-firm,
+     --shadow-1, --tex-noise
+     --font-display, --font-body, --font-ui, --font-mono,
+     --font-cjk, --font-cjk-display
+     --code-fg, --code-keyword, --code-fn, --code-type, --code-string,
+     --code-number, --code-comment, --code-bracket
+     --dur-base, --dur-glow, --ease-instrument
+   ============================================================================ */
+
+
+/* ----------------------------------------------------------------------------
+   1. CARD — the frosted glass surface
+   The page-level container. Type sits on stable dark surface; the bokeh
+   background blurs through. Used by hero, post-card, article body,
+   sidebar, footer, roadmap card.
+   ----------------------------------------------------------------------------*/
+.cage-card {
+  background: oklch(0.13 0.022 245 / 0.33);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(28px) saturate(1.15);
+  -webkit-backdrop-filter: blur(28px) saturate(1.15);
+  box-shadow:
+    inset 0 0 0 0.5px oklch(1 0 0 / 0.06),
+    0 14px 40px -10px oklch(0.05 0.04 240 / 0.55);
+}
+
+
+/* ----------------------------------------------------------------------------
+   2. HEADER — sticky page chrome
+   Frosted bar with emblem, title stack, and pill nav. The active nav
+   item is a contained ice-tinted pill with a dot — no fuzzy
+   box-shadow underline.
+   ----------------------------------------------------------------------------*/
+.cage-header {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 22px;
+  padding: 14px 36px;
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--hairline-firm);
+}
+.cage-header__emblem { width: 36px; height: 36px; flex-shrink: 0; }
+.cage-header__titlewrap { flex: 1; }
+.cage-header__title {
+  font-family: var(--font-display); font-weight: 700; font-size: 22px;
+  color: var(--ink-1); letter-spacing: -0.012em; line-height: 1;
+}
+.cage-header__title .cjk { font-family: var(--font-cjk-display); }
+.cage-header__sub {
+  font-family: var(--font-ui); font-size: 11px; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.18em; margin-top: 4px;
+}
+
+.cage-header__nav { display: flex; gap: 6px; }
+.cage-header__nav a {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-ui); font-size: 13px; color: var(--ink-3);
+  text-decoration: none; letter-spacing: 0.02em;
+  padding: 7px 14px; border-radius: 999px;
+  transition: color 120ms ease, background 120ms ease;
+}
+.cage-header__nav a:hover { color: var(--ink-1); }
+.cage-header__nav a.is-active {
+  color: var(--ink-1);
+  background: oklch(0.85 0.10 215 / 0.10);
+  outline: 1px solid oklch(0.85 0.10 215 / 0.45);
+  outline-offset: -1px;
+}
+.cage-header__nav a.is-active::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--neon-ice);
+  box-shadow: 0 0 8px var(--neon-ice-glow);
+}
+
+
+/* ----------------------------------------------------------------------------
+   3. HERO — large title block at the top of a list page
+   Eyebrow with magenta diamond glyph, display-sans title (CJK falls
+   through to Noto Sans TC), justified body lede.
+   ----------------------------------------------------------------------------*/
+.cage-hero { padding: 16px 32px 16px; }
+.cage-hero__eyebrow {
+  font-family: var(--font-ui); font-size: 11px; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 14px;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.cage-hero__eyebrow::before {
+  content: ''; width: 8px; height: 8px;
+  background: var(--neon-magenta);
+  box-shadow: 0 0 8px var(--neon-magenta-glow);
+  transform: rotate(45deg);
+}
+.cage-hero__title {
+  font-family: var(--font-display); font-weight: 700; font-size: 50px;
+  color: var(--ink-1); letter-spacing: -0.014em; line-height: 1.06;
+  text-wrap: balance; margin-bottom: 20px; max-width: 18ch;
+  margin-block: unset;
+}
+
+h1.cage-hero__title {
+  margin-block: unset;
+}
+
+.cage-hero__title .cjk { font-family: var(--font-cjk-display); }
+.cage-hero__lede {
+  font-family: var(--font-body); font-size: 18px; color: var(--ink-2);
+  line-height: 1.65; max-width: 60ch; text-wrap: pretty;
+}
+
+
+/* ----------------------------------------------------------------------------
+   4. SECTION LABEL — a tracked uppercase tag with a hairline rule extending
+   to the right. Sits OUTSIDE cards, marks a list section.
+   ----------------------------------------------------------------------------*/
+.cage-section-label {
+  font-family: var(--font-ui); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-3);
+  margin: 0 4px 14px;
+  display: flex; align-items: center; gap: 14px;
+}
+.cage-section-label::after {
+  content: ''; flex: 1;
+  border-bottom: 1px solid oklch(0.95 0.02 220 / 0.10);
+}
+
+
+/* ----------------------------------------------------------------------------
+   5. POST CARD — a clickable list item
+   Frosted card with directional bottom-right cast shadow. Hover only
+   brightens the rim and the cast — no offset or blur change, no
+   transform — so it never appears to lift or jitter.
+
+   Three type roles only: display title (CJK→sans-cjk-display), mono
+   date stamp top-right, body excerpt + tracked uppercase meta tags.
+   ----------------------------------------------------------------------------*/
+.cage-post-list { display: flex; flex-direction: column; gap: 14px; }
+
+.cage-post-card {
+  display: block; text-decoration: none; color: inherit;
+  position: relative;
+  padding: 24px 28px;
+  background: oklch(0.13 0.022 245 / 0.66);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(28px) saturate(1.15);
+  -webkit-backdrop-filter: blur(28px) saturate(1.15);
+  box-shadow:
+    inset 0 0.5px 0 0 oklch(1 0 0 / 0.10),
+    inset 0 0 0 0.5px oklch(1 0 0 / 0.04),
+    14px 18px 32px -8px oklch(0.04 0.04 240 / 0.75);
+  transition: box-shadow var(--dur-base) var(--ease-instrument);
+}
+.cage-post-card:hover {
+  box-shadow:
+    inset 0 0.5px 0 0 oklch(1 0 0 / 0.18),
+    inset 0 0 0 0.5px oklch(0.85 0.10 215 / 0.22),
+    14px 18px 32px -8px oklch(0.04 0.04 240 / 0.92);
+}
+
+.cage-post-card__head {
+  margin-bottom: 4px;
+}
+.cage-post-card__title {
+  font-family: var(--font-display); font-weight: 700; font-size: 24px;
+  color: var(--ink-1); line-height: 1.2; letter-spacing: -0.012em;
+  text-wrap: pretty;
+}
+.cage-post-card__title .cjk { font-family: var(--font-cjk-display); }
+.cage-post-card__date {
+  position: absolute; top: 26px; right: 28px;
+  font-family: var(--font-mono); font-size: 12px; color: var(--ink-3);
+  letter-spacing: 0.04em; white-space: nowrap;
+  pointer-events: none;
+}
+.cage-post-card__excerpt {
+  color: var(--ink-2); font-size: 16px; line-height: 1.55;
+  text-wrap: pretty; margin-bottom: 12px;
+}
+.cage-post-card__meta {
+  display: flex; gap: 18px;
+  font-family: var(--font-ui); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-3);
+}
+.cage-post-card__tag::before { content: '◇ '; color: var(--ink-4); }
+
+
+/* ----------------------------------------------------------------------------
+   6. ARTICLE — long-form prose container
+   Sits inside a .cage-card. Display-sans h1/h2 with CJK promoted to
+   Noto Sans TC. Justified body. Code is .cage-code, callouts are
+   .cage-callout — both also stand alone.
+   ----------------------------------------------------------------------------*/
+.cage-article {
+  padding: 32px 32px 32px;
+  font-family: var(--font-body);
+  color: var(--ink-2);
+  font-size: 18px;
+  line-height: var(--lh-body, 1.6);
+}
+.cage-article__prose { max-width: 68ch; }
+
+.cage-article__eyebrow {
+  font-family: var(--font-ui); font-size: 11px; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 14px;
+}
+.cage-article__eyebrow::before {
+  content: '◆ '; color: var(--neon-magenta);
+  text-shadow: 0 0 8px var(--neon-magenta-glow);
+}
+
+.cage-article h1 {
+  font-family: var(--font-display); font-weight: 700; font-size: 44px;
+  color: var(--ink-1); letter-spacing: -0.014em; line-height: 1.08;
+  text-wrap: balance; margin-bottom: 18px;
+}
+.cage-article h2 {
+  font-family: var(--font-display); font-weight: 600; font-size: 28px;
+  color: var(--ink-1); letter-spacing: -0.012em; line-height: 1.15;
+  margin: 48px 0 14px; text-wrap: balance;
+}
+.cage-article h1 .cjk,
+.cage-article h2 .cjk {
+  font-family: var(--font-cjk-display); font-weight: inherit;
+}
+
+.cage-article__meta {
+  font-family: var(--font-mono); font-size: 12px; color: var(--ink-3);
+  letter-spacing: 0.06em; margin-bottom: 40px; padding-bottom: 24px;
+  border-bottom: 1px solid oklch(0.95 0.02 220 / 0.08);
+}
+
+.cage-article p {
+  margin-bottom: 24px;
+  text-wrap: pretty;
+}
+.cage-article p em { font-style: italic; }
+
+.cage-article a {
+  color: var(--ink-1);
+  text-decoration: underline solid;
+  text-decoration-color: color-mix(in oklch, var(--neon-ice) 20%, transparent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+  transition: text-decoration-color var(--dur-base) var(--ease-instrument),
+              text-shadow var(--dur-glow) var(--ease-instrument);
+}
+.cage-article a:hover {
+  text-decoration-color: var(--neon-ice);
+  text-shadow: 0 0 12px var(--neon-ice-glow);
+}
+
+.cage-article :not(pre) > code {
+  font-family: var(--font-mono); font-size: 0.92em; color: var(--neon-ice);
+  background: oklch(0.20 0.02 244 / 0.6);
+  padding: 0.08em 0.4em;
+  border-radius: 2px;
+  box-shadow: var(--hairline-soft);
+}
+.cage-article pre > code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+.cage-article .cjk { font-family: var(--font-cjk); }
+
+
+/* ----------------------------------------------------------------------------
+   7. CALLOUT — jade-square slug + body
+   The system's editorial aside. Glass card surface, jade-lit filled
+   square + tracked uppercase label at top, body flush below sharing
+   the square's left edge.
+
+   One DOM shape, two ergonomic class hooks:
+     .cage-callout      — explicit standalone usage
+     blockquote inside .cage-article — auto-styled with default 'NOTE' label
+   ----------------------------------------------------------------------------*/
+.cage-callout {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
+  border-radius: var(--radius-md);
+  padding: 14px 22px 18px;
+  margin: 18px 0;
+  box-shadow:
+    inset 0 0.5px 0 0 oklch(1 0 0 / 0.18),
+    inset 0 -0.5px 0 0 oklch(1 0 0 / 0.04),
+    inset 0 0 0 0.5px oklch(1 0 0 / 0.08),
+    0 6px 18px -4px oklch(0.05 0.04 240 / 0.45);
+}
+.cage-callout__slug {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+  font-family: var(--font-body);
+  font-size: 11px; line-height: 1;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--neon-jade);
+  text-shadow: 0 0 8px var(--neon-jade-glow);
+}
+.cage-callout__slug::before {
+  content: ''; flex: none;
+  width: 9px; height: 9px;
+  background: var(--neon-jade);
+  box-shadow: 0 0 8px var(--neon-jade-glow);
+  /* Newsreader caps sit slightly above geometric mid-line; nudge the
+     square up a half pixel to match the cap optical center. */
+  transform: translateY(-0.5px);
+}
+.cage-callout__body {
+  font-family: var(--font-body);
+  font-size: 16px; line-height: 1.55;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+.cage-callout__body em { font-style: italic; }
+.cage-callout__body p { margin: 0; }
+.cage-callout__body p + p { margin-top: 14px; }
+
+/* ── Variant: pull-quote ────────────────────────────────────────────────────
+   For verbatim quoted material — somebody else's words. The chassis is
+   the same glass card, but the slug is dropped and a pair of luminous
+   jade quotation glyphs sit at top-left and bottom-right corners,
+   bracketing the body. No label, no square — the marks ARE the label.
+
+   Usage:
+     <div class="cage-callout cage-callout--quote">
+       <div class="cage-callout__body">
+         <p>…</p>
+         <cite>— attribution</cite>
+       </div>
+     </div>
+   ----------------------------------------------------------------------------*/
+.cage-callout--quote {
+  padding: 28px 44px 30px;
+}
+.cage-callout--quote::before,
+.cage-callout--quote::after {
+  position: absolute;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--neon-jade);
+  text-shadow: 0 0 14px var(--neon-jade-glow);
+  pointer-events: none;
+}
+.cage-callout { position: relative; }
+.cage-callout--quote::before {
+  content: '\201C';
+  top: 14px;
+  left: 14px;
+}
+.cage-callout--quote::after {
+  content: '\201D';
+  bottom: -2px;
+  right: 16px;
+}
+.cage-callout--quote--no-after::after { content: none; }
+.cage-callout--quote .cage-callout__body {
+  font-size: 17px; line-height: 1.6;
+  color: var(--ink-1);
+}
+.cage-callout--quote .cage-callout__body cite {
+  display: block;
+  margin-top: 14px;
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* Article blockquotes — two variants driven by the render hook:
+   - <blockquote data-alert="NOTE|TIP|WARNING|...">  glass card + jade slug
+   - <blockquote class="quote">                       pull-quote with ❝❞ marks
+   Plain `> text` renders as the pull-quote variant. */
+.cage-article blockquote {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
+  border-radius: var(--radius-md);
+  margin: 24px 0;
+  padding: 14px 22px 16px;
+  color: var(--ink-1);
+  font-style: normal;
+  border-left: 0;
+  box-shadow:
+    inset 0 0.5px 0 0 oklch(1 0 0 / 0.18),
+    inset 0 -0.5px 0 0 oklch(1 0 0 / 0.04),
+    inset 0 0 0 0.5px oklch(1 0 0 / 0.08),
+    0 6px 18px -4px oklch(0.05 0.04 240 / 0.45);
+  position: relative;
+}
+.cage-article blockquote p { margin: 0; }
+.cage-article blockquote p + p { margin-top: 14px; }
+.cage-article blockquote[data-alert]::before {
+  content: attr(data-alert);
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+  padding-left: 19px;
+  font-family: var(--font-body);
+  font-size: 11px; line-height: 1;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--neon-jade);
+  text-shadow: 0 0 8px var(--neon-jade-glow);
+}
+.cage-article blockquote[data-alert]::after {
+  content: ''; position: absolute;
+  top: 16px; left: 22px;
+  width: 9px; height: 9px;
+  background: var(--neon-jade);
+  box-shadow: 0 0 8px var(--neon-jade-glow);
+  transform: translateY(-0.5px);
+}
+
+/* Pull-quote variant inside an article — drop the NOTE chrome, put
+   luminous ❝ ❞ marks at corners. */
+.cage-article blockquote.quote {
+  padding: 28px 44px 30px;
+  color: var(--ink-1);
+}
+.cage-article blockquote.quote::before {
+  content: '\201C';
+  position: static;
+  display: block;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  top: 14px; left: 14px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--neon-jade);
+  text-shadow: 0 0 14px var(--neon-jade-glow);
+}
+.cage-article blockquote.quote::after {
+  content: '\201D';
+  position: absolute;
+  top: auto;
+  bottom: -2px; right: 16px;
+  left: auto;
+  width: auto; height: auto;
+  background: none;
+  box-shadow: none;
+  transform: none;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--neon-jade);
+  text-shadow: 0 0 14px var(--neon-jade-glow);
+}
+.cage-article blockquote.quote p {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-1);
+}
+.cage-article blockquote.quote cite {
+  display: block;
+  margin-top: 14px;
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+
+/* ----------------------------------------------------------------------------
+   8. CODE BLOCK — frosted glass viewport with jade corner brackets
+   The signature code surface: translucent dark glass, top-left radial
+   hotspot, asymmetrically lit jade brackets (TL bright with bloom,
+   BR dim), optional filename tag in the top-right.
+
+   Two contexts:
+     .cage-code            — standalone (inside any container)
+     pre inside .cage-article — auto-styled the same way
+   ----------------------------------------------------------------------------*/
+.cage-code,
+.cage-article pre {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--code-fg);
+  margin: 24px 0;
+  padding: 22px 26px;
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow-x: auto;
+  background:
+    radial-gradient(circle 240px at -10% -20%,
+      oklch(1 0 0 / 0.07) 0%,
+      oklch(1 0 0 / 0.02) 35%,
+      oklch(1 0 0 / 0) 70%),
+    oklch(0.16 0.020 245 / 0.78);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 0.16),
+    inset 1px 0 0 0 oklch(1 0 0 / 0.08),
+    inset 0 0 0 0.5px oklch(1 0 0 / 0.06),
+    inset 0 -1px 0 0 oklch(0 0 0 / 0.22),
+    inset -1px 0 0 0 oklch(0 0 0 / 0.10),
+    0 8px 24px -6px oklch(0.05 0.04 240 / 0.55);
+}
+
+/* Jade corner brackets — TL lit, BR shadowed.
+   Same pseudo-element pattern works for both standalone and article use. */
+.cage-code::before, .cage-code::after,
+.cage-article pre::before, .cage-article pre::after {
+  content: ''; position: absolute;
+  width: 14px; height: 14px;
+  border: 1.5px solid var(--neon-jade);
+  pointer-events: none;
+}
+.cage-code::before,
+.cage-article pre::before {
+  top: 9px; left: 9px;
+  border-right: 0; border-bottom: 0;
+  border-top-left-radius: 6px;
+  opacity: 1;
+  filter:
+    drop-shadow(0 0 2px var(--neon-jade-glow))
+    drop-shadow(0 0 6px var(--neon-jade-glow))
+    drop-shadow(0 0 14px var(--neon-jade-glow));
+}
+.cage-code::after,
+.cage-article pre::after {
+  bottom: 12px; right: 12px;
+  border-left: 0; border-top: 0;
+  border-bottom-right-radius: 6px;
+  opacity: 0.32;
+}
+
+/* Filename tag — top-right serial number. Optional. */
+.cage-code__file,
+.cage-article pre .cage-code__file {
+  position: absolute;
+  top: 8px; right: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
+/* Token colors — muted neon. Brackets are neutral ink so they
+   recede behind the corner brackets. */
+.cage-code .kw, .cage-article pre .kw { color: var(--code-keyword); }
+.cage-code .fn, .cage-article pre .fn { color: var(--code-fn); }
+.cage-code .ty, .cage-article pre .ty { color: var(--code-type); }
+.cage-code .st, .cage-article pre .st { color: var(--code-string); }
+.cage-code .nu, .cage-article pre .nu { color: var(--code-number); }
+.cage-code .cm, .cage-article pre .cm { color: var(--code-comment); font-style: italic; }
+.cage-code .br, .cage-article pre .br { color: var(--ink-3); }
+
+
+/* ----------------------------------------------------------------------------
+   9. ROADMAP — milestone list
+   A vertical stack of items, one per build. State is carried by hue +
+   glow on the marker glyph and the right-aligned status label.
+   ----------------------------------------------------------------------------*/
+.cage-roadmap {
+  display: flex; flex-direction: column; gap: 22px;
+}
+.cage-roadmap__item {
+  display: grid;
+  grid-template-columns: 28px minmax(140px, 220px) 1fr 140px;
+  align-items: baseline; gap: 18px;
+  padding: 18px 22px;
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
+  border-radius: var(--radius-md);
+  box-shadow: var(--hairline-firm), var(--shadow-1);
+}
+.cage-roadmap__marker {
+  font-family: var(--font-mono); font-size: 16px;
+  text-align: center; line-height: 1;
+}
+.cage-roadmap__name {
+  font-family: var(--font-display); font-weight: 600; font-size: 22px;
+  color: var(--ink-1); letter-spacing: -0.008em;
+}
+.cage-roadmap__name .cjk { font-family: var(--font-cjk-display); }
+.cage-roadmap__desc {
+  font-family: var(--font-body); font-size: 16px;
+  color: var(--ink-3); line-height: 1.5;
+}
+.cage-roadmap__status {
+  font-family: var(--font-ui); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* States — same glow geometry across all four, only hue changes. */
+.cage-roadmap__item--done .cage-roadmap__marker,
+.cage-roadmap__item--done .cage-roadmap__status {
+  color: var(--neon-jade);
+  text-shadow: 0 0 10px var(--neon-jade-glow);
+}
+.cage-roadmap__item--now .cage-roadmap__marker,
+.cage-roadmap__item--now .cage-roadmap__status {
+  color: var(--neon-magenta);
+  text-shadow: 0 0 10px var(--neon-magenta-glow);
+}
+.cage-roadmap__item--stuck .cage-roadmap__marker,
+.cage-roadmap__item--stuck .cage-roadmap__status {
+  color: var(--neon-rose);
+  text-shadow: 0 0 10px var(--neon-rose-glow);
+}
+.cage-roadmap__item--next .cage-roadmap__marker { color: var(--ink-4); }
+.cage-roadmap__item--next .cage-roadmap__status { color: var(--ink-3); }
+.cage-roadmap__item--moonshot .cage-roadmap__marker,
+.cage-roadmap__item--moonshot .cage-roadmap__status {
+  color: var(--neon-ice);
+  text-shadow: 0 0 10px var(--neon-ice-glow);
+}
+
+
+/* ----------------------------------------------------------------------------
+   10. BUTTONS — share one chassis
+   All variants use the same padding, radius, line-height. Only color
+   and surface differ. Cap-line is brought to optical center via
+   asymmetric vertical padding.
+   ----------------------------------------------------------------------------*/
+.cage-btn {
+  display: inline-flex;
+  align-items: baseline; justify-content: center;
+  gap: 8px;
+  padding: 12px 18px 10px;
+  box-sizing: border-box;
+  font-family: var(--font-ui);
+  font-size: 12px; font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  border: 0; border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--ink-1);
+  background: linear-gradient(180deg, var(--surface-3), var(--surface-2));
+  box-shadow: var(--hairline-firm), var(--shadow-1);
+  transition: all var(--dur-base) var(--ease-instrument);
+}
+.cage-btn--primary {
+  color: var(--neon-ice);
+  text-shadow: 0 0 8px var(--neon-ice-glow);
+  background: linear-gradient(180deg, var(--surface-3), var(--surface-2));
+  box-shadow:
+    inset 0 0 0 1px oklch(0.82 0.10 215 / 0.30),
+    0 0 22px -6px var(--neon-ice-glow),
+    var(--shadow-1);
+}
+.cage-btn--ghost {
+  color: var(--ink-2);
+  background: oklch(1 0 0 / 0.025);
+  box-shadow:
+    inset 0 0 0 1px oklch(1 0 0 / 0.16),
+    inset 0.5px 0 0 0 oklch(1 0 0 / 0.10);
+}
+.cage-btn--disabled,
+.cage-btn:disabled {
+  color: var(--ink-4);
+  background: oklch(0 0 0 / 0.18);
+  box-shadow: inset 0 0 0 0.5px oklch(1 0 0 / 0.05);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.cage-btn .cage-btn__icon { font-size: 10px; line-height: 1; }
+
+
+/* ----------------------------------------------------------------------------
+   11. SIDE-CARD adjustments — instrument panel inside a glass card
+   The standalone instrument panel is itself a dim glass card; nesting
+   it inside another glass card doubles the chrome. When .cage-instrument
+   sits inside .cage-side-card, strip its surface so it shares the
+   side-card's surface.
+   ----------------------------------------------------------------------------*/
+.cage-side-card { padding: 22px 22px 18px; }
+.cage-side-card .cage-instrument {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border-radius: 0;
+  width: 100%;
+  padding: 0;
+  color: var(--ink-3);
+}
+
+
+/* ----------------------------------------------------------------------------
+   12. FOOTER — narrow band at the bottom of the page
+   ----------------------------------------------------------------------------*/
+.cage-footer {
+  padding: 22px 32px;
+  display: flex; align-items: center; gap: 36px; flex-wrap: wrap;
+}
+.cage-footer__strip {
+  font-family: var(--font-mono); font-size: 11px; color: var(--ink-3);
+  letter-spacing: 0.06em;
+  display: flex; gap: 18px; flex-wrap: wrap;
+}
+.cage-footer__strip span { display: inline-flex; align-items: center; gap: 6px; }
+.cage-footer__strip span::before { content: '◇'; color: var(--ink-4); }
+.cage-footer__cred {
+  margin-left: auto;
+  font-family: var(--font-body); font-style: italic; font-size: 14px;
+  color: var(--ink-3);
+}
+
+
+/* ----------------------------------------------------------------------------
+   13. PAGE ATMOSPHERE — the night-city bokeh background
+   Apply by adding `cage-bokeh` to <body>. Black sky + scattered out-of-
+   focus orbs in amber / magenta / ice / jade. Identical recipe across
+   all devlog pages so the article and the index share the same plate.
+   ----------------------------------------------------------------------------*/
+.cage-bokeh {
+  background-color: #050813;
+  background-image:
+    radial-gradient(circle 110px at 8% 14%,  oklch(0.78 0.18 70 / 0.55) 0%, oklch(0.78 0.18 70 / 0.18) 35%, transparent 60%),
+    radial-gradient(circle 70px  at 22% 30%, oklch(0.85 0.10 215 / 0.45) 0%, oklch(0.85 0.10 215 / 0.12) 38%, transparent 60%),
+    radial-gradient(circle 90px  at 78% 22%, oklch(0.78 0.18 340 / 0.48) 0%, oklch(0.78 0.18 340 / 0.14) 36%, transparent 60%),
+    radial-gradient(circle 60px  at 92% 40%, oklch(0.85 0.10 215 / 0.32) 0%, transparent 60%),
+    radial-gradient(circle 130px at 50% 56%, oklch(0.78 0.18 70 / 0.30) 0%, transparent 65%),
+    radial-gradient(circle 80px  at 14% 72%, oklch(0.78 0.18 340 / 0.32) 0%, transparent 60%),
+    radial-gradient(circle 100px at 96% 64%, oklch(0.78 0.18 165 / 0.28) 0%, transparent 60%),
+    radial-gradient(circle 55px  at 4% 86%,  oklch(0.78 0.18 70 / 0.40) 0%, transparent 60%);
+  background-attachment: fixed;
+}
+.cage-bokeh::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: var(--tex-noise); background-size: 160px 160px;
+  opacity: 0.06; mix-blend-mode: overlay;
+  pointer-events: none; z-index: 0;
+}

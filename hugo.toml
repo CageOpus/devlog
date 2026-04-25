@@ -1,0 +1,31 @@
+baseURL = 'http://localhost:1313/'
+locale = 'en-us'
+title = 'CAGE — Devlog'
+theme = "cage"
+
+[params]
+  subtitle = "CITY ARCHITECT : GOLDEN ERA"
+  author = "Ray Chung"
+  build = "0.0.1"
+  defaultTheme = "dark"
+  disableThemeToggle = true
+  ShowReadingTime = true
+  ShowWordCount = true
+  ShowPostNavLinks = true
+  mainSections = ["posts"]
+
+[markup.highlight]
+  noClasses = false
+  lineNos = false
+  codeFences = true
+  guessSyntax = true
+
+[menu]
+  [[menu.main]]
+    name = "Posts"
+    url = "/posts/"
+    weight = 10
+  [[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 20
