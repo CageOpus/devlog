@@ -14,6 +14,14 @@ theme = "cage"
   ShowPostNavLinks = true
   mainSections = ["posts"]
 
+[markup.goldmark.renderer]
+  unsafe = true
+
+[markup.goldmark.extensions.cjk]
+  enable = true
+  eastAsianLineBreaks = true
+  eastAsianLineBreaksStyle = "css3draft"
+
 [markup.highlight]
   noClasses = false
   lineNos = false
