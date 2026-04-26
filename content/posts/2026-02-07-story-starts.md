@@ -1,0 +1,170 @@
++++
+date = '2026-02-07T22:09:55+08:00'
+draft = false
+title = 'Devlog #0 -- Story Starts Here'
++++
+
+[繁體中文](#開發日誌-0--一切的起點)
+
+## Not Enough Room
+
+I have thousands of hours in city simulation games.
+
+Every time I build past a certain scale, I start feeling the same thing — the
+city hasn't grown into what I imagined, and it's already too full. Not because
+the map is too small, but because the simulation itself has hit its ceiling.
+Push the population a little further, and the system starts to struggle. More
+often than not, I'd shrink my ambitions, restart on a smaller map, and accept
+the performance limit as a given.
+
+I could never quite make peace with that.
+
+## More Than Traffic
+
+Existing city sims do traffic remarkably well. With the right mods, you can
+recreate almost any real-world road configuration — protected left-turn signals,
+diverging diamond interchanges, the works. Transit options are plentiful too.
+
+But residents behave like emotionless traffic machines. They drive, they ride
+the metro, they sit in jams — but they won't move further out because rent is
+too high, won't stay indoors because the air quality is bad, won't stop walking
+a route because the environment has deteriorated around them. There's no real
+life driving their decisions.
+
+No matter how beautiful the city looks, it's just an elaborate traffic demo.
+
+What I want is a city where every person has their own sense of things — a sense
+of their environment, their cost of living, whether this place is worth staying
+in. When you put all of that together, it should naturally reshape the city:
+certain neighborhoods start to decay, things grow up in places nobody planned
+for, the boundary between rich and poor slowly becomes visible on the map.
+
+## A Young Engineer's Instinct
+
+One day I had a dream. Someone in it told me to use the GPU to accelerate the
+simulation.
+
+Every moving object in a city is running the same logic. Check the space ahead.
+Assess right-of-way. Apply acceleration. Move. This shouldn't be that hard. I
+quickly built a CPU-side proof of concept to validate the idea, and the
+algorithm ran smoothly. But things stalled there for a long time. Proper
+software development is slow going, progress felt distant, and everything stayed
+theoretical.
+
+## The Turning Point
+
+You might have guessed — I subscribed to Claude Code. It turned out to be a
+genuinely good development partner. With clear requirements and a well-written
+spec, things move fast. That meant I could make better use of my spare time,
+because I wasn't getting ground down by tedious debugging — the most mentally
+draining part of any project — and could focus on algorithm and system design
+instead. After a short period of testing, I decided to commit to building CAGE.
+
+## What Is CAGE
+
+CAGE stands for City Architect: Golden Era. The story is set in 80s Taipei. I
+didn't live through that era myself — the one people describe as gilded and
+excessive — but as a game setting it's a natural fit. The walk-up apartments
+that line almost every street in Taipei were built then. The MRT was being
+planned. It's ready-made game material. Players take the role of a governing
+authority, responsible not just for urban planning but for law, culture, and the
+shape of daily life. The streetscape changes with how you govern. Manage things
+poorly, and informal structures start appearing — buildings encroaching on
+sidewalks, covered walkways taken over. Once that becomes the norm, tearing it
+all down by force only breeds resentment. The results of your decisions show up
+directly in what you see.
+
+The detailed gameplay and visual direction are still in early discussion, but
+the whole thing will be built around large-scale micro-simulation and a
+<a href="https://en.wikipedia.org/wiki/Retrofuturism" target="_blank">
+retrofuturist</a> aesthetic — simulating agent behavior and economic
+decision-making as faithfully as possible.
+
+## The Tech Stack
+
+Unreal and Godot are reasonable choices, but I ruled them out quickly. The
+reason is simple: running 1 million agents on the GPU means needing direct
+control over the GPU compute pipeline. Off-the-shelf engines are built around
+general-purpose rendering architectures, and that level of customization means
+fighting the engine the whole way.
+
+I went with Rust + wgpu. Rust's memory safety means a large codebase won't have
+a time bomb hiding in some corner; wgpu is a low-level, cross-platform GPU API
+that gives me direct control over the compute pipeline. Bevy handles game logic
+organization as the ECS framework. There aren't many ready-made wheels to borrow
+in this stack, but it gives me the control I need.
+
+*Simulate Real, Parallel Real.*
+
+---
+
+# 開發日誌 \#0 -- 一切的起點
+
+## 太滿了
+
+我有數千小時的都市模擬遊戲經驗。
+
+每次建到某個規模，就會開始感覺到同一件事 -- 城市還沒長到我想要的樣子，就已經太滿
+了。不是地圖太小，而是模擬本身的上限到了——人口再多一點，系統就開始吃力。很多時候
+我不得不縮小野心，重開一張小一點的地圖，接受效能的限制。
+
+## 不只交通
+
+現有的都市模擬遊戲，在交通模擬方面非常真實，搭配模組幾乎可以蓋出現實世界大多數類
+型的設施，從最基礎的左轉保護路口、DDI 等等。大眾運輸的種類也非常多。
+
+然而，居民就像是無情的交通機器，他們會開車、會搭捷運、會塞車，但他們不會因為房價
+太高而選擇住得遠一點，不會因為空氣太差而減少出門，不會因為環境受污染而漸漸不想步
+行。每個人的決策背後，沒有真實的生活在驅動。
+
+城市長得再漂亮，都只是一個精緻的交通展示場。
+
+我想要的不只是這樣。我想要的是一座城市裡的每個人，都有自己的感受——對環境的感受、
+對生活成本的感受、對這個城市價值的判斷。這些感受放在一起，應該會自然地改變城市的
+樣子：某些街區開始沒落，某些地方開始長出不在計畫內的東西，貧富的邊界慢慢在地圖上
+浮現。
+
+## 年輕工程師的直覺
+
+某天我做了一個夢，夢裡有人告訴我，應該使用 GPU 加速模擬。
+
+都市裡每個移動物件，其實都在執行相同的邏輯。判斷前方空間、判斷路權優先級、執行加
+速 度、然後移動。這不應該很困難才對。我很快的在 CPU 端實作了 PoC 來快速驗證我的
+想法， 算法模擬得很順利。但一切停留在這了好長一段時間：正式的軟體開發曠日廢時，
+遲遲沒有進 展，一切都停留在理論階段。
+
+## 事情的轉機
+
+也許你猜到了，我訂閱了 Claude Code。Claude 真的是開發的好夥伴，只要需求明確，撰
+寫 好規格書後，就可以極高的速度開發。這讓我可以更高效的利用空閒時間，因為我不必
+處理繁 瑣的調試流程 -- 這也是最消耗精神的部分，而是著重在算法跟流程的設計上就好
+。再經過短 暫的測試之後，我決定投入 CAGE 的開發。
+
+
+## 什麼是 CAGE
+
+CAGE 全名 City Architect: Golden Era 。故事設定的背景是 <abbr title="1980s">80s
+</abbr> 的台北。雖然我個人沒有經歷過那段據說是紙醉金迷的時光，但作為遊戲背景自
+然的是個比較好的題材：台北隨處可見的<abbr title="walk up apartment">步登公寓
+</abbr>就是在此時被建造，台北捷運也在此時被建造，可以說就是天然的遊戲選材。玩家
+將扮演執政者，不只規劃都市的建造，以及執法、文化的發展。街景將隨著執政而改變，
+若是管理不當，非正式建築、騎樓佔用等景觀將會浮現在遊戲場景。當這些變為常態後，
+強硬的拆除反而會引發民怨。玩家將可以透過最直接的視覺反饋感受到執政管理的結果。
+
+詳細的遊戲玩法以及風格取向仍然在早期討論階段，不過整體會圍繞著 large scale micro
+simulation 以及
+<a href="https://zh.wikipedia.org/zh-tw/%E5%A4%8D%E5%8F%A4%E6%9C%AA%E6%9D%A5%E4%B8%BB%E4%B9%89" target="_blank">
+復古未來</a>的風格來實作，僅可能做到貼近真實的模擬 agents 的行為以及經濟決策。
+
+## 技術選型
+
+Unreal、Godot 都是合理的選項，但我很快就排除了它們。原因很簡單：要在 GPU 上跑
+100 萬個 agents，我需要對 GPU compute pipeline 有直接的控制權。現成引擎的渲染架
+構是針對一 般遊戲設計的，這種程度的自定義需求會跟引擎一直打架。
+
+我最終選擇 Rust + wgpu。Rust 的記憶體安全讓大型系統開發不會在某個角落藏著一顆不
+定時炸彈；wgpu 是一個跨平台的低階 GPU API，能讓我直接掌控 compute pipeline。
+Bevy 作為 ECS 框架負責遊戲邏輯的組織。這個組合沒有什麼現成的輪子可以用，但它給了
+我需要的控制權。
+
+*Simulate Real, Parallel Real.*
