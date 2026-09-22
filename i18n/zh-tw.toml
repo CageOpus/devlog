@@ -18,5 +18,19 @@ postPager = "上一篇 / 下一篇"
 postCount = '{{ printf "%02d" .Count }} 篇'
 tagCount = '{{ printf "%02d" .Count }} 個'
 
+installApp = "加入主畫面"
+installIntro = "從主畫面開啟會全螢幕顯示，像 app 一樣，沒有瀏覽器的工具列。"
+close = "關閉"
+installIos1 = "點「分享」按鈕（新版 Safari 在網址列旁的「⋯」選單裡）。"
+installIos2 = "往下捲，選「加入主畫面」。"
+installIos3 = "點右上角的「加入」。"
+installAndroid1 = "點右上角的「⋮」選單。"
+installAndroid2 = "選「加到主畫面」或「安裝應用程式」。"
+installAndroid3 = "點「新增」或「安裝」確認。"
+installMacSafari1 = "在選單列打開「檔案」。"
+installMacSafari2 = "選「加入 Dock」。"
+installDesktop1 = "點網址列最右邊的安裝圖示，或打開瀏覽器選單。"
+installDesktop2 = "選「將網頁安裝為應用程式」。"
+
 notFoundText = "這個路段不在計畫圖上。"
 backHome = "回到首頁"

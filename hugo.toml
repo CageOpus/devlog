@@ -1,11 +1,16 @@
 baseURL = 'http://localhost:1313/'
-title = 'CAGE — Devlog'
+# 站名。全名給 RSS、分享預覽、標誌的無障礙名稱用；網頁標題與主畫面名稱見下面 [params] 的 gameName / shortName
+title = 'City Architect: Golden Era — Devlog'
 theme = "cage"
 defaultContentLanguage = 'en'
 # 中文沒有空白分詞，要開這個字數與閱讀時間才會一字一字算
 hasCJKLanguage = true
 
 [params]
+  # 網頁標題：首頁「Devlog | {gameName}」，其他頁「{頁面標題} | {gameName}」（見 layouts/partials/head.html）
+  gameName = "City Architect: Golden Era"
+  # 加到主畫面時圖示下的名稱（約 12 字元以內才不會被截）；static/manifest.webmanifest 的 short_name 要一起改
+  shortName = "CAGE — Devlog"
   author = "Ray Chung"
   authorRole = "SOLO DEV · TAIPEI"
   build = "0.0.1"

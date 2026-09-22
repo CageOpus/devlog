@@ -5,6 +5,7 @@
 //   4. 手機底部導覽列在 Safari 工具列收放時讓位
 //   5. 橫屏 rail 的返回鍵
 //   6. 瀏覽器語言跟這一頁不同、但有對應的譯本時，把語言切換鍵按三下提示
+//   7. 「加入主畫面」鍵與說明面板
 
 (function initThemeSwitch() {
   const root = document.documentElement;
@@ -183,5 +184,59 @@
     const primary = siteTag.toLowerCase().split("-")[0];
     if (primary === "zh") return /^zh-(tw|hk|mo|hant)\b/.test(browser);
     return browser.split("-")[0] === primary;
+  }
+})();
+
+(function initInstall() {
+  const button = document.querySelector("[data-install]");
+  const dialog = document.querySelector("[data-install-dialog]");
+  if (!button || !dialog) return;
+
+  // 已經是從主畫面開啟的就不必再提示
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  if (standalone) return;
+
+  const platform = detectPlatform();
+  if (!platform) return;
+  dialog.querySelector(`[data-install-platform="${platform}"]`).hidden = false;
+  button.hidden = false;
+
+  // Chromium 符合安裝條件時會先發 beforeinstallprompt：留著，按鍵時直接叫出系統的安裝視窗
+  let installPrompt = null;
+  addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    installPrompt = event;
+  });
+  addEventListener("appinstalled", () => {
+    button.hidden = true;
+  });
+
+  button.addEventListener("click", async () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      installPrompt = null;
+      return;
+    }
+    dialog.showModal();
+    dialog.focus();
+  });
+
+  // 點面板外面（backdrop）也關掉
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  // 對應 partials/install-dialog.html 的四組步驟；Firefox 桌面版不支援安裝網頁，回傳 null 不顯示按鍵
+  function detectPlatform() {
+    const ua = navigator.userAgent;
+    // iPadOS 的 Safari 預設回報成 Mac，用觸控點數分辨
+    const isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    if (isIOS) return "ios";
+    if (/Android/.test(ua)) return "android";
+    if (/Firefox\//.test(ua)) return null;
+    const isMacSafari = /Macintosh/.test(ua) && /Safari\//.test(ua) && !/Chrome|Chromium|Edg\//.test(ua);
+    if (isMacSafari) return "mac-safari";
+    return "desktop";
   }
 })();

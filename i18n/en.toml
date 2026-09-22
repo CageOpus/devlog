@@ -16,6 +16,21 @@ prevPage = "Previous"
 nextPage = "Next"
 postPager = "Older / newer post"
 
+# 加入主畫面：依裝置只顯示其中一組步驟（見 layouts/partials/install-dialog.html）
+installApp = "Add to Home Screen"
+installIntro = "Opens full screen, like an app, without the browser toolbars."
+close = "Close"
+installIos1 = "Tap the Share button (in newer Safari it's inside the ⋯ menu next to the address bar)."
+installIos2 = "Scroll down and choose “Add to Home Screen”."
+installIos3 = "Tap “Add” in the top-right corner."
+installAndroid1 = "Tap the ⋮ menu in the top-right corner."
+installAndroid2 = "Choose “Add to Home screen” or “Install app”."
+installAndroid3 = "Confirm with “Add” or “Install”."
+installMacSafari1 = "In the menu bar, open File."
+installMacSafari2 = "Choose “Add to Dock”."
+installDesktop1 = "Click the install icon at the right end of the address bar, or open the browser menu."
+installDesktop2 = "Choose “Install page as app”."
+
 notFoundText = "This road isn't on the plan."
 backHome = "Back to home"
 

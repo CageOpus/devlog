@@ -709,3 +709,91 @@
     display: none;
   }
 }
+
+/* 「加入主畫面」鍵：狀態列只有 24 高，鍵本身壓到 18；
+   手機上主要是給手指按的，用透明的 ::before 往外擴出 44 高的觸控範圍 */
+.site-footer__install {
+  position: relative;
+  height: 18px;
+  padding: 0 9px;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-xs);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* .cage-btn 設了 display，會蓋掉 hidden 屬性本來的 display: none */
+.site-footer__install[hidden] {
+  display: none;
+}
+
+.site-footer__install::before {
+  content: "";
+  position: absolute;
+  inset: -13px -4px;
+}
+
+/* ── 加入主畫面說明面板 ── */
+.install-dialog {
+  width: min(420px, calc(100% - 2 * var(--page-pad-x, 16px)));
+  max-height: calc(100% - 32px);
+  margin: auto;
+  padding: 0;
+  color: var(--ink);
+}
+
+/* 焦點在面板本身時不畫框；裡面的按鍵照常顯示焦點 */
+.install-dialog:focus {
+  outline: none;
+}
+
+.install-dialog::backdrop {
+  background: rgb(0 0 0 / .45);
+}
+
+.install-dialog .cage-panel__bar {
+  justify-content: space-between;
+}
+
+.install-dialog__close {
+  display: contents;
+}
+
+.install-dialog__intro {
+  margin: 0 0 15px;
+  font-family: var(--font-cjk);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--label);
+}
+
+/* 步驟：左邊是等寬的序號，跟頁面上其他讀數同一種字 */
+.install-dialog__steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+  font-family: var(--font-cjk);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.install-dialog__steps li {
+  display: flex;
+  gap: 11px;
+  counter-increment: step;
+}
+
+.install-dialog__steps li + li {
+  margin-top: 9px;
+}
+
+.install-dialog__steps li::before {
+  content: counter(step, decimal-leading-zero);
+  flex: none;
+  padding-top: 3px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--label);
+  text-shadow: var(--cut-text);
+}

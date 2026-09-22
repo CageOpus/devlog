@@ -1,0 +1,33 @@
+{{- /* 「加入主畫面」說明面板，由狀態列的 [data-install] 鍵打開（js/devlog.js）。
+       四組步驟都先印出來，js 依裝置只留一組（data-install-platform）：
+         ios          iPhone / iPad（Safari 與其他 iOS 瀏覽器都是從「分享」加入）
+         android      Android 的瀏覽器
+         mac-safari   Mac 上的 Safari
+         desktop      其他桌面瀏覽器（Chrome、Edge）
+       Chromium 有抓到 beforeinstallprompt 時，js 直接叫出系統的安裝視窗，不開這個面板。
+       打開時 js 把焦點放在面板本身（tabindex="-1"），報讀器從標題開始念；
+       瀏覽器預設會聚焦第一顆按鍵「關閉」，而 Chrome 不理會 dialog 上的 autofocus，所以不靠它。 */ -}}
+{{- $platforms := slice
+  (dict "id" "ios" "steps" (slice "installIos1" "installIos2" "installIos3"))
+  (dict "id" "android" "steps" (slice "installAndroid1" "installAndroid2" "installAndroid3"))
+  (dict "id" "mac-safari" "steps" (slice "installMacSafari1" "installMacSafari2"))
+  (dict "id" "desktop" "steps" (slice "installDesktop1" "installDesktop2"))
+}}
+<dialog class="install-dialog cage-panel" aria-labelledby="install-dialog-title" tabindex="-1" data-install-dialog>
+  <div class="cage-panel__bar">
+    <span class="cage-panel__title" id="install-dialog-title">{{ T "installApp" }}</span>
+    <form method="dialog" class="install-dialog__close">
+      <button class="cage-btn cage-face cage-btn--icon" aria-label="{{ T "close" }}">×</button>
+    </form>
+  </div>
+  <div class="cage-panel__body">
+    <p class="install-dialog__intro">{{ T "installIntro" }}</p>
+    {{- range $platforms }}
+    <ol class="install-dialog__steps" data-install-platform="{{ .id }}" hidden>
+      {{- range .steps }}
+      <li>{{ T . }}</li>
+      {{- end }}
+    </ol>
+    {{- end }}
+  </div>
+</dialog>

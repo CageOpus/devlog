@@ -7,7 +7,15 @@
 <meta name="robots" content="noindex, nofollow">
 {{- end }}
 
-<title>{{ if not .IsHome }}{{ with .Title }}{{ . }} | {{ end }}{{ end }}{{ site.Title }}</title>
+{{- /* 網頁標題：「{頁面} | {遊戲名}」，首頁的頁面是 Devlog。
+       頁面標題跟遊戲名一樣時（關於頁），改用選單上的名稱，免得同一個名字印兩次。 */}}
+{{- $pageTitle := cond .IsHome "Devlog" .Title }}
+{{- if eq $pageTitle site.Params.gameName }}
+  {{- range site.Menus.main }}
+    {{- if $.IsMenuCurrent "main" . }}{{ $pageTitle = .Name }}{{ end }}
+  {{- end }}
+{{- end }}
+<title>{{ $pageTitle }} | {{ site.Params.gameName }}</title>
 <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ if .IsPage }}{{ .Summary | plainify }}{{ else }}{{ site.Params.description }}{{ end }}{{ end }}">
 <meta name="author" content="{{ partial "author.html" . }}">
 <link rel="canonical" href="{{ .Permalink }}">
@@ -19,12 +27,19 @@
 {{- /* 瀏海帶與假螢幕邊框同為純黑；加到主畫面時頁首直接長進安全區 */}}
 <meta name="theme-color" content="#000">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="CAGE Devlog">
+<meta name="apple-mobile-web-app-title" content="{{ site.Params.shortName }}">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 {{- /* 加到主畫面後，manifest 的 scope 決定哪些網址留在 app 裡。沒有 manifest 時 iOS 只把「加入時那一頁的目錄」
        當成範圍，點到範圍外的連結會跳出系統瀏覽器的面板。start_url / scope 寫相對路徑，
        部署到 GitHub Pages 的子路徑也成立。 */}}
 <link rel="manifest" href="{{ "manifest.webmanifest" | relURL }}">
+
+{{- /* 圖示照 identity kit 的 App icon 規格輸出（static/icons/）：金屬板 + 刻在上面的標誌，64 px 以下用簡化標誌。
+       apple-touch-icon 與 maskable 是滿版方形，形狀由系統自己裁（iOS 裁出來就是蘋果的方圓形；
+       先裁好的話，iOS 會把透明的四角填黑）。
+       favicon 與 manifest 的 192 / 512 已經裁成蘋果的方圓形：連續曲率圓角，半徑為邊長的 22.37%，四角透明。 */}}
+<link rel="icon" type="image/png" sizes="32x32" href="{{ "icons/favicon-32.png" | relURL }}">
+<link rel="apple-touch-icon" href="{{ "icons/apple-touch-icon.png" | relURL }}">
 
 {{- range .AlternativeOutputFormats }}
 <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ site.Title }}">
@@ -40,8 +55,16 @@
   })();
 </script>
 
+{{- /* 字體：設計系統的 tokens/fonts.css 只有一行 @import Google Fonts。直接照載會排成一條鏈
+       （fonts.css → Google 的字體 CSS → 字體檔），所以改在這裡直接 <link> 那個網址，並先跟兩個網域建立連線。
+       網址從 fonts.css 讀出來，設計系統換字體時這裡不用跟著改；fonts.css 本身不再載入。 */}}
+{{- $fontsURL := index (index (findRESubmatch `@import url\("([^"]+)"\)` (os.ReadFile "static/ds/tokens/fonts.css") 1) 0) 1 }}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="{{ $fontsURL }}">
+
 {{- /* CAGE 設計系統：原封放在 static/ds/，材質圖以相對路徑引用，所以不能進 Hugo pipeline 合併 */}}
-{{- range slice "tokens/fonts" "tokens/colors" "tokens/typography" "tokens/spacing" "tokens/surfaces" "parts/base" "parts/chassis" "parts/sheet" "parts/prose" }}
+{{- range slice "tokens/colors" "tokens/typography" "tokens/spacing" "tokens/surfaces" "parts/base" "parts/chassis" "parts/sheet" "parts/prose" }}
 <link rel="stylesheet" href="{{ printf "ds/%s.css" . | relURL }}">
 {{- end }}
 

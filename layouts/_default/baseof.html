@@ -11,6 +11,7 @@
     {{- block "main" . }}{{ end }}
   </main>
   {{- partial "footer.html" . }}
+  {{- partial "install-dialog.html" . }}
   {{- partial "bottom-nav.html" . }}
   {{- partial "rail-nav.html" . }}
   {{- $js := resources.Get "js/devlog.js" }}
