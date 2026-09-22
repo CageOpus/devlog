@@ -8,6 +8,13 @@
      ≤ 767    手機：mobile 頁首 + 底部導覽列 */
 
 :root {
+  /* 中文字體：設計系統指定 IBM Plex Sans TC，但 Google Fonts 沒有收錄，實際一直退回系統字體。
+     英文字母仍由 IBM Plex Sans 負責（Plex Sans TC 裡的拉丁字母本來就是 Plex），中文字依序找：
+     蘋方（Apple 裝置內建）→ Noto Sans TC（在 head.html 載入，給沒有蘋方的裝置）。 */
+  --font-cjk-stack: 'PingFang TC', 'Noto Sans TC';
+  --font-cjk: 'IBM Plex Sans', var(--font-cjk-stack), sans-serif;
+  --font-ui: 'IBM Plex Sans', var(--font-cjk-stack), system-ui, sans-serif;
+
   /* 頁首、標籤列、內文、狀態列共用同一條左右邊距 */
   --gutter: 46px;
   /* 底部導覽列佔掉的高度（只有手機有） */

@@ -57,8 +57,10 @@
 
 {{- /* 字體：設計系統的 tokens/fonts.css 只有一行 @import Google Fonts。直接照載會排成一條鏈
        （fonts.css → Google 的字體 CSS → 字體檔），所以改在這裡直接 <link> 那個網址，並先跟兩個網域建立連線。
-       網址從 fonts.css 讀出來，設計系統換字體時這裡不用跟著改；fonts.css 本身不再載入。 */}}
+       網址從 fonts.css 讀出來，設計系統換字體時這裡不用跟著改；fonts.css 本身不再載入。
+       唯一的例外：IBM Plex Sans TC 不在 Google Fonts 上，換成 Noto Sans TC（字體變數見 css/devlog/01-base.css）。 */}}
 {{- $fontsURL := index (index (findRESubmatch `@import url\("([^"]+)"\)` (os.ReadFile "static/ds/tokens/fonts.css") 1) 0) 1 }}
+{{- $fontsURL = replace $fontsURL "family=IBM+Plex+Sans+TC:" "family=Noto+Sans+TC:" }}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{{ $fontsURL }}">
