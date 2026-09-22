@@ -4,18 +4,24 @@ title = 'CAGE — Devlog'
 theme = "cage"
 
 [params]
-  subtitle = "CITY ARCHITECT : GOLDEN ERA"
   author = "Ray Chung"
+  authorRole = "SOLO DEV · TAIPEI"
   build = "0.0.1"
-  defaultTheme = "dark"
-  disableThemeToggle = true
-  ShowReadingTime = true
-  ShowWordCount = true
-  ShowPostNavLinks = true
+  stack = "RUST + WGPU"
+  disableThemeToggle = false
   mainSections = ["posts"]
+
+  # 頁首標準字組
+  [params.brand]
+    title = "City Architect"
+    subtitle = "Golden Era"
 
 [markup.goldmark.renderer]
   unsafe = true
+
+# 讓獨立成段的圖片交給 render-image 的 block 分支（輸出 figure 而不是包在 <p> 裡）
+[markup.goldmark.parser]
+  wrapStandAloneImageWithinParagraph = false
 
 [markup.goldmark.extensions.cjk]
   enable = true
@@ -30,10 +36,12 @@ theme = "cage"
 
 [menu]
   [[menu.main]]
-    name = "Posts"
-    url = "/posts/"
+    identifier = "posts"
+    name = "文章"
+    pageRef = "/posts"
     weight = 10
   [[menu.main]]
-    name = "About"
-    url = "/about/"
+    identifier = "about"
+    name = "關於"
+    pageRef = "/about"
     weight = 20

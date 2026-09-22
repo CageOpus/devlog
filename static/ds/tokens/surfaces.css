@@ -1,0 +1,125 @@
+/* Material. Tiles are LOCKED — regenerate only via assets/textures/generate.html.
+
+   ⚠ DO NOT USE --tex-metal / --tex-anod / --tex-vellum IN NEW CODE.
+   A url() passed through a custom property is resolved against the PAGE that
+   substitutes it, not against this file, so these three tokens 404 on every page
+   except one at depth 1. They are kept only so existing references still parse.
+   Use the .cage-mat-* utility classes (parts/chassis.css) or an existing part
+   class instead — those carry the path in a real declaration, where it resolves
+   against the stylesheet and is reliable at any depth. See CLAUDE.md. */
+:root{
+--tex-metal:url("../assets/textures/brushed-aluminium.png"); /* @kind other */
+--tex-anod:url("../assets/textures/anodised.png"); /* @kind other */
+--tex-vellum:url("../assets/textures/vellum.png"); /* @kind other */
+
+/* locked grain settings: grainScale 5, grainStrength 7 */
+--grain-px:270px;--grain-mute:32%; /* @kind spacing */
+/* ⚠ --metal-tile-sunk IS DEPRECATED. Pressed and selected keys use --metal-tile: a key
+   does not change its brush when you press it. No rule references it any more; it is kept
+   only so existing references still parse. Do not use it for control states. */
+--metal-tile:108px;--metal-tile-sunk:116px;--metal-tile-bar:150px;--metal-tile-wide:190px; /* @kind spacing */
+
+--card-shadow:0 10px 26px rgba(40,36,28,.12);
+--fig-shadow:0 2px 6px rgba(40,36,28,.14);
+--inset-well:inset 0 1px 3px rgba(0,0,0,.1);
+--inset-recess:inset 0 1px 2px rgba(0,0,0,.18);
+
+/* the convex aluminium face — one specular sweep, reused on every raised control.
+   The falloff must be MONOTONIC top to bottom: a dome, not a crease. Two things break it,
+   and both read as a ridge rather than as roundness — an abrupt white→black crossover near
+   the middle (the old .06 white at 44% → .05 black at 52%), and ANY white stop at 100%
+   (the old .5, then .13). The bottom bounce light is the job of --btn-raised's inset lip,
+   which only raised controls carry; putting it in the face gradient puts a bright band
+   along the bottom of every surface that uses the sweep, .cage-mat-key included. */
+--face-convex:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.46) 7%,rgba(255,255,255,.2) 22%,rgba(255,255,255,.07) 40%,rgba(255,255,255,0) 56%,rgba(0,0,0,.028) 72%,rgba(0,0,0,.05) 90%,rgba(0,0,0,.06) 100%); /* @kind other */
+/* ⚠ --face-sunk IS DEPRECATED — DO NOT USE IT FOR CONTROL STATES. It is a concave dish:
+   dark at the top fading to nothing, which makes a pressed key read as a bowl rather than
+   as the same convex key lowered into its frame. All three control states now share
+   --face-convex and take their depth from --btn-raised / --btn-sunk / --btn-pressed. No rule
+   references this any more; it is kept only so existing references still parse. */
+--face-sunk:linear-gradient(180deg,rgba(0,0,0,.30) 0%,rgba(0,0,0,.14) 6%,rgba(0,0,0,.04) 15%,rgba(0,0,0,0) 27%),linear-gradient(180deg,rgba(255,255,255,.54) 0%,rgba(255,255,255,.22) 7%,rgba(255,255,255,.02) 46%,rgba(0,0,0,.055) 54%,rgba(0,0,0,.05) 84%,rgba(255,255,255,.3) 100%); /* @kind other */
+--face-bar:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,.32) 38%,rgba(0,0,0,.04) 90%,rgba(0,0,0,.09) 100%); /* @kind other */
+--face-casing:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,0) 40%,rgba(0,0,0,.06)); /* @kind other */
+
+/* engraved lettering — the glyph reads as a groove cut into the metal */
+--cut-text:0 -1px 0 rgba(0,0,0,.16),0 1px 0 rgba(255,255,255,.95); /* @kind shadow */
+--cut-text-sunk:0 -1px 0 rgba(0,0,0,.3),0 1px 0 rgba(255,255,255,.6); /* @kind shadow */
+
+/* machined seam: every joint is a groove with a lit lip, not a flat rule */
+--seam-h:0 1px 0 rgba(255,255,255,.66),0 3px 5px -3px rgba(0,0,0,.2); /* @kind shadow */
+--seam-v:1px 0 0 rgba(255,255,255,.55),-1px 0 1px -1px rgba(0,0,0,.12); /* @kind shadow */
+
+/* A pressed key does not become a concave dish. It is the SAME convex piece of metal,
+   lowered into its opening: the frame's upper lip now casts a hard, short shadow across
+   the top of the face, the sides pick up a little contact shade, and the bottom goes
+   slightly dark too — light from above cannot reach the far side of a well. So all three
+   states share --face-convex and differ only in shadow and face value. Do not add a lit
+   lip at the bottom of a sunk key: that is the FRAME's lip, and it reads as a glowing dish.
+
+   raised: proud, catches the highlight, casts down onto the chassis.
+   pressed: bottomed out. Hardest cast from the lip, darkest face, no outer shadow.
+   selected: the same geometry, about half as deep. */
+--btn-raised:inset 0 1px 0 rgba(255,255,255,.98),inset 1px 0 0 rgba(255,255,255,.5),inset -1px 0 0 rgba(255,255,255,.5),inset 0 -1px 1px rgba(0,0,0,.16),0 1px 2px rgba(40,36,28,.34); /* @kind shadow */
+--btn-sunk:inset 0 1px 0 rgba(0,0,0,.2),inset 0 3px 4px -2px rgba(0,0,0,.34),inset 1px 0 2px -1px rgba(0,0,0,.14),inset -1px 0 2px -1px rgba(0,0,0,.14),inset 0 -1px 2px -1px rgba(0,0,0,.1); /* @kind shadow */
+--btn-pressed:inset 0 1px 0 rgba(0,0,0,.32),inset 0 5px 6px -3px rgba(0,0,0,.52),inset 1px 0 2px -1px rgba(0,0,0,.22),inset -1px 0 2px -1px rgba(0,0,0,.22),inset 0 -2px 3px -2px rgba(0,0,0,.18); /* @kind shadow */
+--inset-recess-press:inset 0 3px 5px -1px rgba(0,0,0,.3); /* @kind shadow */
+--well-proud:inset 0 1px 0 rgba(255,255,255,.92),inset 1px 0 0 rgba(255,255,255,.5),inset -1px 0 0 rgba(30,28,22,.1),inset 0 -1px 0 rgba(30,28,22,.16),1px 2px 0 rgba(30,28,22,.26),1px 3px 1px -1px rgba(30,28,22,.3),2px 5px 4px -3px rgba(30,28,22,.3); /* @kind shadow */
+
+/* the edge is the key's frame, not part of its face: it does not darken when the key goes
+   in. It holds still and catches a little more light — --btn-edge-lit on both sunk states. */
+--btn-face:#E4E0D5;--btn-face-sunk:#CFCBC0;--btn-face-press:#C2BEB3;--btn-edge:#9A958C;--btn-edge-lit:#A9A49B;--well-edge:#A39E95; /* @kind color */
+
+/* key travel · the only easing in the system besides the switch knob. Down is INSTANT —
+   a key bottoms out, it does not ease into the bottom, and a trackpad tap is only 2-3
+   frames long, so any down-duration at all would be cut off before it arrived. All the
+   motion is in the release, which overshoots a fraction on the way back up. */
+--press-in:0ms; /* @kind other */
+--press-hold:110ms; /* @kind other */
+--press-out:130ms; /* @kind other */
+--ease-press:linear; /* @kind other */
+--ease-settle:cubic-bezier(.16,1.7,.36,1); /* @kind other */
+/* the press travels along Z — the key recedes from the viewer. Never a Y offset: sliding
+   down the page reads as the whole control moving, not as a key going into its frame. */
+/* knobs · a knob is a small part held between two fingers, not a key struck with one. It
+   does not travel and it does not change its lighting: it ROCKS. It sits loose in its
+   clearance and turns on its axis when you push it. A plain Z rotation, so the knob keeps
+   its exact shape — no skew, no shear, no parallelogram. It pivots up on its inboard bottom
+   corner, so the outboard edge LIFTS rather than the part sinking. Keep it small: this is a
+   tolerance, not a gesture. `rotate` is an individual
+   transform property, so it composes with a knob's own `transform` instead of overwriting. */
+/* the throw · the knob and the plate are ONE part, so every property that moves on a
+   throw uses exactly this duration and curve. Never give the two different timing: the
+   plate overshooting while the knob runs straight is the assembly coming apart.
+   No overshoot: the assembly ends against a HARD STOP. A switch that bounces past its
+   stop and settles back is a switch with nothing at the end of its groove — the curve
+   drives hard and arrives, and the legend and dye band arrive with it. */
+--throw-dur:130ms; /* @kind other */
+--ease-throw:cubic-bezier(.22,.85,.3,1); /* @kind other */
+--knob-press-tilt:-1.8deg; /* @kind other */
+--knob-press-origin:14% 100%; /* @kind other */
+--press-recede:.992; /* @kind other */
+}
+[data-theme="dark"]{
+--cut-text:0 -1px 1px rgba(0,0,0,.62),0 1px 0 rgba(255,255,255,.22); /* @kind shadow */
+--cut-text-sunk:0 -1px 1px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.16); /* @kind shadow */
+--seam-h:0 1px 0 rgba(255,255,255,.13),0 3px 6px -3px rgba(0,0,0,.55); /* @kind shadow */
+--seam-v:1px 0 0 rgba(255,255,255,.11),-1px 0 1px -1px rgba(0,0,0,.45); /* @kind shadow */
+--btn-raised:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 1px rgba(0,0,0,.5),0 1px 2px rgba(0,0,0,.55); /* @kind shadow */
+--btn-sunk:inset 0 1px 0 rgba(0,0,0,.45),inset 0 3px 5px -2px rgba(0,0,0,.6),inset 1px 0 2px -1px rgba(0,0,0,.36),inset -1px 0 2px -1px rgba(0,0,0,.36),inset 0 -1px 2px -1px rgba(0,0,0,.28); /* @kind shadow */
+--btn-pressed:inset 0 1px 0 rgba(0,0,0,.62),inset 0 5px 7px -3px rgba(0,0,0,.82),inset 1px 0 2px -1px rgba(0,0,0,.5),inset -1px 0 2px -1px rgba(0,0,0,.5),inset 0 -2px 3px -2px rgba(0,0,0,.4); /* @kind shadow */
+--inset-recess-press:inset 0 3px 6px -1px rgba(0,0,0,.6); /* @kind shadow */
+--well-proud:inset 0 1px 0 rgba(255,255,255,.22),inset 1px 0 0 rgba(255,255,255,.12),inset -1px 0 0 rgba(0,0,0,.34),inset 0 -1px 0 rgba(0,0,0,.5),1px 2px 0 rgba(0,0,0,.6),1px 3px 1px -1px rgba(0,0,0,.65),2px 6px 5px -3px rgba(0,0,0,.6); /* @kind shadow */
+--btn-face:#3F3F3D;--btn-face-sunk:#2B2B2A;--btn-face-press:#201F1F;--btn-edge:#0A0A0A;--btn-edge-lit:#2F2F2D;--well-edge:#0F0F0E; /* @kind color */
+--face-convex:linear-gradient(180deg,rgba(255,255,255,.26) 0%,rgba(255,255,255,.13) 7%,rgba(255,255,255,.06) 24%,rgba(255,255,255,.02) 44%,rgba(255,255,255,0) 58%,rgba(0,0,0,.08) 74%,rgba(0,0,0,.17) 90%,rgba(0,0,0,.22) 100%); /* @kind other */
+--face-sunk:linear-gradient(180deg,rgba(0,0,0,.58) 0%,rgba(0,0,0,.3) 6%,rgba(0,0,0,.09) 15%,rgba(0,0,0,0) 27%),linear-gradient(180deg,rgba(255,255,255,.17) 0%,rgba(255,255,255,.06) 7%,rgba(255,255,255,.012) 46%,rgba(0,0,0,.1) 64%,rgba(0,0,0,.17) 100%); /* @kind other */
+--face-bar:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.05) 40%,rgba(0,0,0,.16) 100%); /* @kind other */
+--face-casing:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,0) 40%,rgba(0,0,0,.16)); /* @kind other */
+}
+
+/* grain scale / strength ladders, in case a surface needs retuning in place */
+[data-gsize="1"]{--grain-px:50px}[data-gsize="2"]{--grain-px:90px}[data-gsize="3"]{--grain-px:140px}
+[data-gsize="4"]{--grain-px:200px}[data-gsize="5"]{--grain-px:270px}[data-gsize="6"]{--grain-px:350px}
+[data-gsize="7"]{--grain-px:440px}[data-gsize="8"]{--grain-px:560px}[data-gsize="9"]{--grain-px:700px}[data-gsize="10"]{--grain-px:880px}
+[data-gstr="1"]{--grain-mute:90%}[data-gstr="2"]{--grain-mute:82%}[data-gstr="3"]{--grain-mute:73%}
+[data-gstr="4"]{--grain-mute:62%}[data-gstr="5"]{--grain-mute:52%}[data-gstr="6"]{--grain-mute:42%}
+[data-gstr="7"]{--grain-mute:32%}[data-gstr="8"]{--grain-mute:21%}[data-gstr="9"]{--grain-mute:10%}[data-gstr="10"]{--grain-mute:0%}

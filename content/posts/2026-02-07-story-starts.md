@@ -2,6 +2,8 @@
 date = '2026-02-07T22:09:55+08:00'
 draft = false
 title = 'Devlog #0 -- Story Starts Here'
+milestone = 'M0'
+eyebrow = 'DEVLOG #0'
 +++
 
 [繁體中文](#開發日誌-0--一切的起點)

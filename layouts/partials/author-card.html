@@ -1,0 +1,10 @@
+{{- /* 作者卡：鍵帽上刻簡化標誌 + 名字與身分。
+       側邊欄裡是直式；側邊欄收起來（< 1280）時同一份 DOM 改成橫式（見 css/devlog/03-layout.css）。 */ -}}
+<div class="author-card cage-well">
+  <div class="author-card__label cage-well__label">Written by 作者</div>
+  <div class="author-card__key cage-mat-key" aria-hidden="true">
+    <svg viewBox="276 38 501 384"><use href="#mkSEng"></use></svg>
+  </div>
+  <div class="author-card__name">{{ site.Params.author }}</div>
+  <div class="author-card__role">{{ site.Params.authorRole }}</div>
+</div>

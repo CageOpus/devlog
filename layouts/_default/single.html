@@ -1,63 +1,36 @@
 {{- define "main" }}
-<div class="cage-page">
-  <article class="col-main cage-card cage-article">
-    <div class="cage-article__eyebrow">
-      {{ .Section | upper }}{{ with .Params.milestone }} · MILESTONE {{ . }}{{ end }}
-    </div>
-    <h1>{{ .Title }}</h1>
-    {{- if not (.Param "hideMeta") }}
-    <div class="cage-article__meta">
-      <span>{{ .Date.Format "2006 · 01 · 02" }}</span>
-      {{- with .ReadingTime }} · <span>{{ . }} MIN</span>{{ end }}
-      {{- with .WordCount }} · <span>{{ . }} WORDS</span>{{ end }}
-      {{- with partial "author.html" . }} · <span>{{ . | upper }}</span>{{ end }}
-    </div>
-    {{- end }}
+<div class="page page--article">
+  <article class="page__main article cage-well">
+    {{- partial "article-heading.html" . }}
 
-    {{- if .Description }}
-    <p class="cage-article__lede" style="font-style: italic; font-size: 20px; color: var(--ink-1); margin-bottom: 28px;">{{ .Description }}</p>
-    {{- end }}
-
-    {{- if .Content }}
-    <div class="cage-article__prose">
-      {{- if not (.Param "disableAnchoredHeadings") }}
-      {{- partial "anchored_headings.html" .Content -}}
-      {{- else }}{{ .Content }}{{ end }}
+    <div class="article__meta">
+      {{- $items := slice (.Date.Format "2006 · 01 · 02") (printf "%d MIN" .ReadingTime) (printf "%d WORDS" .WordCount) (partial "author.html" . | upper) }}
+      {{- range $i, $item := $items }}
+      {{- if $i }}<span class="article__meta-sep">·</span>{{ end }}<span>{{ $item }}</span>
+      {{- end }}
     </div>
-    {{- end }}
 
-    <footer class="article__end" style="margin-top: 48px; padding-top: 22px; border-top: 1px solid oklch(0.95 0.02 220 / 0.10); display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-between;">
-      {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
-      <div class="article__tags" style="display: flex; gap: 18px; font-family: var(--font-ui); font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-3);">
-        {{- range ($.GetTerms $tags) }}
-        <a href="{{ .Permalink }}" style="color: inherit; text-decoration: none;"><span>◇ {{ .LinkTitle | upper }}</span></a>
+    {{- with .Description }}
+    <p class="article__lede cage-lede">{{ . }}</p>
+    {{- end }}
+    <hr class="article__rule">
+
+    <div class="article__body cage-prose">
+      {{- .Content }}
+    </div>
+
+    <footer class="article__footer">
+      {{- with .GetTerms "tags" }}
+      <div class="article__tags">
+        {{- range . }}
+        <a class="cage-tag" href="{{ .RelPermalink }}">{{ .LinkTitle | upper }}</a>
         {{- end }}
       </div>
+      {{- end }}
+      {{- partial "post-pager.html" . }}
     </footer>
-
-    {{- if (.Param "ShowPostNavLinks") }}
-    {{- partial "post_nav_links.html" . }}
-    {{- end }}
   </article>
 
-  {{- partial "cage_side.html" . }}
+  {{- partial "side-rail.html" . }}
 </div>
-
-<script>
-  (function () {
-    const readEl = document.querySelector('[data-cage-read]');
-    const article = document.querySelector('.cage-article__prose');
-    if (!readEl || !article) return;
-    function update() {
-      const rect = article.getBoundingClientRect();
-      const total = article.scrollHeight - window.innerHeight + 200;
-      const scrolled = Math.max(0, -rect.top + 200);
-      const pct = Math.min(100, Math.max(0, (scrolled / Math.max(1, total)) * 100));
-      readEl.textContent = Math.round(pct) + '%';
-    }
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-  })();
-</script>
 {{- end }}

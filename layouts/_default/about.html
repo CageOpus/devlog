@@ -1,0 +1,30 @@
+{{- /* 關於頁：沒有日期、字數與上下篇；front matter 的 specs 畫成底部的規格表。 */ -}}
+{{- define "main" }}
+<div class="page page--article">
+  <article class="page__main article cage-well">
+    {{- partial "article-heading.html" . }}
+
+    {{- with .Description }}
+    <p class="article__lede cage-lede">{{ . }}</p>
+    {{- end }}
+    <hr class="article__rule">
+
+    <div class="article__body cage-prose">
+      {{- .Content }}
+    </div>
+
+    {{- with .Params.specs }}
+    <dl class="spec-sheet">
+      {{- range . }}
+      <div class="spec-sheet__item">
+        <dt>{{ .label }}</dt>
+        <dd>{{ .value }}</dd>
+      </div>
+      {{- end }}
+    </dl>
+    {{- end }}
+  </article>
+
+  {{- partial "side-rail.html" . }}
+</div>
+{{- end }}

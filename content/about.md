@@ -1,8 +1,14 @@
 +++
 title = 'City Architect: Golden Era'
 date = '2026-04-25'
-hideMeta = false
-hiddenInHomeList = true
+layout = 'about'
+eyebrow = 'RUST + WGPU · 1 000 000 AGENTS'
+specs = [
+  { label = 'Engine', value = 'RUST + WGPU · BEVY ECS' },
+  { label = 'Agents', value = '1 000 000' },
+  { label = 'Map', value = '10 × 10 km' },
+  { label = 'Era', value = '1980s TAIPEI' },
+]
 +++
 
 一座城市。

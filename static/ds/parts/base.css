@@ -1,0 +1,16 @@
+/* CAGE base. The backdrop is the desk the instrument sits on. */
+.cage{font-family:var(--font-ui);color:var(--text-body);-webkit-font-smoothing:antialiased}
+.cage svg{display:block}
+a{color:var(--link);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:.16em;text-decoration-color:color-mix(in srgb,var(--link) 45%,transparent)}
+a:hover{color:var(--link-hover);text-decoration-color:var(--link-hover)}
+.cage-backdrop{background:var(--backdrop)}
+.cage-mono{font-family:var(--font-mono);font-size:var(--text-mono);color:var(--label)}
+.cage-caption{font-family:var(--font-mono);font-size:var(--text-mono-sm);line-height:var(--leading-ui);color:var(--label)}
+/* the label face: uppercase, tracked, never a sentence */
+.cage-label{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-label);font-size:var(--text-label-sm);color:var(--label)}
+.cage-label--bar{font-size:var(--text-label-lg);letter-spacing:var(--track-bar);color:var(--ink)}
+.cage-label--legend{font-size:var(--text-label);letter-spacing:var(--track-legend);color:var(--ink)}
+.cage-wordmark{font-family:var(--font-label);font-weight:var(--weight-semibold);font-size:var(--text-wordmark);letter-spacing:var(--track-wordmark);color:var(--ink)}
+.cage-rule{height:var(--hair);background:var(--edge-soft);box-shadow:0 1px 0 rgba(255,255,255,.6),0 -1px 1px -1px rgba(0,0,0,.14)}
+[data-theme="dark"] .cage-rule{box-shadow:0 1px 0 rgba(255,255,255,.12),0 -1px 1px -1px rgba(0,0,0,.5)}
+.cage-vrule{width:var(--hair);background:var(--edge-soft);box-shadow:var(--seam-v)}

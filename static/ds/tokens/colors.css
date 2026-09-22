@@ -1,0 +1,95 @@
+/* CAGE colour. Four layers; layer assignment governs colour, type and material.
+   Mixing layers is the primary failure mode. Bright is the default, Dim is a scope. */
+:root{
+/* ── layer 1 · CHASSIS · brushed aluminium and engineering plastic, near-zero chroma ── */
+--chassis:#DCD8CE;--chassis-hi:#EFECE5;--chassis-lo:#C7C3B9;
+--edge:#ACA8A0;--edge-soft:#C3BFB6;
+--ink:#24231F;--label:#605C55;
+--recess:#CFCBC1;--btn-a:#F4F1EA;--btn-b:#DDD9CF;
+/* dyed · an energised slot is DYED aluminium: black anodising, but not taken to full depth
+   — the dye has to stay light enough that the anodised grain still reads through it.
+   Near-zero chroma, so layer 1 still carries no hue and the state is read off value alone.
+   Text on it goes to --ink-on-dyed, the only place layer 1 inverts. */
+--slot-dyed:#5C5749;--slot-dyed-lo:#4B4739;--ink-on-dyed:#EFECE5;
+--desk:#E7E3D8;--rule:#ACA8A0;
+--backdrop:#8E8A7E;
+/* ── the page pair · a document is a PLATE sitting on a FIELD. Two tokens, because the
+   --desk ↔ --chassis lightness order inverts between modes, so neither can play both
+   parts: in Bright the desk is the lighter thing, in Dim it is the darkest thing in the
+   room. --ground is the field, --well is the plate proud of it. Prose surfaces take
+   --well; --desk means the literal desk the instrument stands on and nothing else. ── */
+--ground:#DCD8CE;--well:#E7E3D8;
+/* ── layer 2 · SHEET · the planning map, printed on paper. Never inverts in Dim. ── */
+--paper:#F2EFE6;--paper-hi:#FBFAF6;--paper-mid:#E9E7DF;--paper-lo:#EFEDE5;
+--road:#D5D2C9;--road-dash:#B9B5AB;--plot-line:#C8C4BA;
+--massing-line:#6E6A62;--massing-line-soft:#8E8A80;
+--massing-top:#FBFAF6;--massing-left:#E2DFD6;--massing-right:#CFCCC3;
+/* ── layer 3 · INSTRUMENT · drafting annotation. One ink per job, no more. ── */
+--ink-intensity:#256D7A;--ink-structure:#2A2924;--ink-revision:#CE3A1B;
+--graphite:#2A2924;
+--link:#A62C12;--link-hover:#256D7A;
+/* ── layer 4 · WORLD · 1980s Taipei street. Lives in 3D; its colours are its own. ── */
+--world-ground:#8C8375;--world-roof-a:#9A9081;--world-roof-b:#A69C8B;--world-roof-c:#B2A796;
+--world-asphalt:#4E4841;--world-soil:#6B6357;--world-lane:#C3B79C;--world-tree:#4C5A3C;
+--sign-red:#B8402C;--sign-blue:#2C4C74;--sign-paper:#F0E6D2;
+/* ── code · drawn from four zone inks, not a second syntax palette ── */
+--code-bg:#F2EFE6;--code-fg:#2A2924;--code-com:#6B6862;--code-key:#C43350;--code-str:#2F6B32;--code-num:#2E6DB4;
+/* ── Bright/Dim switch faces ── */
+--tog-l-bg:#F6F3EC;--tog-l-fg:#24231F;--tog-d-bg:transparent;--tog-d-fg:#605C55;
+/* ── semantic aliases ── */
+--text-body:var(--ink);--text-label:var(--label);--text-readout:var(--ink);--text-on-paper:var(--graphite);
+--surface-frame:var(--chassis);--surface-sheet:var(--paper);--surface-prose:var(--well);--surface-active:var(--recess);--surface-recess:var(--chassis-lo);
+}
+
+/* ── ZONE PALETTE · 使用分區 ──
+   Statutory hue inherited from 《都市計畫書圖製作要點》附件三; L* and C retuned for screen.
+   Glyphs disambiguate where hues collide, exactly as the legal drawing does. */
+:root{
+--zone-residential:#D8B13A;--zone-commercial:#C43350;--zone-industrial:#8C5220;--zone-warehouse:#5C3A1E;
+--zone-civic:#2E6DB4;--zone-education:#9B72CF;--zone-park:#3E8E41;--zone-agriculture:#8CA83D;
+--zone-water:#7FB8C4;--zone-market:#D2541F;--zone-plaza:#B3479B;--zone-utility:#9A9A94;
+/* the statutory AutoCAD index colours these were derived from — reference only, never drawn */
+--zone-residential-statutory:rgb(255,255,0);--zone-commercial-statutory:rgb(255,0,63);
+--zone-industrial-statutory:rgb(127,63,0);--zone-warehouse-statutory:rgb(76,38,0);
+--zone-civic-statutory:rgb(0,127,255);--zone-education-statutory:rgb(191,127,255);
+--zone-park-statutory:rgb(0,255,0);--zone-agriculture-statutory:rgb(127,255,0);
+--zone-water-statutory:rgb(127,255,255);--zone-market-statutory:rgb(255,63,0);
+--zone-plaza-statutory:rgb(255,0,255);--zone-utility-statutory:rgb(183,183,183);
+/* FIELD ramp · five steps of the intensity ink */
+--field-1:.14; /* @kind other */
+--field-2:.32; /* @kind other */
+--field-3:.54; /* @kind other */
+--field-4:.76; /* @kind other */
+--field-5:.95; /* @kind other */
+}
+
+/* ── DIM · the drafting table at night. The casing goes black-anodised, the desk darkens,
+   the sheet does not move. That is what lets one zone palette serve both modes.
+   Black is not a theme here, it is a parts list: the casing is真黑陽極 — neutral black
+   anodise, near-zero chroma like Bright. The engraved ink stays warm off-white, because
+   silkscreen on black is not blue. ── */
+[data-theme="dark"]{
+--chassis:#2A2A29;--chassis-hi:#3A3A38;--chassis-lo:#1A1A19;
+--edge:#0C0C0C;--edge-soft:#464645;
+--ink:#E8E4D9;--label:#9C9C9A;
+--recess:#1C1C1B;--btn-a:#484846;--btn-b:#383836;
+--slot-dyed:#1D1D1C;--slot-dyed-lo:#131313;--ink-on-dyed:#E8E4D9;
+--desk:#121212;--rule:#525250;
+/* the room beyond the lamp. Neutral like everything else in layer 1 — a warm backdrop
+   against a neutral-black document is the same cast clash the casing just lost. Kept
+   above --desk so the instrument still has a silhouette. */
+--backdrop:#2F2F2E;
+/* the plate is --chassis lifted off the desk; the code readout is a window sunk into it */
+--ground:#121212;--well:#2A2A29;
+--code-bg:#1C1C1B;--code-fg:#E8E4D9;--code-com:#888886;
+--code-key:#E2687F;--code-str:#6FB873;--code-num:#6A9FDC;
+--card-shadow:0 14px 34px rgba(0,0,0,.55);
+--fig-shadow:0 3px 16px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.06);
+--tog-l-bg:transparent;--tog-l-fg:#9C9C9A;--tog-d-bg:#565654;--tog-d-fg:#F2EFE6;
+/* links · the Bright pair is far too dark on a black-anodised plate (2.1:1 on --well).
+   Same two hues, lifted until both clear 4.5:1 against --well and --ground. */
+--link:#E0795E;--link-hover:#74B9C7;
+/* ⚠ unused — see the warning in tokens/surfaces.css. Dim's metal cut is applied by
+   the [data-theme="dark"] rules in parts/chassis.css. */
+--tex-metal:url("../assets/textures/brushed-aluminium-dark.png"); /* @kind other */
+}

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" font-family="IBM Plex Mono, monospace">
+  <rect width="1600" height="900" fill="#F2EFE6"/>
+  <g stroke="#2A2924" stroke-width="3" fill="none">
+    <path d="M80 760H1520"/>
+    <path d="M200 760V380H520V760M200 440H520"/>
+    <path d="M620 760V300H980V760M620 360H980"/>
+    <path d="M1080 760V420H1400V760M1080 480H1400"/>
+  </g>
+  <g stroke="#2A2924" stroke-width="2" fill="none" stroke-dasharray="10 8" opacity=".6">
+    <path d="M80 300H1520"/>
+  </g>
+  <text x="80" y="285" font-size="22" fill="#2A2924" opacity=".7">SETBACK LINE · 退縮線</text>
+  <text x="80" y="820" font-size="22" fill="#2A2924" opacity=".7">SECTION A-A · PLACEHOLDER</text>
+</svg>

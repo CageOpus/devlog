@@ -1,0 +1,15 @@
+/* Geometry. CAGE is a machined frame: 1px joints, 0-2px radii, nothing floats. */
+:root{
+--space-0:2px;--space-1:4px;--space-2:6px;--space-3:8px;--space-4:9px;--space-5:11px;
+--space-6:12px;--space-7:13px;--space-8:15px;--space-9:18px;--space-10:22px;--space-11:26px;
+--space-12:34px;--space-13:46px;--space-14:64px;
+
+--radius-slot:1px;--radius-control:2px;--radius-panel:0;
+--hair:1px;
+
+--bar-h:38px;--titleblock-h:42px;--modestrip-h:34px;--deck-h:112px;--status-h:24px;
+--rail-w:48px;--rail-btn:32px;--inspector-w:340px;
+--control-h-xs:15px;--control-h-sm:17px;--control-h:21px;--control-h-lg:26px;
+--switch-w:32px;--switch-h:17px;--knob-w:14px;--knob-proud:2px;--switch-travel:18px;/* = --switch-w - --knob-w: hard stop at each end of the groove */--switch-overhang:6px;
+--prose-measure:720px;--aside-w:252px;
+}

@@ -1,0 +1,47 @@
+/* ══ PROSE & WORLD ══ Devlog prose sits on the desk; figures are paper cards mounted
+   proud of it. World faces (明體 institutional, 楷體 human voice) carry the 1980s
+   Taipei street and never carry a system readout. */
+
+/* ── well · a panel mounted proud of the GROUND, lit from above, casting onto it.
+      Paper stock, not metal — same grain, vellum tooth. Takes --well, never --desk:
+      --desk is the literal desk, and in Dim it is the darkest thing in the room. ── */
+.cage-well{background:var(--well);border:1px solid var(--well-edge);box-shadow:var(--well-proud);background-image:linear-gradient(color-mix(in srgb,var(--well) var(--grain-mute),transparent),color-mix(in srgb,var(--well) var(--grain-mute),transparent)),url("../assets/textures/vellum.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+.cage-well__label{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-legend);font-size:var(--text-label-sm);color:var(--label)}
+
+.cage-prose{font-family:var(--font-cjk);font-size:var(--text-prose);line-height:var(--leading-prose);color:var(--ink);text-wrap:pretty}
+.cage-prose p{margin:0 0 var(--space-9)}
+.cage-prose p:last-child{margin-bottom:0}
+.cage-prose strong,.cage-prose b{font-weight:var(--weight-semibold)}
+.cage-prose code{font-family:var(--font-mono);font-size:13.5px}
+.cage-title{margin:0 0 var(--space-7);font-family:var(--font-cjk);font-weight:var(--weight-semibold);font-size:var(--text-title);line-height:var(--leading-title);letter-spacing:-.01em;color:var(--ink);text-wrap:pretty}
+.cage-lede{font-family:var(--font-cjk);font-size:var(--text-lede);line-height:var(--leading-readout);color:var(--label);text-wrap:pretty}
+.cage-eyebrow{display:flex;align-items:center;gap:var(--space-6);font-family:var(--font-mono);font-size:var(--text-mono-sm);letter-spacing:.1em;color:var(--label)}
+
+/* ── code figure · four zone inks, no second syntax theme. Code is a readout, not a drawing. ── */
+.cage-code{background:var(--code-bg);border:1px solid var(--edge);box-shadow:inset 0 1px 3px rgba(0,0,0,.14)}
+.cage-code__head{display:flex;align-items:center;justify-content:space-between;padding:6px var(--space-7);border-bottom:1px solid var(--edge)}
+.cage-code__file{font-family:var(--font-mono);font-size:var(--text-mono);color:var(--code-fg)}
+.cage-code__lang{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-legend);font-size:var(--text-label-sm);color:var(--code-com)}
+.cage-code__body{padding:var(--space-7) var(--space-8) var(--space-8);font-family:var(--font-mono);font-size:var(--text-mono-lg);line-height:var(--leading-prose);color:var(--code-fg);white-space:pre-wrap}
+.cage-code .tok-com{color:var(--code-com)}
+.cage-code .tok-key{color:var(--code-key)}
+.cage-code .tok-str{color:var(--code-str)}
+.cage-code .tok-num{color:var(--code-num)}
+
+/* ── world · institutional 明體 ── */
+.cage-notice{background:var(--paper);border:1px solid var(--edge);box-shadow:var(--fig-shadow);padding:var(--space-5) var(--space-6);text-shadow:none}
+.cage-notice__title{font-family:var(--font-institutional);font-weight:var(--weight-semibold);font-size:var(--text-ui-lg);color:var(--graphite);margin-bottom:var(--space-2)}
+.cage-notice__body{font-family:var(--font-institutional);font-size:var(--text-ui-md);line-height:var(--leading-prose);color:var(--graphite)}
+
+/* ── world · human voice 楷體 ── */
+.cage-voice{font-family:var(--font-voice);font-size:var(--text-ui-lg);line-height:var(--leading-prose);color:var(--ink)}
+.cage-voice--quoted{border-left:2px solid var(--edge);padding-left:var(--space-6)}
+.cage-voice__attrib{font-family:var(--font-mono);font-size:var(--text-mono-xs);color:var(--label)}
+
+/* ── world · newspaper item ── */
+.cage-news{background:var(--paper);border:1px solid var(--edge);padding:var(--space-3) var(--space-5);text-shadow:none}
+.cage-news__head{font-family:var(--font-institutional);font-weight:var(--weight-semibold);font-size:var(--text-ui-lg);color:var(--graphite);margin-bottom:3px}
+.cage-news__body{font-family:var(--font-institutional);font-size:var(--text-ui-sm);line-height:var(--leading-ui);color:rgba(42,41,36,.85)}
+
+/* ── shop sign · world layer, 3D. Heavy 明體 knocked out of a painted board. ── */
+.cage-sign{display:inline-block;padding:2px 6px;font-family:var(--font-institutional);font-weight:var(--weight-heavy);font-size:15px;color:var(--sign-paper)}

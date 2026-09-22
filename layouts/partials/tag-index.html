@@ -1,0 +1,12 @@
+{{- /* 全站標籤索引：標籤名 —— 篇數，一列一個。用在側邊欄與 /tags/ 頁。 */ -}}
+<ul class="tag-index">
+  {{- range site.Taxonomies.tags.ByCount }}
+  <li>
+    <a class="tag-index__row" href="{{ .Page.RelPermalink }}">
+      <span class="tag-index__name">{{ .Page.LinkTitle | upper }}</span>
+      <span class="tag-index__leader"></span>
+      <span class="tag-index__count">{{ .Count }}</span>
+    </a>
+  </li>
+  {{- end }}
+</ul>

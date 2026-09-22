@@ -1,0 +1,11 @@
+{{- /* Bright / Dim 開關。開關位置與燈號都由 <html data-theme> 推導（見 css/devlog/02-chrome.css），
+       這裡不存狀態；點擊由 js/devlog.js 處理。 */ -}}
+{{- if not site.Params.disableThemeToggle }}
+<div class="theme-switch">
+  <span class="theme-switch__lamp cage-glyph" aria-hidden="true"></span>
+  <button type="button" class="cage-switch" role="switch" aria-checked="true" aria-label="Bright / Dim" data-theme-switch>
+    <span class="cage-switch__window"><span class="cage-switch__plate"></span></span>
+    <span class="cage-switch__knob cage-face cage-knob"></span>
+  </button>
+</div>
+{{- end }}

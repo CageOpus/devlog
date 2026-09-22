@@ -1,0 +1,159 @@
+/* ══ 單篇文章 / 單頁 ══ 整篇住在一塊 well 裡：眉標、標題、meta、導言、刻線、內文、標籤、上下篇。
+   --article-pad-x 是 well 的左右內距；程式碼區塊出血時要用它算回螢幕邊（見 06-markdown.css）。 */
+
+.article {
+  --article-pad-x: 46px;
+  padding: 40px var(--article-pad-x);
+}
+
+.article__eyebrow {
+  margin-bottom: 14px;
+}
+
+.article__eyebrow-rule {
+  width: 14px;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* 每一項不斷行，窄螢幕時整項換到下一行 */
+.article__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 .9em;
+  white-space: nowrap;
+  margin-bottom: 22px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: var(--label);
+}
+
+.article__lede {
+  margin: 0 0 24px;
+}
+
+.article__rule {
+  height: 1px;
+  margin: 0 0 26px;
+  border: 0;
+  background: var(--rule);
+}
+
+.article__body {
+  max-width: var(--prose-measure);
+}
+
+.article__footer {
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+}
+
+.article__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ── 上一篇 / 下一篇：較舊的在左、較新的在右；標題太長時換行，不撐破版面 ── */
+.post-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 19px;
+  margin-top: 19px;
+}
+
+.post-pager .cage-btn {
+  max-width: 48%;
+  white-space: normal;
+}
+
+.post-pager__newer {
+  margin-left: auto;
+  text-align: right;
+}
+
+/* ── 關於頁的規格表 ── */
+.spec-sheet {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px 46px;
+  max-width: var(--prose-measure);
+  margin: 34px 0 0;
+  padding-top: 19px;
+  border-top: 1px solid var(--rule);
+}
+
+.spec-sheet__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 19px;
+}
+
+.spec-sheet dt {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.spec-sheet dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink);
+}
+
+@media (max-width: 1023px) {
+  .article__body {
+    max-width: 640px;
+  }
+}
+
+@media (max-width: 767px) {
+  .article {
+    --article-pad-x: 15px;
+    padding: 19px var(--article-pad-x);
+  }
+
+  .article__eyebrow {
+    margin-bottom: 11px;
+    font-size: 10px;
+  }
+
+  .article__eyebrow-rule {
+    width: 11px;
+  }
+
+  .article__title {
+    margin-bottom: 11px;
+    font-size: 26px;
+  }
+
+  .article__meta {
+    margin-bottom: 17px;
+    font-size: 10.5px;
+  }
+
+  .article__lede {
+    margin-bottom: 17px;
+    font-size: 15px;
+  }
+
+  .article__rule {
+    margin-bottom: 19px;
+  }
+
+  .article__footer {
+    margin-top: 26px;
+    padding-top: 19px;
+  }
+
+  .spec-sheet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

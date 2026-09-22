@@ -1,0 +1,17 @@
+{{- /* /tags/ 這類 taxonomy 總表。 */ -}}
+{{- define "main" }}
+<div class="page">
+  <div class="page__main">
+    <div class="section-head">
+      <span class="section-head__label">{{ .Title }}</span>
+      <span class="section-head__label-zh">標籤</span>
+      <span class="section-head__rule"></span>
+      <span class="section-head__note">{{ printf "%02d" (len .Data.Terms) }} 個</span>
+    </div>
+    <div class="terms-list cage-well">
+      {{- partial "tag-index.html" . }}
+    </div>
+  </div>
+  {{- partial "side-rail.html" . }}
+</div>
+{{- end }}

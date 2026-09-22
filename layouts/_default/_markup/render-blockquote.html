@@ -1,9 +1,11 @@
-{{- /* Blockquote render hook.
-       - `> [!TYPE] ...`  → glass card with TYPE slug + jade square (cage-callout look)
-       - `> ...` plain    → pull-quote with ❝ ❞ corner marks
-*/ -}}
+{{- /* 引文：
+       `> [!NOTE] ...` → 註記框，左上角印類型
+       `> ...`         → 人聲引文（楷體 + 左側線，cage-voice） */ -}}
 {{- if eq .Type "alert" -}}
-<blockquote data-alert="{{ .AlertType | upper }}">{{ .Text }}</blockquote>
+<aside class="md-alert" data-alert="{{ .AlertType }}">
+  <div class="md-alert__type">{{ .AlertType | upper }}</div>
+  {{ .Text }}
+</aside>
 {{- else -}}
-<blockquote>{{ .Text }}</blockquote>
+<blockquote class="md-quote">{{ .Text }}</blockquote>
 {{- end -}}

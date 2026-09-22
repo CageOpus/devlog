@@ -1,0 +1,50 @@
+/* ══ SHEET & INSTRUMENT ══ The planning map is printed on paper, and chroma is spent
+   only here. Roads are the unfilled blank between zones — the paper showing through.
+   Instrument marks are single-ink drafting annotation drawn ON the sheet. */
+
+.cage-paper{background:var(--paper);color:var(--text-on-paper);text-shadow:none}
+.cage-sheet{background:var(--paper-mid);color:var(--text-on-paper)}
+/* the sheet sits below the casing; the bezel is the lip of the opening it sits in */
+.cage-bezel{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 1px 0 rgba(30,28,22,.34),inset 1px 0 0 rgba(30,28,22,.18),inset -1px 0 0 rgba(30,28,22,.3),inset 0 -1px 0 rgba(255,252,242,.4),inset 0 4px 5px -4px rgba(30,28,22,.3),inset 4px 0 5px -4px rgba(30,28,22,.18),inset -7px 0 9px -5px rgba(30,28,22,.34),inset 0 -3px 4px -4px rgba(30,28,22,.07)}
+.cage-vellum{background-image:linear-gradient(color-mix(in srgb,var(--paper) 70%,transparent),color-mix(in srgb,var(--paper) 70%,transparent)),url("../assets/textures/vellum.png");background-size:auto,150px 150px;background-repeat:no-repeat,repeat}
+
+/* ── paper plate · a small annotation plate laid on the sheet ── */
+.cage-plate{background:var(--paper);border:1px solid rgba(42,41,36,.5);padding:6px 9px;font-family:var(--font-mono);font-size:var(--text-mono);line-height:1.5;color:var(--text-on-paper);text-shadow:none}
+
+/* ── figure card · a drawing lit like a slide on a lightbox. Stays paper in Dim. ── */
+.cage-figure{background:var(--paper);border:1px solid var(--edge);box-shadow:var(--fig-shadow);color:var(--text-on-paper);text-shadow:none}
+.cage-figure--inset{box-shadow:var(--inset-well)}
+.cage-figure__head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-9)}
+.cage-figure__title{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-legend);font-size:var(--text-label);color:var(--graphite)}
+.cage-figure__no{font-family:var(--font-mono);font-size:var(--text-label);color:rgba(42,41,36,.6)}
+.cage-figcaption{font-family:var(--font-mono);font-size:var(--text-mono-sm);line-height:var(--leading-ui);color:var(--label)}
+
+/* ── legend card ── */
+.cage-legend{background:var(--paper);border:1px solid rgba(42,41,36,.45);padding:var(--space-4) var(--space-6) var(--space-5);color:var(--text-on-paper);text-shadow:none}
+.cage-legend__row{display:flex;align-items:center;gap:var(--space-3);font-family:var(--font-cjk);font-size:var(--text-label);color:var(--graphite)}
+.cage-legend__note{font-family:var(--font-mono);font-size:var(--text-micro);line-height:1.55;color:rgba(42,41,36,.7)}
+
+/* ── zone chip · hue from the statute, glyph for disambiguation ── */
+.cage-zonechip{width:30px;height:22px;display:flex;align-items:center;justify-content:center;border:1px solid var(--edge);font-family:var(--font-cjk);font-size:var(--text-ui-sm)}
+.cage-zonechip--on-dark{color:rgba(242,239,230,.92)}
+.cage-zonechip--on-light{color:rgba(35,33,28,.62)}
+.cage-swatch{width:22px;height:16px;border:1px solid var(--edge)}
+
+/* ── FIELD ramp ── */
+.cage-ramp{display:flex;height:22px}
+.cage-ramp__step{flex:1;background:var(--ink-intensity)}
+
+/* ── readout ── */
+.cage-readout{display:flex;align-items:baseline;gap:var(--space-3)}
+.cage-readout__value{font-family:var(--font-mono);font-size:var(--text-readout-lg);color:var(--ink)}
+.cage-readout__unit{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-toggle);font-size:var(--text-label);color:var(--label)}
+
+/* ── data table · the control-point schedule ── */
+.cage-table{display:flex;flex-direction:column}
+.cage-table__head,.cage-table__row{display:grid;gap:0 var(--space-3)}
+.cage-table__head{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-toggle);font-size:var(--text-label-sm);color:var(--label);padding-bottom:var(--space-1);border-bottom:1px solid var(--edge)}
+.cage-table__row{font-family:var(--font-mono);font-size:var(--text-mono-sm);color:var(--ink);padding:var(--space-1) 0;border-bottom:1px solid var(--edge-soft)}
+.cage-table__row[aria-selected="true"]{background:var(--paper);color:var(--text-on-paper);text-shadow:none}
+.cage-table__row:last-child{border-bottom:none}
+.cage-table__k{color:var(--label)}
+.cage-table__num{text-align:right}

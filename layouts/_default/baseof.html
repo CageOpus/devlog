@@ -1,31 +1,20 @@
-{{- if lt hugo.Version "0.146.0" }}
-{{- errorf "=> hugo v0.146.0 or greater is required for hugo-PaperMod to build " }}
-{{- end -}}
-
 <!DOCTYPE html>
-{{- $theme := site.Params.defaultTheme | default "auto" }}
-{{- if eq $theme "dark" }}
-<html lang="{{ site.Language }}" dir="{{ .Language.LanguageDirection | default "auto" }}" data-theme="dark">
-{{- else if eq $theme "light" }}
-<html lang="{{ site.Language }}" dir="{{ .Language.LanguageDirection | default "auto" }}" data-theme="light">
-{{- else }}
-<html lang="{{ site.Language }}" dir="{{ .Language.LanguageDirection | default "auto" }}" data-theme="auto">
-{{- end }}
-
+<html lang="{{ site.Language.Locale }}">
 <head>
-    {{- partial "head.html" . }}
+  {{- partial "head.html" . }}
 </head>
-
-{{- if (or (ne .Kind `page` ) (eq .Layout `archives`) (eq .Layout `search`)) }}
-<body class="cage-typography cage-bokeh" id="top">
-{{- else }}
-<body class="cage-typography cage-bokeh" id="top">
-{{- end }}
-    {{ partialCached "header.html" . .Page -}}
-    <main class="main">
-        {{- block "main" . }}{{ end }}
-    </main>
-    {{ partialCached "footer.html" . .Layout .Kind (.Param "hideFooter") (.Param "ShowCodeCopyButtons") -}}
+<body class="cage">
+  {{- partial "cage-mark-defs.html" . }}
+  {{- partial "header.html" . }}
+  {{- partial "header-scrolled.html" . }}
+  {{- partial "tag-strip.html" . }}
+  <main class="site-main">
+    {{- block "main" . }}{{ end }}
+  </main>
+  {{- partial "footer.html" . }}
+  {{- partial "bottom-nav.html" . }}
+  {{- $js := resources.Get "js/devlog.js" }}
+  {{- if hugo.IsProduction }}{{ $js = $js | minify | fingerprint }}{{ end }}
+  <script src="{{ $js.RelPermalink }}"></script>
 </body>
-
 </html>

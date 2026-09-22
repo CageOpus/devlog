@@ -1,0 +1,186 @@
+/* ══ 文章列表 ══ 一塊 well 上的橫列，列與列之間是一道刻線，不做卡片。
+   每一列是 grid，版型只換 grid-template-areas：
+     ≥ 1280  編號自成左欄，日期在標題右側，閱讀時間在標籤右側
+     < 1280  編號、日期、閱讀時間併成標題上方的一行 */
+
+.post-list {
+  padding: 11px 21px 17px;
+}
+
+.post-row {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "number title   date"
+    "number summary summary"
+    "number tags    time";
+  gap: 9px 19px;
+  padding: 17px 0 15px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.post-row:last-child {
+  padding-bottom: 4px;
+}
+
+/* 刻線：上緣一道暗線，下方一道亮唇 */
+.post-row + .post-row {
+  border-top: 1px solid var(--edge-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+
+[data-theme="dark"] .post-row + .post-row {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .11);
+}
+
+.post-row__number {
+  grid-area: number;
+  padding-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--label);
+}
+
+.post-row__title {
+  grid-area: title;
+  align-self: baseline;
+  margin: 0;
+  font-family: var(--font-cjk);
+  font-weight: 600;
+  font-size: 16.5px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.post-row:hover .post-row__title {
+  color: var(--link);
+}
+
+.post-row__date {
+  grid-area: date;
+  align-self: baseline;
+  justify-self: end;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--label);
+}
+
+.post-row__summary {
+  grid-area: summary;
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  font-family: var(--font-cjk);
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--label);
+  text-wrap: pretty;
+}
+
+.post-row__tags {
+  grid-area: tags;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  color: var(--ink);
+}
+
+.post-row__sep {
+  color: var(--rule);
+}
+
+.post-row__time {
+  grid-area: time;
+  align-self: baseline;
+  justify-self: end;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--label);
+}
+
+@media (max-width: 1279px) {
+  .post-list {
+    padding: 2px 21px 15px;
+  }
+
+  .post-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "number  date    time"
+      "title   title   title"
+      "summary summary summary"
+      "tags    tags    tags";
+    column-gap: 9px;
+    padding: 17px 0;
+  }
+
+  .post-row:last-child {
+    padding-bottom: 2px;
+  }
+
+  .post-row__number {
+    align-self: baseline;
+    padding-top: 0;
+    color: var(--ink);
+  }
+
+  .post-row__date {
+    justify-self: start;
+  }
+
+  .post-row__date::before {
+    content: "·";
+    margin-right: 9px;
+    color: var(--rule);
+  }
+
+  .post-row__summary {
+    max-width: 640px;
+  }
+
+  .post-row__time {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 767px) {
+  .post-list {
+    padding: 2px 15px 13px;
+  }
+
+  .post-row {
+    gap: 7px;
+    padding: 13px 0;
+  }
+
+  .post-row__number,
+  .post-row__date,
+  .post-row__time {
+    font-size: 10.5px;
+  }
+
+  .post-row__date::before {
+    margin-right: 7px;
+  }
+
+  .post-row__title {
+    line-height: 1.35;
+  }
+
+  .post-row__summary {
+    font-size: 13px;
+    line-height: 1.75;
+  }
+
+  .post-row__tags {
+    font-size: 10px;
+  }
+}

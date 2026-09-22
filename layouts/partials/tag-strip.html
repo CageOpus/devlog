@@ -1,0 +1,23 @@
+{{- /* 標籤列（< 1280）：側邊欄收起來後，標籤改成頁首下方一條可橫向捲動的列。
+       文章頁列出該篇的標籤與日期，其他頁列出全站標籤與篇數；沒有標籤就整條不出現。 */ -}}
+{{- $posts := where site.RegularPages "Section" "in" site.Params.mainSections }}
+{{- $hasTags := cond .IsPage (gt (len (.GetTerms "tags")) 0) (gt (len site.Taxonomies.tags) 0) }}
+{{- if $hasTags }}
+<div class="tag-strip cage-mat-panel">
+  <span class="tag-strip__label">Tags</span>
+  <div class="tag-strip__tags">
+    {{- if .IsPage }}
+      {{- range .GetTerms "tags" }}
+      <a class="cage-tag" href="{{ .RelPermalink }}">{{ .LinkTitle | upper }}</a>
+      {{- end }}
+    {{- else }}
+      {{- range site.Taxonomies.tags.ByCount }}
+      <a class="cage-tag" href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle | upper }} {{ .Count }}</a>
+      {{- end }}
+    {{- end }}
+  </div>
+  <span class="tag-strip__note">
+    {{- if .IsPage }}{{ .Date.Format "2006 · 01 · 02" }}{{ else }}{{ printf "%02d" (len $posts) }} 篇{{ end -}}
+  </span>
+</div>
+{{- end }}

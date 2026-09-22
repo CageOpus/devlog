@@ -1,0 +1,319 @@
+/* ══ 版面 ══ 主欄 + 側欄、區段標頭、作者卡、分頁、404 */
+
+/* ── 主欄 + 側欄 ──
+   --page-pad-x 是頁面左右留白；程式碼區塊出血時要用它算回螢幕邊（見 06-markdown.css）。 */
+.page {
+  --page-pad-x: var(--gutter);
+  display: flex;
+  align-items: flex-start;
+  gap: 46px;
+  padding: 34px var(--page-pad-x) 46px;
+}
+
+.page__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.page__rail {
+  flex: none;
+  width: var(--aside-w);
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+}
+
+/* 側欄收起來：整欄移到主欄下方；標籤改由頁首下的 tag-strip 呈現，這裡只剩作者卡 */
+@media (max-width: 1279px) {
+  .page {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 26px;
+    padding-top: 26px;
+    padding-bottom: 34px;
+  }
+
+  .page__rail {
+    width: auto;
+  }
+
+  .rail-tags {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    gap: 17px;
+    padding-top: 17px;
+    padding-bottom: 26px;
+  }
+
+  /* 文章 well 在手機上幾乎貼邊，外緣只留 9 */
+  .page--article {
+    --page-pad-x: 9px;
+    padding-top: 9px;
+  }
+}
+
+/* ── 區段標頭：POSTS 文章 ────── 03 篇 · 最新 2026-02-07 ── */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 13px;
+  margin-bottom: 17px;
+}
+
+.section-head__label {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.section-head__label-zh {
+  font-family: var(--font-cjk);
+  font-size: 12px;
+  color: var(--label);
+}
+
+.section-head__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+  opacity: .5;
+}
+
+.section-head__note {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--label);
+}
+
+@media (max-width: 1279px) {
+  .section-head {
+    gap: 11px;
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 767px) {
+  .section-head {
+    gap: 9px;
+    margin-bottom: 13px;
+  }
+
+  .section-head__latest {
+    display: none;
+  }
+}
+
+/* ── 側欄 · 標籤索引 ── */
+.rail-tags {
+  padding: 15px 17px 17px;
+}
+
+.rail-tags .cage-well__label {
+  margin-bottom: 11px;
+}
+
+.tag-index {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag-index__row {
+  height: 21px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  text-decoration: none;
+}
+
+.tag-index__name {
+  letter-spacing: .06em;
+  color: var(--ink);
+}
+
+.tag-index__row:hover .tag-index__name {
+  color: var(--link);
+}
+
+.tag-index__leader {
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+  opacity: .55;
+}
+
+.tag-index__count {
+  color: var(--label);
+}
+
+.terms-list {
+  padding: 15px 21px 17px;
+}
+
+/* ── 作者卡 ──
+   側欄裡（≥ 1280）：標籤在上，鍵帽在左，名字與身分疊在右。
+   主欄下方（< 1280）：鍵帽｜標籤 + 名字｜身分靠右，一列排完。 */
+.author-card {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  grid-template-areas:
+    "label label"
+    "key   name"
+    "key   role";
+  gap: 5px 13px;
+  padding: 15px 17px 17px;
+}
+
+.author-card__label {
+  grid-area: label;
+  margin-bottom: 6px;
+}
+
+.author-card__key {
+  grid-area: key;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--btn-edge);
+  box-shadow: var(--btn-raised);
+}
+
+.author-card__key svg {
+  display: block;
+  width: 34px;
+  height: auto;
+  color: var(--ink);
+}
+
+.author-card__name {
+  grid-area: name;
+  align-self: end;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.author-card__role {
+  grid-area: role;
+  align-self: start;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--label);
+}
+
+@media (max-width: 1279px) {
+  .author-card {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "key label role"
+      "key name  role";
+    column-gap: 15px;
+    padding: 15px 21px;
+  }
+
+  .author-card__label {
+    align-self: end;
+    margin-bottom: 0;
+  }
+
+  .author-card__name {
+    align-self: start;
+  }
+
+  .author-card__role {
+    align-self: center;
+  }
+}
+
+/* ── 列表分頁 ── */
+.pager {
+  display: flex;
+  justify-content: flex-end;
+  gap: 13px;
+  margin-top: 22px;
+}
+
+@media (max-width: 1279px) {
+  .pager {
+    margin-top: 19px;
+  }
+
+  /* 觸控尺寸：分頁鍵高 40 */
+  .pager .cage-btn {
+    height: 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  .pager {
+    gap: 11px;
+    margin-top: 17px;
+  }
+
+  .pager .cage-btn {
+    flex: 1;
+  }
+}
+
+/* ── 404 ── */
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 19px;
+  padding: 64px 46px;
+  text-align: center;
+}
+
+.not-found__code {
+  font-family: var(--font-mono);
+  font-size: 37px;
+  line-height: 1;
+  letter-spacing: .06em;
+  color: var(--ink);
+}
+
+.not-found__rule {
+  width: 64px;
+  height: 1px;
+  background: var(--rule);
+}
+
+.not-found__label {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.not-found__text {
+  margin: 0;
+  font-family: var(--font-cjk);
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--ink);
+}
+
+.not-found .cage-btn {
+  margin-top: 9px;
+}
+
+@media (max-width: 767px) {
+  .not-found {
+    padding: 46px 17px;
+  }
+}

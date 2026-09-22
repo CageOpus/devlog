@@ -1,0 +1,4 @@
+/* CAGE webfonts. All six families are Google Fonts, loaded from the CDN — there are no
+   local binaries in this project. Barlow Semi Condensed is a documented STAND-IN for
+   D-DIN (see readme.md → Typography). */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+TC:wght@400;500;600&family=Barlow+Semi+Condensed:wght@400;500;600&family=Noto+Serif+TC:wght@400;600;900&family=LXGW+WenKai+TC&display=swap");

@@ -1,0 +1,23 @@
+{{- /* 捲動條（S2 · 標準字組 52px）：頁首捲出畫面後才從上方出現，只在 ≥ 768 顯示。
+       readout 在文章頁顯示閱讀進度，其他頁顯示 build。 */ -}}
+{{- $brand := site.Params.brand }}
+<div class="site-bar cage-mat-bar" data-site-bar aria-hidden="true">
+  <a class="site-bar__brand" href="{{ "" | relLangURL }}" tabindex="-1">
+    <svg class="site-bar__mark" viewBox="0 34 800 384" aria-hidden="true"><use href="#mkSEng"></use></svg>
+    <span class="wordmark wordmark--bar">
+      <span class="wordmark__title">{{ $brand.title }}</span>
+      <span class="wordmark__subtitle">{{ $brand.subtitle }}</span>
+    </span>
+  </a>
+  <span class="vrule"></span>
+  <span class="site-bar__title">{{ if not .IsHome }}{{ .Title }}{{ end }}</span>
+  <span class="site-bar__readout">
+    {{- if .IsPage -}}
+      READ <span data-read-progress>0%</span> · {{ .ReadingTime }} MIN
+    {{- else -}}
+      BUILD {{ site.Params.build }}
+    {{- end -}}
+  </span>
+  {{- partial "site-nav.html" (dict "page" .) }}
+  {{- partial "theme-switch.html" . }}
+</div>

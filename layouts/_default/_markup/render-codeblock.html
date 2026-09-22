@@ -1,0 +1,18 @@
+{{- /* 程式碼區塊 → cage-code 讀數框。
+       用法：```rust {file="src/sim/agents.rs" caption="FIG 2 · ..."}
+       .code-block__track 是橫向捲動軌道；各寬度下的出血方式見 css/devlog/05-markdown.css。 */ -}}
+{{- $lang := .Type | default "text" }}
+<figure class="code-block">
+  <div class="code-block__track">
+    <div class="cage-code">
+      <div class="cage-code__head">
+        <span class="cage-code__file">{{ .Attributes.file }}</span>
+        <span class="cage-code__lang">{{ $lang }}</span>
+      </div>
+      <pre class="cage-code__body chroma"><code>{{ (transform.HighlightCodeBlock .).Inner }}</code></pre>
+    </div>
+  </div>
+  {{- with .Attributes.caption }}
+  <figcaption class="cage-figcaption">{{ . }}</figcaption>
+  {{- end }}
+</figure>

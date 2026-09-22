@@ -1,0 +1,29 @@
+{{- /* 圖片。
+       獨立成段的圖（block）→ 燈箱上的圖紙卡：抬頭印 alt 與 FIG 編號，title 當圖說；點擊開原圖。
+       行內圖 → 一般 <img>。
+       路徑解析沿用 PaperMod：先找 page bundle，再找 assets/。 */ -}}
+{{- $u := urls.Parse .Destination }}
+{{- $src := $u.String }}
+{{- if not $u.IsAbs }}
+  {{- with or (.PageInner.Resources.Get (strings.TrimPrefix "./" $u.Path)) (resources.Get $u.Path) }}
+    {{- $src = .RelPermalink }}
+  {{- end }}
+{{- end }}
+
+{{- if .IsBlock }}
+{{- $number := add .Ordinal 1 }}
+<figure class="md-figure">
+  <a class="md-figure__card cage-figure" href="{{ $src }}">
+    <span class="md-figure__head cage-figure__head">
+      <span class="cage-figure__title">{{ .PlainText }}</span>
+      <span class="cage-figure__no">FIG {{ $number }}</span>
+    </span>
+    <img src="{{ $src }}" alt="{{ .PlainText }}" loading="lazy">
+  </a>
+  {{- with .Title }}
+  <figcaption class="cage-figcaption">FIG {{ $number }} · {{ . }}</figcaption>
+  {{- end }}
+</figure>
+{{- else }}
+<img src="{{ $src }}" alt="{{ .PlainText }}"{{ with .Title }} title="{{ . }}"{{ end }} loading="lazy">
+{{- end -}}

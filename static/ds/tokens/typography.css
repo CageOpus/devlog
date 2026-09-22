@@ -1,0 +1,20 @@
+/* CAGE type. A reading face for body; the condensed technical face is confined to labels
+   and drawing numbers. World faces never carry system readouts. */
+:root{
+--font-ui:'IBM Plex Sans','IBM Plex Sans TC',system-ui,sans-serif;
+--font-cjk:'IBM Plex Sans TC','IBM Plex Sans',sans-serif;
+--font-mono:'IBM Plex Mono',ui-monospace,monospace;
+--font-label:'Barlow Semi Condensed','IBM Plex Sans Condensed',sans-serif;
+--font-institutional:'Noto Serif TC',serif;
+--font-voice:'LXGW WenKai TC','Noto Serif TC',serif;
+
+--text-micro:9px;--text-label-sm:9.5px;--text-label:10px;--text-label-lg:12px;
+--text-mono-xs:9.5px;--text-mono-sm:10.5px;--text-mono:11px;--text-mono-md:12px;--text-mono-lg:12.5px;
+--text-ui-xs:10.5px;--text-ui-sm:11.5px;--text-ui:12px;--text-ui-md:12.5px;--text-ui-lg:13px;--text-ui-xl:13.5px;
+--text-prose:15px;--text-lede:16.5px;--text-title:37px;
+--text-readout:13px;--text-readout-lg:24px;--text-wordmark:18px;
+
+--track-label:.14em;--track-legend:.16em;--track-bar:.18em;--track-wordmark:.22em;--track-toggle:.12em;--track-rail:.1em;
+--leading-prose:1.85;--leading-ui:1.7;--leading-readout:1.65;--leading-title:1.26;
+--weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-heavy:900;
+}

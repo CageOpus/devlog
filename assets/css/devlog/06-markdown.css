@@ -1,0 +1,240 @@
+/* ══ Markdown 內文 ══ .article__body 底下由 Goldmark 與 render hook 產生的元素。
+   段落、粗體、行內 code 的基本樣式來自設計系統的 .cage-prose。 */
+
+/* ── 標題 ── */
+.article__body :is(h1, h2, h3, h4) {
+  font-family: var(--font-cjk);
+  font-weight: 600;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.article__body h1 {
+  margin: 46px 0 17px;
+  font-size: 28px;
+  line-height: 1.3;
+}
+
+.article__body h2 {
+  margin: 34px 0 15px;
+  font-size: 24px;
+  line-height: 1.4;
+  letter-spacing: -.005em;
+}
+
+.article__body h3 {
+  margin: 26px 0 11px;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.article__body h4 {
+  margin: 22px 0 9px;
+  font-size: 15px;
+}
+
+.article__body > :first-child {
+  margin-top: 0;
+}
+
+/* ── 清單、分隔線、表格 ── */
+.article__body :is(ul, ol) {
+  margin: 0 0 18px;
+  padding-left: 1.4em;
+}
+
+.article__body li + li {
+  margin-top: 4px;
+}
+
+.article__body hr {
+  height: 1px;
+  margin: 34px 0;
+  border: 0;
+  background: var(--rule);
+}
+
+.article__body table {
+  width: 100%;
+  margin: 0 0 18px;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.article__body :is(th, td) {
+  padding: 6px 9px;
+  border-bottom: 1px solid var(--edge-soft);
+  text-align: left;
+}
+
+.article__body th {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--label);
+  border-bottom-color: var(--edge);
+}
+
+.article__body :not(pre) > code {
+  padding: .1em .35em;
+  border-radius: var(--radius-slot);
+  background: var(--recess);
+}
+
+.article__body img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── 引文：人聲，楷體 ── */
+.md-quote {
+  margin: 26px 0;
+  padding-left: 13px;
+  border-left: 2px solid var(--edge);
+  font-family: var(--font-voice);
+}
+
+/* ── 註記框：> [!NOTE] ── */
+.md-alert {
+  margin: 26px 0;
+  padding: 13px 17px;
+  border: 1px solid var(--edge-soft);
+  box-shadow: var(--inset-well);
+}
+
+.md-alert__type {
+  margin-bottom: 6px;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  color: var(--label);
+}
+
+/* ── 圖：燈箱上的圖紙卡，Dim 也維持紙色；點擊開原圖 ── */
+.md-figure {
+  margin: 26px 0 22px;
+}
+
+.md-figure__card {
+  display: block;
+  padding: 19px 21px 16px;
+  text-decoration: none;
+  cursor: zoom-in;
+}
+
+.md-figure__head {
+  margin-bottom: 15px;
+}
+
+.md-figure__card img {
+  display: block;
+  width: 100%;
+  border: 1px solid rgba(42, 41, 36, .3);
+}
+
+.md-figure .cage-figcaption {
+  margin-top: 11px;
+}
+
+@media (max-width: 767px) {
+  .md-figure__card {
+    padding: 13px;
+  }
+
+  .md-figure__head {
+    margin-bottom: 11px;
+  }
+
+  .md-figure .cage-figcaption {
+    margin-top: 9px;
+  }
+}
+
+/* ── 程式碼區塊 ──
+   只有程式碼可以撐出 well，而且三種寬度撐法不同：
+     ≥ 1280  不出血，框線不動，只有內容在框內橫向捲動
+     < 1280  整塊出血到螢幕兩緣、拿掉左右框線，內容在 block 內橫向捲動，文字仍對齊內文
+     ≤ 767   出血的是「捲動軌道」不是 block：靜止時 block 左緣對齊內文，
+             block 自帶一段等寬的 margin-right，捲到底時右框線也落在內文對齊線上
+   --bleed = 從內文對齊線到螢幕邊的距離 = 頁面留白 + well 框線 1px + well 內距 */
+.code-block {
+  --bleed: calc(var(--page-pad-x) + 1px + var(--article-pad-x));
+  margin: 26px 0;
+}
+
+.code-block .cage-figcaption {
+  margin-top: 9px;
+}
+
+.code-block .cage-code__body {
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre;
+  tab-size: 4;
+  scrollbar-width: none;
+}
+
+.code-block :is(.cage-code__body, .code-block__track)::-webkit-scrollbar {
+  display: none;
+}
+
+.code-block code {
+  font: inherit;
+}
+
+@media (max-width: 1279px) {
+  .code-block__track {
+    margin-inline: calc(-1 * var(--bleed));
+  }
+
+  .code-block .cage-code {
+    border-inline: 0;
+  }
+
+  .code-block :is(.cage-code__head, .cage-code__body) {
+    padding-inline: var(--bleed);
+  }
+}
+
+@media (max-width: 767px) {
+  .code-block__track {
+    padding-left: var(--bleed);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .code-block .cage-code {
+    width: max-content;
+    min-width: 100%;
+    margin-right: var(--bleed);
+    border-inline: 1px solid var(--edge);
+  }
+
+  .code-block :is(.cage-code__head, .cage-code__body) {
+    padding-inline: 15px;
+  }
+
+  .code-block .cage-code__body {
+    overflow: visible;
+  }
+}
+
+/* ── 語法上色：Chroma 的 class 對到設計系統的四色（註解、關鍵字、字串、數字），不另開一套 ── */
+.chroma :is(.c, .ch, .cm, .c1, .cs, .cp, .cpf) {
+  color: var(--code-com);
+}
+
+.chroma :is(.k, .kc, .kd, .kn, .kp, .kr, .kt) {
+  color: var(--code-key);
+}
+
+.chroma :is(.s, .sa, .sb, .sc, .dl, .sd, .s2, .se, .sh, .si, .sx, .sr, .s1, .ss) {
+  color: var(--code-str);
+}
+
+.chroma :is(.m, .mb, .mf, .mh, .mi, .il, .mo) {
+  color: var(--code-num);
+}

@@ -1,0 +1,138 @@
+/* ══ 基底 ══
+   設計系統（static/ds/）已經提供 token 與元件 class；這裡只放 devlog 自己的全站設定。
+
+   斷點（CSS media query 不能用變數，全站統一用這三個值）：
+     ≥ 1280   桌機：主欄 + 252 側欄，banner 頁首
+     ≤ 1279   平板：側欄收成標籤列 + 底部作者卡，plate 頁首
+     ≤ 1023   窄平板：內文寬度收到 640
+     ≤ 767    手機：mobile 頁首 + 底部導覽列 */
+
+:root {
+  /* 頁首、標籤列、內文、狀態列共用同一條左右邊距 */
+  --gutter: 46px;
+  /* 底部導覽列佔掉的高度（只有手機有） */
+  --bottom-nav-h: 0px;
+
+  /* 標誌刻字三層（cage-mark-defs.html 的 #mkEng / #mkSEng 讀這四個值） */
+  --cut-floor: #1B1A16;
+  --cut-fa: .84;
+  --cut-lip: rgba(252, 248, 238, .55);
+  --cut-shade: rgba(0, 0, 0, .42);
+}
+
+[data-theme="dark"] {
+  --cut-floor: #E8E4D9;
+  --cut-fa: .92;
+  --cut-lip: rgba(0, 0, 0, .6);
+  --cut-shade: rgba(255, 255, 255, .13);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --gutter: 17px;
+    --bottom-nav-h: calc(58px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 回彈露出來的顏色就是頁面地色。
+   不設 height: 100%：iOS Safari 只有文件本身捲動時才會收起工具列。 */
+html,
+body {
+  margin: 0;
+  height: auto;
+  min-height: 100%;
+  background: var(--ground);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* 內容太短時，狀態列仍然落在視窗底部 */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: var(--bottom-nav-h);
+}
+
+.site-main {
+  flex: 1;
+}
+
+.cage-mark-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* 設計系統的全域 a {} 是給內文連結用的；機殼上的鍵與標籤不吃底線和連結色 */
+a.cage-face,
+a.cage-face:hover {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+a.cage-tag {
+  text-decoration: none;
+}
+
+a.cage-tag:hover {
+  color: var(--ink);
+  border-color: var(--edge);
+}
+
+/* 直向分隔線：機殼上的溝槽。高度由所在的元件用 --vrule-h 指定 */
+.vrule {
+  flex: none;
+  width: 1px;
+  height: var(--vrule-h, 26px);
+  background: var(--edge);
+  box-shadow: var(--seam-v);
+}
+
+/* 標準字組：CITY ARCHITECT / GOLDEN ERA */
+.wordmark {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.wordmark__title {
+  font-size: 16.5px;
+  letter-spacing: .22em;
+  color: var(--ink);
+  text-shadow: var(--cut-text);
+}
+
+.wordmark__subtitle {
+  font-size: 9.5px;
+  letter-spacing: .42em;
+  color: var(--label);
+}
+
+/* 捲動條上的縮小版 */
+.wordmark--bar {
+  gap: 4px;
+}
+
+.wordmark--bar .wordmark__title {
+  font-size: 15px;
+}
+
+.wordmark--bar .wordmark__subtitle {
+  font-size: 9px;
+}

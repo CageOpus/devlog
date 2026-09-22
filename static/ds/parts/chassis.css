@@ -1,0 +1,223 @@
+/* ══ CHASSIS ══ The frame. Brushed aluminium and engineering plastic, near-zero chroma;
+   the period reads out of the material, not out of colour. Chassis is a continuous
+   frame, never a floating card. Three depths of travel: raised → pressed → selected. */
+
+/* ── machined seams · every joint is a groove with a lit lip, not a flat 1px rule.
+   Apply alongside the border that makes the joint. ── */
+.cage-seam-b{box-shadow:0 1px 0 rgba(255,255,255,.6)}
+.cage-seam-t{box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.cage-seam-r{box-shadow:1px 0 0 rgba(255,255,255,.55)}
+.cage-seam-l{box-shadow:inset 1px 0 0 rgba(255,255,255,.55)}
+.cage-seam-br{box-shadow:0 1px 0 rgba(255,255,255,.6),1px 0 0 rgba(255,255,255,.55)}
+[data-theme="dark"] .cage-seam-b{box-shadow:0 1px 0 rgba(255,255,255,.11)}
+[data-theme="dark"] .cage-seam-t{box-shadow:inset 0 1px 0 rgba(255,255,255,.11)}
+[data-theme="dark"] .cage-seam-r{box-shadow:1px 0 0 rgba(255,255,255,.1)}
+[data-theme="dark"] .cage-seam-l{box-shadow:inset 1px 0 0 rgba(255,255,255,.1)}
+[data-theme="dark"] .cage-seam-br{box-shadow:0 1px 0 rgba(255,255,255,.11),1px 0 0 rgba(255,255,255,.1)}
+
+/* ── panel grain · panel faces are anodised: isotropic matte grain, no brush
+   direction. Bars stay brushed. Paper stock gets the same grain, vellum tooth. ── */
+.cage-grain{background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+.cage-grain-paper{background-image:linear-gradient(color-mix(in srgb,var(--well) var(--grain-mute),transparent),color-mix(in srgb,var(--well) var(--grain-mute),transparent)),url("../assets/textures/vellum.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+
+/* ── Unicode marks used as icons must render as TEXT, never as colour emoji. The chassis
+   layer is achromatic; a single emoji glyph is the one thing that can break that. ── */
+.cage-glyph,.cage-rail__btn,.cage-btn--icon,.cage-stepper__btn,.cage-select__caret{font-variant-emoji:text}
+
+/* ── panel ── */
+.cage-panel{background:var(--chassis);border:1px solid var(--edge);box-shadow:var(--card-shadow);background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+.cage-panel__bar{height:var(--bar-h);display:flex;align-items:center;gap:var(--space-6);padding:0 var(--space-8);border-bottom:1px solid var(--edge);background-color:var(--chassis);background-image:var(--face-bar),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat;box-shadow:var(--seam-h);text-shadow:var(--cut-text)}
+.cage-panel__title{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-bar);font-size:var(--text-label-lg);color:var(--ink)}
+.cage-panel__note{font-family:var(--font-mono);font-size:var(--text-label);color:var(--label)}
+.cage-panel__body{padding:var(--space-8)}
+.cage-panel--flat{background-image:none}
+/* the striated casing ground the whole instrument sits on — brushed at 190px, the
+   widest tile in the system, so the shell reads as one large milled plate */
+.cage-casing{background-color:var(--chassis);background-image:var(--face-casing),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile-wide) var(--metal-tile-wide);background-repeat:no-repeat,repeat;border:1px solid var(--edge);box-shadow:var(--card-shadow)}
+[data-chrome="flat"] .cage-casing{background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.035) 0 1px,rgba(255,255,255,.025) 1px 3px);background-size:auto}
+
+/* ── the one convex aluminium face, reused everywhere, in three depths.
+   All three states share --face-convex and --metal-tile: it is the same piece of metal,
+   the same brush, whether it is proud or bottomed out. Only the lighting changes — the
+   frame's upper lip casts across the top of the face as the key goes in, and the face
+   value drops. Never swap the face to a concave gradient; that reads as a dish, not a key.
+   Travel is along Z by --press-recede (keep it under ~1%; the depth is in the shadow).
+   `scale` is used rather than `transform` so the switch knob keeps its own rotate/skew. ── */
+.cage-face{background-color:var(--btn-face);background-image:var(--face-convex),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile) var(--metal-tile);background-repeat:no-repeat,repeat;border:1px solid var(--btn-edge);box-shadow:var(--btn-raised);color:var(--ink);text-shadow:var(--cut-text);scale:1;transition:box-shadow var(--press-out) var(--ease-settle),background-color var(--press-out) var(--ease-settle),border-color var(--press-out) var(--ease-settle),scale var(--press-out) var(--ease-settle)}
+.cage-face--sunk{background-color:var(--btn-face-sunk);border-color:var(--btn-edge-lit);box-shadow:var(--btn-sunk);text-shadow:var(--cut-text-sunk)}
+/* the throw down is instant — a key bottoms out; all the motion is in the release, which
+   overshoots a fraction on the way back up. [data-pressing] is the latched equivalent of
+   :active, set by assets/press-latch.js so a trackpad tap still holds the bottom of the
+   throw for --press-hold instead of 2 frames. Style them identically, always. */
+.cage-face:active,.cage-face[data-pressing]{background-color:var(--btn-face-press);border-color:var(--btn-edge-lit);box-shadow:var(--btn-pressed);text-shadow:var(--cut-text-sunk);scale:var(--press-recede);transition-duration:var(--press-in);transition-timing-function:var(--ease-press)}
+[data-chrome="flat"] .cage-face{background:linear-gradient(180deg,var(--btn-a),var(--btn-b));background-image:linear-gradient(180deg,var(--btn-a),var(--btn-b));border-color:var(--edge);box-shadow:none;text-shadow:none}
+[data-chrome="flat"] .cage-face--sunk{background:var(--recess);background-image:none;box-shadow:var(--inset-recess);text-shadow:none}
+[data-chrome="flat"] .cage-face:active,[data-chrome="flat"] .cage-face[data-pressing]{background:var(--recess);background-image:none;box-shadow:var(--inset-recess-press);text-shadow:none}
+@media (prefers-reduced-motion:reduce){.cage-face,.cage-face:active,.cage-face[data-pressing]{transition:none;scale:1}}
+
+/* ── button ── */
+.cage-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);padding:7px 18px;border-radius:var(--radius-control);font-family:var(--font-cjk);font-size:var(--text-ui);cursor:pointer;user-select:none;white-space:nowrap}
+.cage-btn--sm{padding:4px 12px;font-size:var(--text-ui-sm)}
+.cage-btn--block{display:flex;width:100%}
+.cage-btn--quiet{color:var(--label)}
+.cage-btn--icon{width:25px;height:var(--control-h);padding:0;font-family:var(--font-mono);font-size:var(--text-label);font-variant-emoji:text}
+.cage-btn[aria-disabled="true"]{opacity:.42;cursor:default;pointer-events:none}
+
+/* ── segmented control ── */
+.cage-seg{display:inline-flex;border:1px solid var(--edge);border-radius:var(--radius-control);overflow:hidden;font-family:var(--font-cjk);font-size:var(--text-ui-sm)}
+.cage-seg__item{padding:4px 12px;cursor:pointer;user-select:none;white-space:nowrap;border-left:1px solid var(--edge);border-radius:0}
+.cage-seg__item:first-child{border-left:none}
+.cage-seg--tall .cage-seg__item{display:flex;align-items:center;padding:0 15px;font-size:var(--text-ui)}
+.cage-seg--label .cage-seg__item{flex:1;justify-content:center;text-align:center;font-family:var(--font-label);text-transform:uppercase;letter-spacing:.08em;font-size:var(--text-label);padding:4px 0}
+
+/* ── knob · a small part held between two fingers, not a key struck with one. It does not
+   travel and its lighting does not change — it rocks on its axis in its own clearance. A
+   plain Z rotation keeps the knob's exact shape: no skew, no shear, no parallelogram, and
+   no press darkening (the face keeps its raised metal throughout). ── */
+.cage-knob,.cage-knob:active,.cage-knob[data-pressing]{background-color:var(--btn-face);border-color:var(--btn-edge);box-shadow:var(--btn-raised);scale:1}
+.cage-knob{rotate:0deg;transform-origin:var(--knob-press-origin);transition:rotate var(--press-out) var(--ease-settle)}
+@media (prefers-reduced-motion:reduce){.cage-knob,.cage-knob:active,.cage-knob[data-pressing],.cage-switch:active .cage-switch__knob,.cage-slider:active .cage-slider__knob{rotate:0deg}}
+
+/* ── switch · a groove with a sliding plate in it, and the knob OUTSIDE the groove.
+      __window IS the groove: a plain overflow:hidden frame at the switch's padding box, so
+      the plate — dyed slot metal plus both silkscreened legends — is cut at the frame line
+      and the frame itself stays visible. The knob is __window's SIBLING, not its child, so
+      nothing clips it: its edge and drop shadow fall on the chassis, and it stands PROUD of
+      the groove (--knob-proud top and bottom) because a part you grip is taller than its
+      opening, not wider. z-index puts it over the groove.
+      The plate and the knob are two elements but there is only ONE animation: --sw-throw, a
+      registered custom property transitioned on .cage-switch itself. Both read
+      translate:var(--sw-throw) and neither has a transition of its own, so they are the same
+      interpolated length in the same frame by construction — not two transitions the browser
+      has to keep in step. NEVER put a transition on the plate or the knob, and never animate
+      their translate directly: two transitions on two elements, however identically written,
+      is what put the legend and the knob out of step before. (A clip-path animated in lockstep
+      is the other way to cut the plate without cutting the knob, but animating a clip on a
+      textured layer re-rasterises it and flickers on press — hence a static overflow here.)
+      At each end of the throw the assembly is against its HARD STOP: the knob flush with
+      that end, no clearance, so --switch-travel is --switch-w minus --knob-w. The knob is
+      positioned against the switch's border box (left:-1px, i.e. back out through the 1px
+      frame) so at the stop it reaches the outer edge instead of stopping short and letting
+      slot metal show; the plate sits 1px further left for the same reason, which keeps the
+      dye boundary and both legends registered to the knob. Every part is pinned to
+      box-sizing:border-box so that arithmetic holds whatever a page sets box-sizing to.
+      The plate is dyed at the I end only and plain slot metal at the O end, so "live" is
+      read off value: white legend on dyed when on, dark legend on light metal when off. The
+      dye ends on the knob's CENTRE LINE — under the knob in both states, so no sub-pixel or
+      tolerance-rotate sliver can leak past its edge when off, while everything visible left
+      of the knob is dyed when on. Do not move that boundary to either knob edge.
+      --switch-overhang extends the plate past both ends of the groove so no plate end can
+      reach the frame. The groove fits one legend plus the knob, so exactly one legend shows
+      at a time — that is how the switch states its position. The press does not rock the
+      assembly; it only throws.
+      Do NOT build this as a knob with coloured fill in the gaps beside it. ── */
+.cage-switch,.cage-switch__window,.cage-switch__plate,.cage-switch__knob{box-sizing:border-box}
+.cage-switch{position:relative;width:var(--switch-w);height:var(--switch-h);border:1px solid var(--edge);border-top-color:var(--btn-edge);border-radius:var(--radius-slot);background:var(--recess);box-shadow:0 1px 0 rgba(255,255,255,.55);cursor:pointer}
+[data-theme="dark"] .cage-switch{box-shadow:0 1px 0 rgba(255,255,255,.1)}
+.cage-switch__window{position:absolute;inset:0;overflow:hidden;border-radius:inherit;box-shadow:var(--inset-recess);z-index:0}
+.cage-switch__plate{position:absolute;top:0;bottom:0;left:calc(-1 * (var(--switch-travel) + var(--switch-overhang)) - 1px);width:calc(var(--switch-w) + var(--switch-travel) + 2 * var(--switch-overhang));background-color:var(--recess);background-image:linear-gradient(90deg,var(--slot-dyed) 0,var(--slot-dyed) calc(var(--switch-overhang) + var(--switch-travel) + var(--knob-w) / 2),var(--recess) calc(var(--switch-overhang) + var(--switch-travel) + var(--knob-w) / 2)),linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.08)),url("../assets/textures/anodised.png");background-size:auto,auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,no-repeat,repeat}
+.cage-switch__knob{position:absolute;top:calc(-1 * var(--knob-proud) - 1px);bottom:calc(-1 * var(--knob-proud) - 1px);left:-1px;width:var(--knob-w);z-index:1;border-radius:var(--radius-slot);transform:rotate(-.5deg);transform-origin:50% 100%}
+/* ONE animation for the whole assembly: the throw is a registered custom property on the
+   switch, inherited by both moving parts. They cannot drift because there is nothing to
+   keep in step — they are the same value. Do not add a transition to either part. */
+@property --sw-throw{syntax:"<length>";inherits:true;initial-value:0px}
+.cage-switch{--sw-throw:0px;transition:--sw-throw var(--throw-dur) var(--ease-throw)}
+.cage-switch[data-on="true"]{--sw-throw:var(--switch-travel)}
+.cage-switch__plate,.cage-switch__knob{translate:var(--sw-throw) 0}
+.cage-switch__plate::before,.cage-switch__plate::after{position:absolute;top:0;bottom:0;width:var(--switch-travel);display:flex;align-items:center;justify-content:center;font-family:var(--font-label);font-size:var(--text-micro);font-weight:var(--weight-semibold);letter-spacing:.04em;pointer-events:none}
+.cage-switch__plate::before{content:"I";left:var(--switch-overhang);color:var(--ink-on-dyed);text-shadow:0 -1px 0 rgba(0,0,0,.5)}
+.cage-switch__plate::after{content:"O";left:calc(var(--switch-overhang) + var(--switch-travel) + var(--knob-w));color:color-mix(in srgb,var(--ink) 78%,transparent);text-shadow:0 1px 0 rgba(255,255,255,.5)}
+[data-theme="dark"] .cage-switch__plate::after{text-shadow:0 -1px 0 rgba(0,0,0,.6)}
+@media (prefers-reduced-motion:reduce){.cage-switch{transition:none}}
+
+/* ── stepper · the numeral sits on a paper inlay, not on metal ── */
+.cage-stepper{display:inline-flex;align-items:stretch;border:1px solid var(--edge);border-radius:var(--radius-control);overflow:hidden;font-family:var(--font-mono);font-size:var(--text-mono-md)}
+.cage-stepper__btn{width:24px;text-align:center;padding:3px 0;cursor:pointer;user-select:none;border-radius:0}
+.cage-stepper__value{width:36px;text-align:center;padding:3px 0;background:var(--paper);color:var(--text-on-paper);border-left:1px solid var(--edge);border-right:1px solid var(--edge);text-shadow:none}
+
+/* ── slider · recessed slot, anodised inlay, proud knob.
+   The fill is NOT a control — it is the anodised inlay lying in the bottom of the slot,
+   so it carries no --face-convex dome, no raised shadow, and no press state. Only the
+   knob is a part you touch (.cage-face made the fill read as a long pressable key and
+   stood it proud of its own track). The inlay is DYED aluminium — black anodising at full
+   depth, not a tinted one: the chassis is layer 1 and carries near-zero chroma, so the
+   travelled portion is read off value alone, never a hue. An --ink-intensity tint here was
+   an instrument ink doing a chassis job. Drag is handled in Slider.jsx via pointer
+   capture on the track. ── */
+.cage-slider{position:relative;height:var(--control-h-xs);border:1px solid var(--edge);background:var(--recess);box-shadow:var(--inset-recess);touch-action:none;cursor:ew-resize}
+.cage-slider__fill{position:absolute;left:0;top:0;bottom:0;border:none;border-right:1px solid var(--edge);box-shadow:inset 0 1px 1px rgba(0,0,0,.35);background-color:var(--slot-dyed);background-image:linear-gradient(rgba(0,0,0,.14),rgba(0,0,0,.14)),url("../assets/textures/anodised.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat;pointer-events:none}
+[data-chrome="flat"] .cage-slider__fill{background-color:var(--slot-dyed);background-image:none;box-shadow:none}
+/* the track is the hit area (the knob is pointer-events:none), so its rock comes from here */
+.cage-slider:active .cage-slider__knob{rotate:var(--knob-press-tilt)}
+.cage-slider__knob{position:absolute;top:-2px;bottom:-2px;width:8px;margin-left:-4px;border-radius:var(--radius-slot);pointer-events:none}
+.cage-slider__head{display:flex;justify-content:space-between;margin-bottom:var(--space-1)}
+.cage-slider__value{font-family:var(--font-mono);font-size:var(--text-mono);color:var(--ink)}
+
+/* ── tabs · paper attached to a panel. The paper state is reserved for tabs, where a
+      panel completes the metaphor. ── */
+.cage-tabs{display:flex;border-bottom:1px solid var(--edge-soft);box-shadow:0 1px 0 rgba(255,255,255,.6)}
+[data-theme="dark"] .cage-tabs{box-shadow:0 1px 0 rgba(255,255,255,.11)}
+.cage-tabs__tab{padding:6px 14px 5px;font-family:var(--font-cjk);font-size:var(--text-ui-sm);color:var(--label);cursor:pointer;user-select:none}
+.cage-tabs__tab[aria-selected="true"]{border:1px solid var(--edge);border-bottom:none;background:var(--paper);color:var(--text-on-paper);margin-bottom:-1px;text-shadow:none}
+
+/* ── select ── */
+.cage-select{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);padding:4px 7px;border-radius:var(--radius-control);font-family:var(--font-cjk);font-size:var(--text-ui-sm);cursor:pointer}
+.cage-select__caret{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--label)}
+
+/* ── tool rail ── */
+.cage-rail{width:var(--rail-w);display:flex;flex-direction:column;align-items:center;gap:var(--space-2);padding:var(--space-4) 0;border-right:1px solid var(--edge);background-color:var(--chassis);background-image:linear-gradient(90deg,var(--chassis-hi),var(--chassis)),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat;box-shadow:1px 0 0 rgba(255,255,255,.55)}
+[data-theme="dark"] .cage-rail{box-shadow:1px 0 0 rgba(255,255,255,.1)}
+.cage-rail__group{font-family:var(--font-label);text-transform:uppercase;font-size:8px;letter-spacing:var(--track-rail);color:var(--label)}
+.cage-rail__btn{width:var(--rail-btn);height:var(--rail-btn);display:flex;align-items:center;justify-content:center;border-radius:var(--radius-control);font-family:var(--font-mono);font-size:14px;font-variant-emoji:text;cursor:pointer;user-select:none}
+.cage-rail__sep{width:24px;height:var(--hair);background:var(--edge-soft);margin:var(--space-1) 0;box-shadow:0 1px 0 rgba(255,255,255,.6)}
+[data-theme="dark"] .cage-rail__sep{box-shadow:0 1px 0 rgba(255,255,255,.11)}
+
+/* ── title-block cell · the readout grid on the top bar ── */
+.cage-titlecell{display:flex;flex-direction:column;gap:1px}
+.cage-titlecell__label{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-label);font-size:var(--text-label-sm);color:var(--label)}
+.cage-titlecell__value{font-family:var(--font-mono);font-size:var(--text-readout);font-weight:var(--weight-medium);color:var(--ink)}
+.cage-titleblock{display:flex;gap:var(--space-9);padding:6px var(--space-6);border:1px solid var(--edge-soft);background-image:var(--face-bar),url("../assets/textures/brushed-aluminium.png");background-color:var(--chassis);background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat;text-shadow:var(--cut-text)}
+
+/* ── status bar ── */
+.cage-status{height:var(--status-h);display:flex;align-items:center;gap:var(--space-9);padding:0 var(--space-7);border-top:1px solid var(--edge);background-color:var(--chassis);background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat;box-shadow:inset 0 1px 0 rgba(255,255,255,.6);font-family:var(--font-mono);font-size:var(--text-mono-xs);color:var(--label)}
+[data-theme="dark"] .cage-status{box-shadow:inset 0 1px 0 rgba(255,255,255,.11)}
+
+/* ── Bright / Dim ── */
+.cage-toggle{display:flex;border:1px solid var(--edge);border-radius:var(--radius-control);overflow:hidden}
+.cage-toggle__side{cursor:pointer;font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-toggle);font-size:var(--text-label);padding:3px 9px}
+.cage-toggle__side--bright{background:var(--tog-l-bg);color:var(--tog-l-fg)}
+.cage-toggle__side--dim{background:var(--tog-d-bg);color:var(--tog-d-fg)}
+/* the switch reads its own state: the side you are NOT on sits back and desaturates */
+.cage-toggle[data-mode] .cage-toggle__side{opacity:.42;transition:opacity 90ms linear}
+.cage-toggle[data-mode="bright"] .cage-toggle__side--bright,.cage-toggle[data-mode="dim"] .cage-toggle__side--dim{opacity:1}
+
+/* ── tag · outline-only chassis element, so it never reads as a map legend ── */
+.cage-tag{display:inline-block;border:1px solid var(--rule);padding:2px 8px;font-family:var(--font-mono);font-size:var(--text-label);color:var(--label)}
+
+/* ── tool card · the deck's picker tiles ── */
+.cage-toolcard{display:flex;flex-direction:column;align-items:center;gap:var(--space-1);padding:6px 0;border-radius:var(--radius-control);cursor:pointer;user-select:none}
+.cage-toolcard__label{font-family:var(--font-cjk);font-size:var(--text-ui-xs)}
+
+/* ── Dim uses a separate metal cut. These rules exist because the texture path must
+   live in a real declaration: a url() passed through a custom property resolves
+   against the PAGE, not this file, so it 404s at every depth but one. Never move
+   these back into a --tex-* token. See CLAUDE.md. ── */
+[data-theme="dark"] .cage-face{background-image:var(--face-convex),url("../assets/textures/brushed-aluminium-dark.png")}
+[data-theme="dark"] .cage-panel__bar{background-image:var(--face-bar),url("../assets/textures/brushed-aluminium-dark.png")}
+[data-theme="dark"] .cage-titleblock{background-image:var(--face-bar),url("../assets/textures/brushed-aluminium-dark.png")}
+[data-theme="dark"] .cage-casing{background-image:var(--face-casing),url("../assets/textures/brushed-aluminium-dark.png")}
+[data-theme="dark"] .cage-rail{background-image:linear-gradient(90deg,var(--chassis-hi),var(--chassis)),url("../assets/textures/brushed-aluminium-dark.png")}
+[data-theme="dark"] .cage-mat-key{background-image:var(--face-convex),url("../assets/textures/brushed-aluminium-dark.png")}
+[data-theme="dark"] .cage-mat-sunk{background-image:var(--face-convex),url("../assets/textures/brushed-aluminium-dark.png")}
+[data-theme="dark"] .cage-mat-bar{background-image:var(--face-bar),url("../assets/textures/brushed-aluminium-dark.png")}
+[data-theme="dark"] .cage-mat-plate{background-image:var(--face-casing),url("../assets/textures/brushed-aluminium-dark.png")}
+
+/* ── material utilities · the supported way to put a texture on an arbitrary surface.
+   Use these instead of composing var(--tex-*) into an inline style. Each carries the
+   full layer stack: ground colour, specular sweep, texture, tile size. ── */
+.cage-mat-key{background-color:var(--btn-face);background-image:var(--face-convex),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile) var(--metal-tile);background-repeat:no-repeat,repeat}
+.cage-mat-sunk{background-color:var(--btn-face-sunk);background-image:var(--face-convex),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile) var(--metal-tile);background-repeat:no-repeat,repeat}
+.cage-mat-bar{background-color:var(--chassis);background-image:var(--face-bar),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat}
+.cage-mat-plate{background-color:var(--chassis);background-image:var(--face-casing),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile-wide) var(--metal-tile-wide);background-repeat:no-repeat,repeat}
+.cage-mat-panel{background-color:var(--chassis);background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+.cage-mat-paper{background-color:var(--well);background-image:linear-gradient(color-mix(in srgb,var(--well) var(--grain-mute),transparent),color-mix(in srgb,var(--well) var(--grain-mute),transparent)),url("../assets/textures/vellum.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}

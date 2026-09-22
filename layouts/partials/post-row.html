@@ -1,0 +1,16 @@
+{{- /* 文章列表的一列。參數：.page、.number（倒數編號，最新一篇最大）
+       ≥ 1280 編號自成左欄；< 1280 編號移到標題上方，與日期、閱讀時間同一行。 */ -}}
+{{- with .page }}
+<a class="post-row" href="{{ .RelPermalink }}">
+  <span class="post-row__number">#{{ printf "%03d" $.number }}</span>
+  <h2 class="post-row__title">{{ .Title }}</h2>
+  <time class="post-row__date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006-01-02" }}</time>
+  <p class="post-row__summary">{{ .Description | default (.Summary | plainify | htmlUnescape) }}</p>
+  <span class="post-row__tags">
+    {{- range $i, $tag := .Params.tags }}
+    {{- if $i }}<span class="post-row__sep">·</span>{{ end }}<span>{{ $tag | upper }}</span>
+    {{- end -}}
+  </span>
+  <span class="post-row__time">{{ .ReadingTime }} MIN</span>
+</a>
+{{- end }}

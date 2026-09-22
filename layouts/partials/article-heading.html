@@ -1,0 +1,14 @@
+{{- /* 文章與單頁共用的頂部：眉標 + 標題。
+       眉標 = 區段名（.Section；根目錄的頁面沒有區段，用檔名，例如 about）· 里程碑（.Params.milestone，選填），
+       後面可再接一段 .Params.eyebrow（選填）。 */ -}}
+<div class="article__eyebrow cage-eyebrow">
+  <span>
+    {{- (.Section | default .File.ContentBaseName) | upper }}
+    {{- with .Params.milestone }} · MILESTONE {{ . }}{{ end -}}
+  </span>
+  {{- with .Params.eyebrow }}
+  <span class="article__eyebrow-rule"></span>
+  <span>{{ . }}</span>
+  {{- end }}
+</div>
+<h1 class="article__title cage-title">{{ .Title }}</h1>

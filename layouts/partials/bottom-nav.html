@@ -1,0 +1,6 @@
+{{- /* 手機（≤ 767）底部固定導覽列 58px：頁首放不下的導覽與 Bright / Dim 開關沉到這裡。 */ -}}
+<div class="bottom-nav cage-mat-bar">
+  {{- partial "site-nav.html" (dict "page" . "class" "cage-seg--tall") }}
+  <span class="vrule"></span>
+  {{- partial "theme-switch.html" . }}
+</div>

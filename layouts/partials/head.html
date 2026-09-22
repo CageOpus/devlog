@@ -1,0 +1,52 @@
+{{- /* 覆寫 PaperMod 的 head：不載入 PaperMod 的 CSS，改載 CAGE 設計系統 + devlog 樣式。 */ -}}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+{{- if and hugo.IsProduction (ne .Params.robotsNoIndex true) }}
+<meta name="robots" content="index, follow">
+{{- else }}
+<meta name="robots" content="noindex, nofollow">
+{{- end }}
+
+<title>{{ if not .IsHome }}{{ with .Title }}{{ . }} | {{ end }}{{ end }}{{ site.Title }}</title>
+<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ if .IsPage }}{{ .Summary | plainify }}{{ else }}{{ site.Params.description }}{{ end }}{{ end }}">
+<meta name="author" content="{{ partial "author.html" . }}">
+<link rel="canonical" href="{{ .Permalink }}">
+
+{{- /* 瀏海帶與假螢幕邊框同為純黑；加到主畫面時頁首直接長進安全區 */}}
+<meta name="theme-color" content="#000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CAGE Devlog">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+{{- range .AlternativeOutputFormats }}
+<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ site.Title }}">
+{{- end }}
+
+{{- /* Bright / Dim 必須在第一次繪製前決定，否則會閃一下。
+       一律從 Bright 開始，不看系統的深色模式；只有訪客自己按過開關（存在 localStorage）才用 Dim。 */}}
+<script>
+  (function () {
+    var stored = null;
+    try { stored = localStorage.getItem("pref-theme"); } catch (e) {}
+    document.documentElement.dataset.theme = stored === "dark" ? "dark" : "light";
+  })();
+</script>
+
+{{- /* CAGE 設計系統：原封放在 static/ds/，材質圖以相對路徑引用，所以不能進 Hugo pipeline 合併 */}}
+{{- range slice "tokens/fonts" "tokens/colors" "tokens/typography" "tokens/spacing" "tokens/surfaces" "parts/base" "parts/chassis" "parts/sheet" "parts/prose" }}
+<link rel="stylesheet" href="{{ printf "ds/%s.css" . | relURL }}">
+{{- end }}
+
+{{- $css := resources.Match "css/devlog/*.css" | resources.Concat "css/devlog.css" }}
+{{- if hugo.IsProduction }}
+{{- $css = $css | minify | fingerprint }}
+{{- end }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}">
+
+<script src="{{ "ds/assets/press-latch.js" | relURL }}" defer></script>
+
+{{- if hugo.IsProduction }}
+{{- partial "templates/opengraph.html" . }}
+{{- partial "templates/twitter_cards.html" . }}
+{{- partial "templates/schema_json.html" . }}
+{{- end }}
