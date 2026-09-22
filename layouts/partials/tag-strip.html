@@ -12,7 +12,8 @@
       {{- end }}
     {{- else }}
       {{- range site.Taxonomies.tags.ByCount }}
-      <a class="cage-tag" href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle | upper }} {{ .Count }}</a>
+      {{- $isCurrent := eq .Page $ }}
+      <a class="cage-tag{{ if $isCurrent }} cage-tag--current{{ end }}" href="{{ .Page.RelPermalink }}"{{ if $isCurrent }} aria-current="page"{{ end }}>{{ .Page.LinkTitle | upper }} {{ .Count }}</a>
       {{- end }}
     {{- end }}
   </div>

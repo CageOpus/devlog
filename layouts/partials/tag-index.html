@@ -1,8 +1,10 @@
-{{- /* 全站標籤索引：標籤名 —— 篇數，一列一個。用在側邊欄與 /tags/ 頁。 */ -}}
+{{- /* 全站標籤索引：標籤名 —— 篇數，一列一個。用在側邊欄與 /tags/ 頁。
+       傳入的是目前頁面；在某個標籤頁時，那個標籤的列標成目前位置（aria-current）並高亮。 */ -}}
+{{- $current := . }}
 <ul class="tag-index">
   {{- range site.Taxonomies.tags.ByCount }}
   <li>
-    <a class="tag-index__row" href="{{ .Page.RelPermalink }}">
+    <a class="tag-index__row" href="{{ .Page.RelPermalink }}"{{ if eq .Page $current }} aria-current="page"{{ end }}>
       <span class="tag-index__name">{{ .Page.LinkTitle | upper }}</span>
       <span class="tag-index__leader"></span>
       <span class="tag-index__count">{{ .Count }}</span>

@@ -11,6 +11,7 @@ tags = "Tags"
 writtenBy = "Written by"
 
 latest = "Latest"
+clearFilter = "Clear filter"
 pagination = "Pagination"
 prevPage = "Previous"
 nextPage = "Next"

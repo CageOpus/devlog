@@ -13,8 +13,13 @@
 <div class="page">
   {{- partial "status-backdrop.html" . }}
   <div class="page__main">
+    {{- /* 標籤頁是「用標籤篩選過的文章列表」：標頭印出目前的標籤，並給一顆清除篩選、回到全部文章的鍵 */}}
+    {{- $isTagFilter := eq .Kind "term" }}
     <div class="section-head">
-      {{- if or .IsHome (eq .Section "posts") }}
+      {{- if $isTagFilter }}
+      <span class="section-head__label">{{ T "tags" }}</span>
+      <span class="cage-tag cage-tag--current">{{ .LinkTitle | upper }}</span>
+      {{- else if or .IsHome (eq .Section "posts") }}
       <span class="section-head__label">{{ T "posts" }}</span>
       {{- else }}
       <span class="section-head__label">{{ .Title }}</span>
@@ -24,6 +29,11 @@
         {{- T "postCount" (len $pages) }}
         {{- with index $pages 0 }}<span class="section-head__latest"> · {{ T "latest" }} {{ .Date.Format "2006-01-02" }}</span>{{ end -}}
       </span>
+      {{- if $isTagFilter }}
+      {{- with site.GetPage "/posts" }}
+      <a class="section-head__clear cage-btn cage-face cage-btn--sm" href="{{ .RelPermalink }}">× {{ T "clearFilter" }}</a>
+      {{- end }}
+      {{- end }}
     </div>
 
     <div class="post-list cage-well">

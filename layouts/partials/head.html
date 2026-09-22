@@ -10,6 +10,8 @@
 {{- /* 網頁標題：「{頁面} | {遊戲名}」，首頁的頁面是 Devlog。
        頁面標題跟遊戲名一樣時（關於頁），改用選單上的名稱，免得同一個名字印兩次。 */}}
 {{- $pageTitle := cond .IsHome "Devlog" .Title }}
+{{- /* 標籤頁：Hugo 會把標籤名轉成首字大寫（Gpu），改成跟畫面上的標籤鍵一樣全大寫 */}}
+{{- if eq .Kind "term" }}{{ $pageTitle = upper .LinkTitle }}{{ end }}
 {{- if eq $pageTitle site.Params.gameName }}
   {{- range site.Menus.main }}
     {{- if $.IsMenuCurrent "main" . }}{{ $pageTitle = .Name }}{{ end }}

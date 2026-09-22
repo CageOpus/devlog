@@ -10,6 +10,7 @@ tags = "標籤"
 writtenBy = "作者"
 
 latest = "最新"
+clearFilter = "清除篩選"
 pagination = "分頁"
 prevPage = "上一頁"
 nextPage = "下一頁"

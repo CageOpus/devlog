@@ -108,9 +108,12 @@
   opacity: .5;
 }
 
+/* 讀數全大寫（跟頁首的 BUILD、READ 讀數一樣）：標頭左邊的標籤與標籤鍵都是大寫，
+   右邊若是小寫，基線對齊時字的重心比較低，整列看起來會左高右低 */
 .section-head__note {
   font-family: var(--font-mono);
   font-size: 10.5px;
+  text-transform: uppercase;
   color: var(--label);
 }
 
@@ -175,6 +178,30 @@
 
 .tag-index__count {
   color: var(--label);
+}
+
+/* 目前所在的標籤：名稱與篇數轉粗體 */
+.tag-index__row[aria-current="page"] :is(.tag-index__name, .tag-index__count) {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* 標籤鍵的「目前」狀態：標籤頁標頭上的那顆、標籤列裡被選中的那顆 */
+.cage-tag--current {
+  border-color: var(--ink);
+  background: var(--recess);
+  color: var(--ink);
+}
+
+/* 標籤頁標頭右端：清除篩選，回到全部文章。跟標頭其他字一樣對齊基線（.section-head 是 baseline 對齊），
+   字也跟整列一樣用等寬大寫 */
+.section-head__clear {
+  flex: none;
+  padding: 3px 9px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
 }
 
 .terms-list {

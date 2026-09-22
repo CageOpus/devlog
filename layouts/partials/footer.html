@@ -1,7 +1,8 @@
 {{- /* 狀態列。「加入主畫面」鍵預設隱藏，不是從主畫面開啟、而且瀏覽器支援時才由 js/devlog.js 打開（見 install-dialog.html）。 */ -}}
 {{- $year := now.Year }}
 <footer class="site-footer cage-status">
-  <span>BUILD {{ site.Params.build }}</span>
+  {{- /* 手機上跟 extra 一起隱藏：手機頁首本來就有 BUILD 讀數，狀態列要讓位給「加入主畫面」鍵 */}}
+  <span class="site-footer__extra">BUILD {{ site.Params.build }}</span>
   <span class="site-footer__extra">HUGO + PAPERMOD + CAGE</span>
   <span class="site-footer__extra">{{ $year }}</span>
   <button type="button" class="site-footer__install cage-btn cage-face" data-install hidden>{{ T "installApp" }}</button>
