@@ -1,0 +1,21 @@
+# 介面字串（繁體中文）。key 與 en.toml 一一對應。
+
+mainMenu = "主選單"
+back = "返回"
+switchLanguage = "切換語言"
+
+posts = "文章"
+tags = "標籤"
+writtenBy = "作者"
+
+latest = "最新"
+pagination = "分頁"
+prevPage = "上一頁"
+nextPage = "下一頁"
+postPager = "上一篇 / 下一篇"
+
+postCount = '{{ printf "%02d" .Count }} 篇'
+tagCount = '{{ printf "%02d" .Count }} 個'
+
+notFoundText = "這個路段不在計畫圖上。"
+backHome = "回到首頁"

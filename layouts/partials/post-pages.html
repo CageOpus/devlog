@@ -1,0 +1,16 @@
+{{- /* 回傳文章列表用的集合（依日期新到舊）：這個語言的文章，加上只有其他語言版本的文章。
+       沒有譯本的文章不會從列表消失，而是列出原文；列表上會標出它的語言（見 post-row.html）。
+       首頁、文章區段、上下篇、標籤列的篇數都用這個集合，編號與篇數在兩個語言之間一致。 */ -}}
+{{- $lang := site.Language.Lang }}
+{{- $sections := site.Params.mainSections }}
+{{- $pages := where site.RegularPages "Section" "in" $sections }}
+{{- range hugo.Sites }}
+  {{- if ne .Language.Lang $lang }}
+    {{- range where .RegularPages "Section" "in" $sections }}
+      {{- if not (where .Translations "Language.Lang" $lang) }}
+        {{- $pages = $pages | append . }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- return $pages.ByDate.Reverse }}

@@ -11,6 +11,10 @@
 <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ if .IsPage }}{{ .Summary | plainify }}{{ else }}{{ site.Params.description }}{{ end }}{{ end }}">
 <meta name="author" content="{{ partial "author.html" . }}">
 <link rel="canonical" href="{{ .Permalink }}">
+{{- /* 同一頁的各語言版本，給搜尋引擎配對 */}}
+{{- range .AllTranslations }}
+<link rel="alternate" hreflang="{{ .Language.Locale }}" href="{{ .Permalink }}">
+{{- end }}
 
 {{- /* 瀏海帶與假螢幕邊框同為純黑；加到主畫面時頁首直接長進安全區 */}}
 <meta name="theme-color" content="#000">

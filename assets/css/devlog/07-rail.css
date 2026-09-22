@@ -8,7 +8,7 @@
    工具列展開、視窗較矮時，rail 用下方的緊湊間距塞進去。
 
    這個模式下：
-   - 導覽、返回、閱讀進度、Bright / Dim 收進右緣的 rail，rail 是唯一固定的東西；
+   - 導覽、返回、閱讀進度、語言切換、Bright / Dim 收進右緣的 rail，rail 是唯一固定的東西；
    - 頁首換成 64px 標題列（標誌、刊名、readout，沒有控制項），跟標籤列一起隨內文捲走；
    - 頁面讓出 rail 的寬；左側的 safe area 只推內容欄，頁首與標籤列照樣滿版。
    - 左右 safe area 都不疊加：右側讓安全區界線切齊 rail 的鍵、左側切齊文章卡片，差多少補多少。
@@ -87,8 +87,8 @@
     font-size: 15px;
   }
 
-  /* 中文：直排上豎，方形字等寬，鍵高跟字數成正比 */
-  .rail-nav__key--cjk {
+  /* 可以直排的語言（中文）：上豎排列，方形字等寬，鍵高跟字數成正比 */
+  .rail-nav__key--upright {
     height: 58px;
     writing-mode: vertical-rl;
     text-orientation: upright;
@@ -96,8 +96,8 @@
     letter-spacing: .08em;
   }
 
-  /* 英文：整個字轉 90°，完整拼寫，不上豎 */
-  .rail-nav__key--latin {
+  /* 其他語言：整個字轉 90°，完整拼寫，不上豎 */
+  .rail-nav__key--rotated {
     height: 64px;
     writing-mode: vertical-rl;
     font-family: var(--font-label);
@@ -105,6 +105,12 @@
     font-size: 12px;
     letter-spacing: .14em;
     text-transform: uppercase;
+  }
+
+  /* 上面 .rail-nav .cage-btn 把內距歸零了，這顆鍵要把自己的內距拿回來 */
+  .rail-nav .lang-switch {
+    --lang-key: 44px;
+    padding: var(--lang-inset);
   }
 
   .rail-nav__spacer {

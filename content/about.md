@@ -11,34 +11,18 @@ specs = [
 ]
 +++
 
-一座城市。
+One city.
 
 
-一百萬居民。
+One million residents.
 
 
-沒有背景 NPC，沒有抽樣統計——每一個人都在「活著」。
+No background NPCs, no statistical sampling — every single one of them is *living*.
 
-他們會擴張、會把每一寸空間撐到極限。
-會回應你的政策，也會在邊界與縫隙中長出新的城市。
-會因為你的政策改變生活，也會把你的城市拖進混亂。
-
-
-為此，CAGE 打造了一套 GPU 模擬引擎。
-當其他引擎在規模面前妥協，我們選擇把整個城市搬上 GPU，讓每一個個體都能被計算、被追蹤、被影響。
+They expand, and push every inch of space to its limit.
+They respond to your policies, and grow a new city in the margins and the cracks.
+They change how they live because of your policies — and they can drag your city into chaos.
 
 
-騎樓連成陰影，機車填滿街道，夜市在巷口發光。
-一座在某個年代快速膨脹的城市——混亂、擁擠，但充滿相信明天的能量。
-
-
-你的政策，會印在天際線上。
-
-
-不是報表，不是數字。
-是外推的鐵窗，是層層加蓋的違章，
-是逐漸失序的街廓與被壓縮的空間。
-
-或是——
-一座真正運作的城市。
-
+That's why CAGE is built on its own GPU simulation engine.
+Where other engines compromise in the face of scale, we chose to move the entire city onto the GPU, so every individual can be computed, tracked, and affected.

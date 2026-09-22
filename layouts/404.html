@@ -5,8 +5,8 @@
     <div class="not-found__code">404</div>
     <span class="not-found__rule"></span>
     <div class="not-found__label">Route not found</div>
-    <p class="not-found__text">這個路段不在計畫圖上。</p>
-    <a class="cage-btn cage-face cage-btn--sm" href="{{ "" | relLangURL }}">回到首頁</a>
+    <p class="not-found__text">{{ T "notFoundText" }}</p>
+    <a class="cage-btn cage-face cage-btn--sm" href="{{ "" | relLangURL }}">{{ T "backHome" }}</a>
   </div>
 </div>
 {{- end }}

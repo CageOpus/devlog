@@ -1,7 +1,7 @@
 {{- /* 主選單：一組 segmented control，目前所在的項目壓下去（cage-face--sunk）。
        參數：.page（目前頁面）、.class（附加 class，選填） */ -}}
 {{- $page := .page -}}
-<nav class="cage-seg site-nav {{ .class }}" aria-label="主選單">
+<nav class="cage-seg site-nav {{ .class }}" aria-label="{{ T "mainMenu" }}">
   {{- range site.Menus.main }}
   {{- $active := partial "menu-active.html" (dict "page" $page "item" .) }}
   <a class="cage-seg__item cage-face{{ if $active }} cage-face--sunk{{ end }}" href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>

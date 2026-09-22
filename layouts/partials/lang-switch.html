@@ -1,0 +1,18 @@
+{{- /* 語言切換鍵「文 / A」：放在 Bright / Dim 開關左邊，點了就換到另一個語言。
+       有譯本時連到同一頁的譯本，沒有就連到另一個語言的首頁。
+       目前只有兩種語言，所以「另一個語言」就是第一個不是自己的。 */ -}}
+{{- $lang := site.Language.Lang }}
+{{- $other := false }}
+{{- range hugo.Sites }}
+  {{- if and (not $other) (ne .Language.Lang $lang) }}{{ $other = . }}{{ end }}
+{{- end }}
+{{- with $other }}
+  {{- $href := .Home.RelPermalink }}
+  {{- with index (where $.Translations "Language.Lang" .Language.Lang) 0 }}
+    {{- $href = .RelPermalink }}
+  {{- end }}
+<a class="lang-switch cage-btn cage-face" href="{{ $href }}" hreflang="{{ .Language.Lang }}" lang="{{ .Language.Locale }}" title="{{ .Language.Label }}" aria-label="{{ T "switchLanguage" }}: {{ .Language.Label }}">
+  <span class="lang-switch__glyph lang-switch__glyph--han" aria-hidden="true">文</span>
+  <span class="lang-switch__glyph lang-switch__glyph--latin" aria-hidden="true">A</span>
+</a>
+{{- end }}

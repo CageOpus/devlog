@@ -1,7 +1,9 @@
 baseURL = 'http://localhost:1313/'
-locale = 'en-us'
 title = 'CAGE — Devlog'
 theme = "cage"
+defaultContentLanguage = 'en'
+# 中文沒有空白分詞，要開這個字數與閱讀時間才會一字一字算
+hasCJKLanguage = true
 
 [params]
   author = "Ray Chung"
@@ -34,13 +36,44 @@ theme = "cage"
   codeFences = true
   guessSyntax = true
 
-[menu]
-  [[menu.main]]
+# ── 語言 ──
+# 英文是預設語言，放在根目錄；中文放在 /zh-tw/（Hugo 的語言目錄一律小寫）。
+# 文章的譯本用檔名區分：post.md 是英文、post.zh-tw.md 是中文，同名的兩個檔自動配成一組。
+# 只有一種語言的文章，另一個語言的列表照樣列出原文（見 layouts/partials/post-pages.html）。
+# 介面字串在 i18n/，儀表式的英文標籤（READ、BUILD、FIG……）屬於機殼的一部分，不翻。
+# 預設語言 defaultContentLanguage 寫在檔案最上面（TOML 的頂層 key 必須在所有表格之前）。
+
+[languages.en]
+  weight = 1
+  locale = 'en-US'
+  label = 'English'
+
+  [[languages.en.menus.main]]
+    identifier = "posts"
+    name = "Posts"
+    pageRef = "/posts"
+    weight = 10
+  [[languages.en.menus.main]]
+    identifier = "about"
+    name = "About"
+    pageRef = "/about"
+    weight = 20
+
+[languages.zh-tw]
+  weight = 2
+  locale = 'zh-TW'
+  label = '中文'
+
+  # 可以直排的文字：橫屏 rail 的導覽鍵上豎排列，而不是整個字轉 90°
+  [languages.zh-tw.params]
+    verticalWriting = true
+
+  [[languages.zh-tw.menus.main]]
     identifier = "posts"
     name = "文章"
     pageRef = "/posts"
     weight = 10
-  [[menu.main]]
+  [[languages.zh-tw.menus.main]]
     identifier = "about"
     name = "關於"
     pageRef = "/about"

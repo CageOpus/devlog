@@ -1,7 +1,11 @@
 {{- define "main" }}
+{{- /* 首頁與文章區段：包含只有其他語言版本的文章（見 post-pages.html）；標籤等其他列表只列這個語言的 */}}
 {{- $pages := .RegularPages }}
+{{- $isPostList := or .IsHome (and (eq .Kind "section") (in site.Params.mainSections .Section)) }}
+{{- if $isPostList }}
+  {{- $pages = partial "post-pages.html" . }}
+{{- end }}
 {{- if .IsHome }}
-  {{- $pages = where site.RegularPages "Section" "in" site.Params.mainSections }}
   {{- $pages = where $pages "Params.hiddenInHomeList" "!=" true }}
 {{- end }}
 {{- $paginator := .Paginate $pages }}
@@ -11,15 +15,14 @@
   <div class="page__main">
     <div class="section-head">
       {{- if or .IsHome (eq .Section "posts") }}
-      <span class="section-head__label">Posts</span>
-      <span class="section-head__label-zh">文章</span>
+      <span class="section-head__label">{{ T "posts" }}</span>
       {{- else }}
       <span class="section-head__label">{{ .Title }}</span>
       {{- end }}
       <span class="section-head__rule"></span>
       <span class="section-head__note">
-        {{- printf "%02d" (len $pages) }} 篇
-        {{- with index $pages 0 }}<span class="section-head__latest"> · 最新 {{ .Date.Format "2006-01-02" }}</span>{{ end -}}
+        {{- T "postCount" (len $pages) }}
+        {{- with index $pages 0 }}<span class="section-head__latest"> · {{ T "latest" }} {{ .Date.Format "2006-01-02" }}</span>{{ end -}}
       </span>
     </div>
 
@@ -31,16 +34,16 @@
     </div>
 
     {{- if gt $paginator.TotalPages 1 }}
-    <nav class="pager" aria-label="分頁">
+    <nav class="pager" aria-label="{{ T "pagination" }}">
       {{- with $paginator.Prev }}
-      <a class="cage-btn cage-face cage-btn--sm" href="{{ .URL }}">« 上一頁</a>
+      <a class="cage-btn cage-face cage-btn--sm" href="{{ .URL }}">« {{ T "prevPage" }}</a>
       {{- else }}
-      <span class="cage-btn cage-face cage-btn--sm" aria-disabled="true">« 上一頁</span>
+      <span class="cage-btn cage-face cage-btn--sm" aria-disabled="true">« {{ T "prevPage" }}</span>
       {{- end }}
       {{- with $paginator.Next }}
-      <a class="cage-btn cage-face cage-btn--sm" href="{{ .URL }}">下一頁 »</a>
+      <a class="cage-btn cage-face cage-btn--sm" href="{{ .URL }}">{{ T "nextPage" }} »</a>
       {{- else }}
-      <span class="cage-btn cage-face cage-btn--sm" aria-disabled="true">下一頁 »</span>
+      <span class="cage-btn cage-face cage-btn--sm" aria-disabled="true">{{ T "nextPage" }} »</span>
       {{- end }}
     </nav>
     {{- end }}

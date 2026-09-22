@@ -1,10 +1,10 @@
 {{- /* 上一篇 / 下一篇（依日期；較舊的在左）。
        注意 Hugo 的方向：在依日期新到舊的集合裡，.Next 是「較新」那篇、.Prev 是「較舊」那篇。 */ -}}
-{{- $posts := where site.RegularPages "Section" "in" site.Params.mainSections }}
+{{- $posts := partial "post-pages.html" . }}
 {{- $older := $posts.Prev . }}
 {{- $newer := $posts.Next . }}
 {{- if or $older $newer }}
-<nav class="post-pager" aria-label="上一篇 / 下一篇">
+<nav class="post-pager" aria-label="{{ T "postPager" }}">
   {{- with $older }}
   <a class="cage-btn cage-face cage-btn--sm post-pager__older" href="{{ .RelPermalink }}">« {{ .Title }}</a>
   {{- end }}

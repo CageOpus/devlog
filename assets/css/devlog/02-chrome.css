@@ -519,6 +519,10 @@
     height: 42px;
   }
 
+  .bottom-nav .lang-switch {
+    --lang-key: 42px;
+  }
+
   .bottom-nav .cage-seg__item {
     flex: 1;
     justify-content: center;
@@ -529,6 +533,55 @@
 /* ── 主選單 ── */
 .site-nav {
   flex: none;
+}
+
+/* ── 語言切換鍵「文 / A」──
+   正方形的鍵：左上「文」、右下「A」，中間一道斜線隔開。只是圖標，不標示目前的語言。
+   邊長由 --lang-key 決定：頁首 27（跟導覽同高）、底部導覽列 42、rail 44（見 07-rail.css），
+   字、內距、斜線粗細都跟著等比例縮放。 */
+.lang-switch {
+  --lang-key: 27px;
+  --lang-inset: calc(var(--lang-key) * .15);
+  --lang-stroke: max(1.5px, calc(var(--lang-key) * .045));
+  position: relative;
+  flex: none;
+  width: var(--lang-key);
+  height: var(--lang-key);
+  padding: var(--lang-inset);
+  display: grid;
+  gap: 0;
+  grid-template: 1fr 1fr / 1fr 1fr;
+  place-items: center;
+  line-height: 1;
+  text-decoration: none;
+}
+
+/* 斜線：左下到右上，只佔中間一段，不碰到兩個字。
+   to bottom right 的漸層在正方形裡，50% 那條線剛好連起另外兩個角 */
+.lang-switch::after {
+  content: "";
+  position: absolute;
+  inset: 30%;
+  background: linear-gradient(to bottom right,
+    transparent calc(50% - var(--lang-stroke) / 2),
+    var(--edge) calc(50% - var(--lang-stroke) / 2),
+    var(--edge) calc(50% + var(--lang-stroke) / 2),
+    transparent calc(50% + var(--lang-stroke) / 2));
+  pointer-events: none;
+}
+
+/* 方塊字塞滿整個字身，拉丁字母只佔大寫高度：同樣字級下「文」看起來大得多，
+   所以「文」縮小、「A」放大，兩個字的視覺份量才平衡；字重相同，筆畫才一樣粗 */
+.lang-switch__glyph--han {
+  grid-area: 1 / 1;
+  font-family: var(--font-cjk);
+  font-size: calc(var(--lang-key) * .27);
+}
+
+.lang-switch__glyph--latin {
+  grid-area: 2 / 2;
+  font-family: var(--font-label);
+  font-size: calc(var(--lang-key) * .36);
 }
 
 /* ── Bright / Dim 開關 ──

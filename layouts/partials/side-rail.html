@@ -3,7 +3,7 @@
 <aside class="page__rail">
   {{- with site.Taxonomies.tags }}
   <div class="rail-tags cage-well">
-    <div class="cage-well__label">Tags 標籤</div>
+    <div class="cage-well__label">{{ T "tags" }}</div>
     {{- partial "tag-index.html" $ }}
   </div>
   {{- end }}

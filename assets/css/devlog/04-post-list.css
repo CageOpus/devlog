@@ -92,6 +92,14 @@
   color: var(--ink);
 }
 
+/* 只有原文、沒有這個語言譯本的文章：語言名稱壓成一顆小標 */
+.post-row__lang {
+  padding: 0 5px;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-slot);
+  color: var(--label);
+}
+
 .post-row__sep {
   color: var(--rule);
 }

@@ -73,10 +73,21 @@
   color: var(--label);
 }
 
-.section-head__label-zh {
+/* 中文站的標籤是方塊字：換回內文字體、不轉大寫、不拉字距，字級放大到跟英文的大寫同高。
+   卡片左上角的標籤（設計系統的 .cage-well__label）同樣處理 */
+.section-head__label:lang(zh) {
   font-family: var(--font-cjk);
+  font-weight: 400;
   font-size: 12px;
-  color: var(--label);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.cage-well__label:lang(zh) {
+  font-family: var(--font-cjk);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: none;
 }
 
 .section-head__rule {

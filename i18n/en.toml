@@ -1,0 +1,28 @@
+# 介面字串（英文）。key 與 zh-tw.toml 一一對應；儀表式的英文標籤不在這裡，模板裡直接寫。
+
+mainMenu = "Main menu"
+back = "Back"
+switchLanguage = "Switch language"
+
+# 區段與卡片的標籤，每個語言只印自己的一個
+posts = "Posts"
+tags = "Tags"
+writtenBy = "Written by"
+
+latest = "Latest"
+pagination = "Pagination"
+prevPage = "Previous"
+nextPage = "Next"
+postPager = "Older / newer post"
+
+notFoundText = "This road isn't on the plan."
+backHome = "Back to home"
+
+# 篇數：TOML 的表格會吃掉後面所有的 key，所以放在檔案最後
+[postCount]
+  one = '{{ printf "%02d" .Count }} post'
+  other = '{{ printf "%02d" .Count }} posts'
+
+[tagCount]
+  one = '{{ printf "%02d" .Count }} tag'
+  other = '{{ printf "%02d" .Count }} tags'
