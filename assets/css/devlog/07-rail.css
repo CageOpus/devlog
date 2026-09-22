@@ -45,7 +45,6 @@
 
   /* ── rail ── */
   .rail-nav {
-    --metal-tile-bar: 220px;
     position: fixed;
     top: 0;
     right: 0;

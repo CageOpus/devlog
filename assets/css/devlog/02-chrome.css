@@ -12,7 +12,6 @@
      autohide  往下捲藏起來、往上捲叫回來（加到主畫面且直拿的手機） */
 .site-header {
   --header-behavior: none;
-  --metal-tile-bar: 300px;
   height: var(--header-h);
   display: flex;
   align-items: center;
@@ -346,7 +345,6 @@
       加到主畫面時頁首吃掉 safe-area-inset-top 當 padding，長進瀏海區 ── */
 @media (max-width: 767px) {
   .site-header {
-    --metal-tile-bar: 220px;
     height: calc(54px + env(safe-area-inset-top, 0px));
     gap: 13px;
     padding-top: env(safe-area-inset-top, 0px);
@@ -490,7 +488,6 @@
 
 @media (max-width: 767px) {
   .bottom-nav {
-    --metal-tile-bar: 220px;
     position: fixed;
     left: 0;
     right: 0;
