@@ -1,8 +1,7 @@
 /* ══ 單篇文章 / 單頁 ══ 整篇住在一塊 well 裡：眉標、標題、meta、導言、刻線、內文、標籤、上下篇。
-   --article-pad-x 是 well 的左右內距；程式碼區塊出血時要用它算回螢幕邊（見 06-markdown.css）。 */
+   --article-pad-x 是 well 的左右內距（定義在 01-base.css）；程式碼區塊出血時要用它算回螢幕邊（見 06-markdown.css）。 */
 
 .article {
-  --article-pad-x: 46px;
   /* 內文最大寬度。well 比內文寬時，程式碼出血要多補這段差距（見 06-markdown.css），所以 well 設成 container */
   --body-max: var(--prose-measure);
   container-type: inline-size;

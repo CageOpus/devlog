@@ -4,9 +4,10 @@
    --page-pad-x 是頁面左右留白；程式碼區塊出血時要用它算回螢幕邊（見 06-markdown.css）。 */
 .page {
   --page-pad-x: var(--gutter);
+  --page-gap: 46px;
   display: flex;
   align-items: flex-start;
-  gap: 46px;
+  gap: var(--page-gap);
   padding: 34px var(--page-pad-x) 46px;
 }
 
@@ -23,12 +24,22 @@
   gap: 19px;
 }
 
+/* 桌機：主欄 + 側欄整組限寬、置中。主欄剛好容納一行 --prose-measure 的內文（加上 well 左右內距與 1px 框線），
+   視窗再寬，多出來的變成兩側的空白，而不是卡片裡內文右邊的一大片空白 */
+@media (min-width: 1280px) {
+  .page {
+    --main-w: calc(var(--prose-measure) + 2 * var(--article-pad-x) + 2px);
+    max-width: calc(var(--page-pad-x) + var(--main-w) + var(--page-gap) + var(--aside-w) + var(--page-pad-x));
+    margin-inline: auto;
+  }
+}
+
 /* 側欄收起來：整欄移到主欄下方；標籤改由頁首下的 tag-strip 呈現，這裡只剩作者卡 */
 @media (max-width: 1279px) {
   .page {
     flex-direction: column;
     align-items: stretch;
-    gap: 26px;
+    --page-gap: 26px;
     padding-top: 26px;
     padding-bottom: 34px;
   }
@@ -44,7 +55,7 @@
 
 @media (max-width: 767px) {
   .page {
-    gap: 17px;
+    --page-gap: 17px;
     padding-top: 17px;
     padding-bottom: 26px;
   }
