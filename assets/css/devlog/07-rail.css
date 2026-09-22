@@ -1,0 +1,225 @@
+/* ══ 橫屏 rail 模式 ══ iPhone Duo 展開（890 × 626）、手機橫拿等。
+   條件：觸控裝置、橫屏、寬 ≤ 1023、螢幕短邊 ≥ 380。
+   短邊不到 380 的機型（SE、mini）維持底部導覽列，寧可少一欄也不擠字。
+
+   判斷看的是「螢幕」不是「視窗」：Safari 分頁橫屏時工具列會吃掉高度，而且捲動時會收放，
+   用視窗高度判斷的話，同一支手機會隨工具列狀態在 rail 與平板版之間跳來跳去。
+   device-width / device-height 兩個都 ≥ 380 就等於短邊 ≥ 380（iOS 不隨方向交換、Android 會，兩種都成立）。
+   工具列展開、視窗較矮時，rail 用下方的緊湊間距塞進去。
+
+   這個模式下：
+   - 導覽、返回、閱讀進度、Bright / Dim 收進右緣的 rail，rail 是唯一固定的東西；
+   - 頁首換成 64px 標題列（標誌、刊名、readout，沒有控制項），跟標籤列一起隨內文捲走；
+   - 頁面讓出 rail 的寬；左側的 safe area 只推內容欄，頁首與標籤列照樣滿版。
+   - 左右 safe area 都不疊加：右側讓安全區界線切齊 rail 的鍵、左側切齊文章卡片，差多少補多少。
+
+   media query 不能共用變數，這個條件只寫在這個檔案裡，rail 模式的覆寫全部集中在下面同一段。 */
+
+.rail-nav {
+  display: none;
+}
+
+@media (pointer: coarse) and (orientation: landscape) and (max-width: 1023px) and (min-device-width: 380px) and (min-device-height: 380px) {
+  :root {
+    --gutter: 46px;
+    --bottom-nav-h: 0px;
+    /* rail 寬 56（含 1 的左框線），44 的鍵置中，鍵的兩側各剩 5.5 的機殼邊。
+       safe area 不另外往外疊，而是讓安全區的界線剛好切齊鍵的邊：
+       這 5.5 本身就能伸進不安全區，只有超出的部分才加寬 rail。 */
+    --railnav-key-margin: 5.5px;
+    --railnav-extra: max(0px, env(safe-area-inset-right, 0px) - var(--railnav-key-margin));
+    --railnav-w: calc(56px + var(--railnav-extra));
+  }
+
+  body {
+    padding-right: var(--railnav-w);
+  }
+
+  html {
+    scroll-padding-top: 0;
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
+  /* ── rail ── */
+  .rail-nav {
+    --metal-tile-bar: 220px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    width: var(--railnav-w);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 11px;
+    padding:
+      calc(11px + env(safe-area-inset-top, 0px))
+      var(--railnav-extra)
+      calc(11px + env(safe-area-inset-bottom, 0px))
+      0;
+    border-left: 1px solid var(--edge);
+    box-shadow: var(--seam-v);
+  }
+
+  .rail-nav__mark {
+    flex: none;
+    color: var(--ink);
+  }
+
+  .rail-nav__mark svg {
+    width: 30px;
+    height: auto;
+  }
+
+  .rail-nav .cage-btn {
+    flex: none;
+    width: 44px;
+    padding: 0;
+  }
+
+  .rail-nav__back {
+    height: 40px;
+    font-family: var(--font-mono);
+    font-size: 15px;
+  }
+
+  /* 中文：直排上豎，方形字等寬，鍵高跟字數成正比 */
+  .rail-nav__key--cjk {
+    height: 58px;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    font-size: 13px;
+    letter-spacing: .08em;
+  }
+
+  /* 英文：整個字轉 90°，完整拼寫，不上豎 */
+  .rail-nav__key--latin {
+    height: 64px;
+    writing-mode: vertical-rl;
+    font-family: var(--font-label);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  .rail-nav__spacer {
+    flex: 1;
+  }
+
+  /* 56 寬裡一行 10px 等寬字，只放短字串 */
+  .rail-nav__index {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--label);
+    text-shadow: var(--cut-text);
+  }
+
+  .rail-nav .theme-switch {
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  .rail-nav .theme-switch__lamp {
+    top: 0;
+    height: auto;
+    font-size: 22px;
+  }
+
+  /* ── 頁首 → 64px 標題列：不固定、不收合，只放標誌、刊名與 readout ── */
+  .site-header-slot {
+    height: auto;
+  }
+
+  .site-header {
+    --header-behavior: none;
+    position: static;
+    height: 64px;
+    gap: 19px;
+    padding-top: 0;
+  }
+
+  .site-header__brand {
+    --vrule-h: 34px;
+    gap: 19px;
+  }
+
+  .site-header__mark {
+    width: 66px;
+  }
+
+  .site-header__mark-full {
+    opacity: 1;
+  }
+
+  .site-header__mark-simple {
+    opacity: 0;
+  }
+
+  .site-header .wordmark {
+    gap: 5px;
+  }
+
+  .site-header .wordmark__title {
+    font-size: 16.5px;
+    line-height: 16.5px;
+    letter-spacing: .22em;
+  }
+
+  .site-header .wordmark__subtitle {
+    font-size: 9.5px;
+    line-height: 9.5px;
+    letter-spacing: .42em;
+  }
+
+  .site-header__context,
+  .site-header__panel-rule,
+  .site-header__controls {
+    display: none;
+  }
+
+  .site-header__panel {
+    margin-left: auto;
+  }
+
+  .site-header__readout-label {
+    display: inline;
+  }
+
+  .site-header__readout-value {
+    font-size: 11px;
+    color: var(--ink);
+    text-shadow: var(--cut-text);
+  }
+
+  /* ── 內容欄：左側 safe area 只推這一層；程式碼出血從這裡算回螢幕左緣（見 06-markdown.css） ── */
+  .page {
+    /* 另一側同樣的道理：頁面留白本身就能伸進不安全區，只要安全區的界線剛好切齊文章卡片（well）的左緣，
+       留白不夠蓋住 inset 時才補差額，不疊加 */
+    --page-inset-left: max(0px, env(safe-area-inset-left, 0px) - var(--page-pad-x));
+    padding-left: calc(var(--page-pad-x) + var(--page-inset-left));
+  }
+
+  /* 視窗矮（Safari 工具列展開）時收緊間距；真的放不下就讓 rail 自己捲，不擠壓按鍵 */
+  @media (max-height: 379px) {
+    .rail-nav {
+      gap: 5px;
+      padding-top: calc(7px + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(7px + env(safe-area-inset-bottom, 0px));
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .rail-nav .cage-rail__sep {
+      margin: 0;
+    }
+
+    .rail-nav .theme-switch {
+      gap: 5px;
+    }
+  }
+}

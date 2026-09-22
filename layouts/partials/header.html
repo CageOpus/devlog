@@ -1,31 +1,56 @@
-{{- /* 頁首：拉絲鋁橫幅。同一份 DOM 依寬度換三種版型（見 css/devlog/02-chrome.css）：
+{{- /* 頁首：拉絲鋁橫幅。同一份 DOM 依寬度換版型（見 css/devlog/02-chrome.css）：
          ≥ 1280   banner 118px，右側上排 readout、下排導覽 + 開關
          768–1279 plate   64px，全部收成一列
-         ≤ 767    mobile  54px，只留標誌、刊名、readout；導覽與開關移到 bottom-nav */ -}}
+         ≤ 767    mobile  54px，只留標誌、刊名、readout；導覽與開關移到 bottom-nav
+       ≥ 768 時頁首固定在頂端，往下捲就收合成 52px 的捲動條（.is-compact，由 js/devlog.js 切換）：
+       同一份內容只是縮小，完整標誌換成簡化標誌、readout 收起、頁面標題與閱讀進度浮現。
+       外層 slot 永遠佔住展開時的高度，所以收合不會讓下方內容跳動。 */ -}}
 {{- $brand := site.Params.brand }}
-<header class="site-header cage-mat-bar" data-site-header>
-  <a class="site-header__brand" href="{{ "" | relLangURL }}" aria-label="{{ site.Title }}">
-    <svg class="site-header__mark site-header__mark--full" viewBox="0 34 800 384" aria-hidden="true"><use href="#mkEng"></use></svg>
-    <svg class="site-header__mark site-header__mark--simple" viewBox="0 34 800 384" aria-hidden="true"><use href="#mkSEng"></use></svg>
-    <span class="vrule"></span>
-    <span class="wordmark">
-      <span class="wordmark__title">{{ $brand.title }}</span>
-      <span class="wordmark__subtitle">{{ $brand.subtitle }}</span>
-    </span>
-  </a>
+<div class="site-header-slot">
+  <header class="site-header cage-mat-bar" data-site-header>
+    <a class="site-header__brand" href="{{ "" | relLangURL }}" aria-label="{{ site.Title }}">
+      <span class="site-header__mark" aria-hidden="true">
+        <svg class="site-header__mark-full" viewBox="0 34 800 384"><use href="#mkEng"></use></svg>
+        <svg class="site-header__mark-simple" viewBox="0 34 800 384"><use href="#mkSEng"></use></svg>
+      </span>
+      <span class="vrule"></span>
+      <span class="wordmark">
+        <span class="wordmark__title">{{ $brand.title }}</span>
+        <span class="wordmark__subtitle">{{ $brand.subtitle }}</span>
+      </span>
+    </a>
 
-  <div class="site-header__panel">
-    <div class="site-header__readout">
-      <span class="site-header__readout-label">Devlog</span>
-      <span class="site-header__readout-value">
-        BUILD {{ site.Params.build }}<span class="site-header__readout-extra"> · {{ site.Params.stack }}</span>
+    {{- /* 收合後才看得到：頁面標題 + 閱讀進度（文章頁）或 build（其他頁） */}}
+    <div class="site-header__context" aria-hidden="true">
+      <span class="vrule"></span>
+      <span class="site-header__title">{{ if not .IsHome }}{{ .Title }}{{ end }}</span>
+      <span class="site-header__progress">
+        {{- if .IsPage -}}
+          READ <span data-read-progress>0%</span> · {{ .ReadingTime }} MIN
+        {{- else -}}
+          BUILD {{ site.Params.build }}
+        {{- end -}}
       </span>
     </div>
-    <span class="vrule site-header__panel-rule"></span>
-    <div class="site-header__controls">
-      {{- partial "site-nav.html" (dict "page" .) }}
-      <span class="vrule"></span>
-      {{- partial "theme-switch.html" . }}
+
+    <div class="site-header__panel">
+      {{- /* readout 收合時整塊收掉；外層 grid 負責把高度（banner）或寬度（plate）過渡到 0 */}}
+      <div class="site-header__status">
+        <div class="site-header__status-inner">
+          <div class="site-header__readout">
+            <span class="site-header__readout-label">Devlog</span>
+            <span class="site-header__readout-value">
+              BUILD {{ site.Params.build }}<span class="site-header__readout-extra"> · {{ site.Params.stack }}</span>
+            </span>
+          </div>
+          <span class="vrule site-header__panel-rule"></span>
+        </div>
+      </div>
+      <div class="site-header__controls">
+        {{- partial "site-nav.html" (dict "page" .) }}
+        <span class="vrule"></span>
+        {{- partial "theme-switch.html" . }}
+      </div>
     </div>
-  </div>
-</header>
+  </header>
+</div>

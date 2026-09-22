@@ -1,0 +1,29 @@
+{{- /* 橫屏 rail（iPhone Duo 展開等，見 css/devlog/07-rail.css）：右緣 56px 的直立導覽，
+       由上而下：簡化標誌、返回、導覽鍵、閱讀進度、Bright / Dim。只在 rail 模式顯示。
+       導覽鍵的字：中文直排上豎；英文整個字轉 90°（跟實體招牌的印法一樣）。 */ -}}
+<nav class="rail-nav cage-mat-bar" aria-label="主選單">
+  <a class="rail-nav__mark" href="{{ "" | relLangURL }}" aria-label="{{ site.Title }}">
+    <svg viewBox="276 38 501 384" aria-hidden="true"><use href="#mkSEng"></use></svg>
+  </a>
+  <span class="cage-rail__sep"></span>
+
+  {{- /* 返回上一層；從站內連過來時 js/devlog.js 改成瀏覽器的上一頁，保留原本的捲動位置 */}}
+  {{- with .Parent }}
+  <a class="rail-nav__back cage-btn cage-face" href="{{ .RelPermalink }}" aria-label="返回" data-back>«</a>
+  {{- end }}
+
+  {{- range site.Menus.main }}
+  {{- $active := partial "menu-active.html" (dict "page" $ "item" .) }}
+  {{- $script := "latin" }}
+  {{- if findRE `\p{Han}` .Name }}{{ $script = "cjk" }}{{ end }}
+  <a class="rail-nav__key rail-nav__key--{{ $script }} cage-btn cage-face{{ if $active }} cage-face--sunk{{ end }}" href="{{ .URL }}"{{ if $active }} aria-current="page"{{ end }}>
+    {{- .Name -}}
+  </a>
+  {{- end }}
+
+  <span class="rail-nav__spacer"></span>
+  {{- /* 56 寬只放得下短字串：文章頁的閱讀進度，其他頁留空 */}}
+  <span class="rail-nav__index">{{ if .IsPage }}<span data-read-progress>0%</span>{{ end }}</span>
+  <span class="cage-rail__sep"></span>
+  {{- partial "theme-switch.html" . }}
+</nav>

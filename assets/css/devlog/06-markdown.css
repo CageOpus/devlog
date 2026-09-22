@@ -154,14 +154,18 @@
 }
 
 /* ── 程式碼區塊 ──
-   只有程式碼可以撐出 well，而且三種寬度撐法不同：
-     ≥ 1280  不出血，框線不動，只有內容在框內橫向捲動
-     < 1280  整塊出血到螢幕兩緣、拿掉左右框線，內容在 block 內橫向捲動，文字仍對齊內文
-     ≤ 767   出血的是「捲動軌道」不是 block：靜止時 block 左緣對齊內文，
-             block 自帶一段等寬的 margin-right，捲到底時右框線也落在內文對齊線上
-   --bleed = 從內文對齊線到螢幕邊的距離 = 頁面留白 + well 框線 1px + well 內距 */
+   只有程式碼可以撐出 well，兩種撐法：
+     ≥ 1280  電腦：不出血，框線不動，只有內容在框內橫向捲動
+     < 1280  平板、手機、橫屏 rail：出血的是「捲動軌道」不是 block。
+             軌道撐到內容區兩緣（左到螢幕邊、右到螢幕邊或 rail），靜止時 block 左緣對齊內文；
+             軌道尾端多一段等寬的空白，捲到底時右框線也落在內文對齊線上
+   --bleed = 從內文對齊線到螢幕邊的距離 = 頁面留白 + well 框線 1px + well 內距
+   右側另外要加上 well 比內文寬出來的那段（100cqw 是 well 的內容寬，見 05-article.css） */
 .code-block {
   --bleed: calc(var(--page-pad-x) + 1px + var(--article-pad-x));
+  /* 左側多一段瀏海那側的 safe area（只有橫屏 rail 模式會設 --page-inset-left，見 07-rail.css） */
+  --bleed-left: calc(var(--bleed) + var(--page-inset-left, 0px));
+  --bleed-right: calc(var(--bleed) + 100cqw - min(100cqw, var(--body-max, 100cqw)));
   margin: 26px 0;
 }
 
@@ -187,30 +191,26 @@
 
 @media (max-width: 1279px) {
   .code-block__track {
-    margin-inline: calc(-1 * var(--bleed));
-  }
-
-  .code-block .cage-code {
-    border-inline: 0;
-  }
-
-  .code-block :is(.cage-code__head, .cage-code__body) {
-    padding-inline: var(--bleed);
-  }
-}
-
-@media (max-width: 767px) {
-  .code-block__track {
-    padding-left: var(--bleed);
+    display: flex;
+    margin-left: calc(-1 * var(--bleed-left));
+    margin-right: calc(-1 * var(--bleed-right));
+    padding-left: var(--bleed-left);
     overflow-x: auto;
     scrollbar-width: none;
   }
 
+  /* 捲到底時右邊留一段 --bleed-right 的空白，右框線才會停在內文對齊線上。
+     用實體的偽元素而不是 block 的 margin-right：Safari 不把捲動容器裡最後一個元素的右 margin 算進捲動範圍 */
+  .code-block__track::after {
+    content: "";
+    flex: none;
+    width: var(--bleed-right);
+  }
+
   .code-block .cage-code {
+    flex: none;
     width: max-content;
     min-width: 100%;
-    margin-right: var(--bleed);
-    border-inline: 1px solid var(--edge);
   }
 
   .code-block :is(.cage-code__head, .cage-code__body) {

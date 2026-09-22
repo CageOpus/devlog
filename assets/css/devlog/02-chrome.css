@@ -1,9 +1,19 @@
-/* ══ 機殼 ══ 頁首、捲動條、底部導覽列、Bright / Dim 開關、標籤列、狀態列 */
+/* ══ 機殼 ══ 頁首（含收合後的捲動條）、底部導覽列、Bright / Dim 開關、標籤列、狀態列 */
 
-/* ── 頁首 · banner（≥ 1280）── */
+/* ── 頁首 · banner（≥ 1280）──
+   --header-h 是展開時的高度；≥ 768 時頁首固定在頂端，外層 slot 用這個高度在版面上佔位。 */
+:root {
+  --header-h: 118px;
+}
+
+/* --header-behavior 告訴 js/devlog.js 這個版型的頁首怎麼跟著捲動變化：
+     none      不動（跟著內文捲走，或 rail 模式的標題列）
+     compact   往下捲收合成 52px 捲動條（≥ 768）
+     autohide  往下捲藏起來、往上捲叫回來（加到主畫面且直拿的手機） */
 .site-header {
+  --header-behavior: none;
   --metal-tile-bar: 300px;
-  height: 118px;
+  height: var(--header-h);
   display: flex;
   align-items: center;
   gap: 26px;
@@ -14,26 +24,30 @@
 
 .site-header__brand {
   --vrule-h: 70px;
+  flex: none;
   display: flex;
   align-items: center;
   gap: 26px;
-  min-width: 0;
-  margin-right: auto;
   color: inherit;
   text-decoration: none;
 }
 
+/* 完整標誌與簡化標誌疊在同一格，靠透明度切換，寬度跟著過渡 */
 .site-header__mark {
-  display: block;
   flex: none;
+  display: grid;
   width: 146px;
-  height: auto;
   color: var(--ink);
 }
 
-/* 設計系統的 .cage svg { display: block } 比單一 class 高一級，所以切換完整版 / 簡化版標誌時要帶上父層 */
-.site-header .site-header__mark--simple {
-  display: none;
+.site-header__mark svg {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: auto;
+}
+
+.site-header__mark-simple {
+  opacity: 0;
 }
 
 /* banner 的字組是兩排：上排 37 高、下排 26 高，合計對齊 70 的分隔線 */
@@ -54,12 +68,59 @@
   text-shadow: var(--cut-text);
 }
 
+/* 頁面標題與閱讀進度：展開時不可見，但照樣佔住中間的彈性空間，把 panel 推到右邊 */
+.site-header__context {
+  --vrule-h: 26px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 19px;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.site-header__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-cjk);
+  font-size: 12.5px;
+  color: var(--label);
+}
+
+.site-header__progress {
+  flex: none;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--label);
+}
+
 /* 右側：上排 readout、下排導覽 + 開關，與左側字組的兩排對齊 */
 .site-header__panel {
+  flex: none;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 7px;
+}
+
+/* readout 外層是單格 grid：收合時把軌道從 1fr 過渡到 0fr，高度與寬度就能平滑收到 0。
+   內層必須 overflow: hidden，否則格子不會小於內容。 */
+.site-header__status {
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+}
+
+.site-header__status-inner {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
 }
 
 .site-header__readout {
@@ -67,6 +128,7 @@
   display: flex;
   align-items: flex-end;
   gap: 11px;
+  margin-bottom: 7px;
   padding-bottom: 5px;
   white-space: nowrap;
 }
@@ -103,8 +165,11 @@
 
 /* ── 頁首 · plate（768–1279）：64px 單列 ── */
 @media (max-width: 1279px) {
+  :root {
+    --header-h: 64px;
+  }
+
   .site-header {
-    height: 64px;
     gap: 19px;
   }
 
@@ -123,13 +188,13 @@
 
   .site-header .wordmark__title {
     font-size: 16.5px;
-    line-height: 1;
+    line-height: 16.5px;
     letter-spacing: .22em;
   }
 
   .site-header .wordmark__subtitle {
     font-size: 9.5px;
-    line-height: 1;
+    line-height: 9.5px;
     color: var(--label);
     text-shadow: none;
   }
@@ -137,13 +202,13 @@
   .site-header__panel {
     flex-direction: row;
     align-items: center;
-    gap: 13px;
   }
 
   .site-header__readout {
     height: auto;
     align-items: baseline;
     gap: 13px;
+    margin-bottom: 0;
     padding-bottom: 0;
   }
 
@@ -154,6 +219,7 @@
 
   .site-header__panel-rule {
     display: block;
+    margin: 0 13px;
   }
 }
 
@@ -163,7 +229,119 @@
   }
 }
 
-/* ── 頁首 · mobile（≤ 767）：54px，導覽與開關移到 bottom-nav。
+/* ── 頁首固定與收合（≥ 768）──
+   頁首固定在頂端，slot 佔住展開高度。往下捲時 js/devlog.js 加上 .is-compact：
+   高度收到 52，其餘尺寸換成捲動條的值，全部用同一條曲線過渡。 */
+@media (min-width: 768px) {
+  html {
+    scroll-padding-top: 52px;
+  }
+
+  .site-header-slot {
+    height: var(--header-h);
+  }
+
+  .site-header {
+    --header-behavior: compact;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+  }
+
+  .site-header.is-compact {
+    height: 52px;
+    gap: 19px;
+  }
+
+  .is-compact .site-header__brand {
+    --vrule-h: 26px;
+    gap: 19px;
+  }
+
+  .is-compact .site-header__mark {
+    width: 58px;
+  }
+
+  .is-compact .site-header__mark-full {
+    opacity: 0;
+  }
+
+  .is-compact .site-header__mark-simple {
+    opacity: 1;
+  }
+
+  .site-header.is-compact .wordmark {
+    gap: 4px;
+  }
+
+  .site-header.is-compact .wordmark__title {
+    font-size: 15px;
+    line-height: 15px;
+    letter-spacing: .22em;
+  }
+
+  .site-header.is-compact .wordmark__subtitle {
+    font-size: 9px;
+    line-height: 9px;
+    color: var(--label);
+    text-shadow: none;
+  }
+
+  .is-compact .site-header__context {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .is-compact .site-header__status {
+    grid-template-rows: 0fr;
+    grid-template-columns: 0fr;
+    opacity: 0;
+  }
+}
+
+/* 只在 ≥ 768 宣告過渡：手機頁首不收合，換斷點時也不會亂動 */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .site-header {
+    --morph: .24s cubic-bezier(.2, .7, .2, 1);
+    transition: height var(--morph), gap var(--morph);
+  }
+
+  .site-header__brand {
+    transition: gap var(--morph);
+  }
+
+  .site-header__brand .vrule {
+    transition: height var(--morph);
+  }
+
+  .site-header__mark {
+    transition: width var(--morph);
+  }
+
+  .site-header__mark svg {
+    transition: opacity var(--morph);
+  }
+
+  .site-header .wordmark {
+    transition: gap var(--morph);
+  }
+
+  .site-header :is(.wordmark__title, .wordmark__subtitle) {
+    transition: font-size var(--morph), line-height var(--morph), letter-spacing var(--morph), color var(--morph);
+  }
+
+  .site-header__context {
+    transition: opacity var(--morph), visibility var(--morph);
+  }
+
+  .site-header__status {
+    transition: grid-template-rows var(--morph), grid-template-columns var(--morph), opacity var(--morph);
+  }
+}
+
+/* ── 頁首 · mobile（≤ 767）：54px，不固定、不收合，導覽與開關移到 bottom-nav。
       加到主畫面時頁首吃掉 safe-area-inset-top 當 padding，長進瀏海區 ── */
 @media (max-width: 767px) {
   .site-header {
@@ -178,13 +356,16 @@
     gap: 13px;
   }
 
-  .site-header .site-header__mark--full {
-    display: none;
+  .site-header__mark {
+    width: 52px;
   }
 
-  .site-header .site-header__mark--simple {
-    display: block;
-    width: 52px;
+  .site-header__mark-full {
+    opacity: 0;
+  }
+
+  .site-header__mark-simple {
+    opacity: 1;
   }
 
   .site-header .wordmark {
@@ -193,18 +374,26 @@
 
   .site-header .wordmark__title {
     font-size: 13px;
+    line-height: 13px;
     letter-spacing: .2em;
   }
 
   .site-header .wordmark__subtitle {
     font-size: 8.5px;
+    line-height: 8.5px;
     letter-spacing: .38em;
   }
 
+  /* 只剩 build readout；context 不收合用不到 */
+  .site-header__context,
   .site-header__readout-label,
   .site-header__panel-rule,
   .site-header__controls {
     display: none;
+  }
+
+  .site-header__panel {
+    margin-left: auto;
   }
 
   .site-header__readout-value {
@@ -214,68 +403,82 @@
   }
 }
 
-/* ── 捲動條（≥ 768）：頁首捲出畫面後固定在頂端，js/devlog.js 切換 .is-visible ── */
-.site-bar {
-  --vrule-h: 26px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 20;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  gap: 19px;
-  padding: 0 var(--gutter);
-  border-bottom: 1px solid var(--edge);
-  box-shadow: var(--seam-h);
-  visibility: hidden;
-  translate: 0 -100%;
+/* 狀態列底下的卡片延伸，只在下面的 standalone 直拿版型出現 */
+.status-backdrop {
+  display: none;
 }
 
-.site-bar.is-visible {
-  visibility: visible;
-  translate: 0 0;
+/* ── 加到主畫面（standalone）且直拿：頁首固定在頂端，往下捲藏起來、往上捲叫回來 ──
+   分頁裡 Safari 有自己的網址列，頁首跟著內文捲走；app 模式沒有瀏覽器外框，頁首要隨時叫得回來。
+   用 fixed 不用 sticky：回彈時只有內容被拉動，頁首不跟著彈。slot 佔住頁首的高度。
+   藏起來時整條退出畫面，連瀏海區那一段也不留。
+   標籤列不固定；橫屏也不固定，高度太珍貴。 */
+@media (display-mode: standalone) and (orientation: portrait) and (max-width: 767px) {
+  .site-header-slot {
+    height: calc(54px + env(safe-area-inset-top, 0px));
+  }
+
+  .site-header {
+    --header-behavior: autohide;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+  }
+
+  .site-header.is-hidden {
+    translate: 0 -100%;
+  }
+
+  /* 頁首收起後，狀態列底下補一段跟內文卡片同樣排法的色段：兩側地色，中間是一塊真正的 well
+     （同樣的框線與陰影，所以線寬一致），往下淡出，跟底下捲上來的卡片接在一起。
+     卡片上下各多伸出去一截，讓 well 上下緣的亮線與陰影落在裁切範圍外，只留左右兩側。
+     z-index 比頁首低一層：頁首出現時直接蓋住它。 */
+  .status-backdrop {
+    /* 淡出從瀏海區下緣往上提早 --lift 開始，少佔一點內文的縱向空間 */
+    --lift: 12px;
+    --fade-start: calc(env(safe-area-inset-top, 0px) - var(--lift));
+    --fade: 26px;
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 19;
+    height: calc(var(--fade-start) + var(--fade));
+    overflow: hidden;
+    pointer-events: none;
+    background: var(--ground);
+    /* 淡出曲線用 smoothstep（3t² − 2t³）取樣：起點與終點的斜率都是 0，
+       跟上方實心段、下方透明段都 C1 連續，看不到淡出開始與結束的那條邊 */
+    mask-image: linear-gradient(
+      rgb(0 0 0 / 1) var(--fade-start),
+      rgb(0 0 0 / .972) calc(var(--fade-start) + var(--fade) * .1),
+      rgb(0 0 0 / .896) calc(var(--fade-start) + var(--fade) * .2),
+      rgb(0 0 0 / .784) calc(var(--fade-start) + var(--fade) * .3),
+      rgb(0 0 0 / .648) calc(var(--fade-start) + var(--fade) * .4),
+      rgb(0 0 0 / .5) calc(var(--fade-start) + var(--fade) * .5),
+      rgb(0 0 0 / .352) calc(var(--fade-start) + var(--fade) * .6),
+      rgb(0 0 0 / .216) calc(var(--fade-start) + var(--fade) * .7),
+      rgb(0 0 0 / .104) calc(var(--fade-start) + var(--fade) * .8),
+      rgb(0 0 0 / .028) calc(var(--fade-start) + var(--fade) * .9),
+      rgb(0 0 0 / 0) calc(var(--fade-start) + var(--fade))
+    );
+  }
+
+  .status-backdrop__card {
+    position: absolute;
+    top: -12px;
+    bottom: -12px;
+    left: var(--page-pad-x);
+    right: var(--page-pad-x);
+  }
 }
 
-.site-bar__brand {
-  display: flex;
-  align-items: center;
-  gap: 19px;
-  flex: none;
-  color: inherit;
-  text-decoration: none;
-}
-
-.site-bar__mark {
-  display: block;
-  width: 58px;
-  height: auto;
-  color: var(--ink);
-}
-
-.site-bar__title {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--font-cjk);
-  font-size: 12.5px;
-  color: var(--label);
-}
-
-.site-bar__readout {
-  flex: none;
-  white-space: nowrap;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--label);
-}
-
-@media (max-width: 767px) {
-  .site-bar {
-    display: none;
+@media (display-mode: standalone) and (orientation: portrait) and (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .site-header {
+    transition: translate .4s ease;
   }
 }
 
@@ -299,6 +502,16 @@
     padding: 0 13px env(safe-area-inset-bottom, 0px);
     border-top: 1px solid var(--edge);
     box-shadow: var(--seam-h);
+  }
+
+  /* 讓位：Safari 工具列收放期間整條收到畫面外，js/devlog.js 等畫面靜止後再放回來。
+     全站「不做動畫」的例外：直接跳回會跟工具列的動畫打架 */
+  .bottom-nav {
+    transition: bottom .2s ease;
+  }
+
+  .bottom-nav.is-yielding {
+    bottom: calc(-1 * var(--bottom-nav-h) - 8px);
   }
 
   .bottom-nav .site-nav {

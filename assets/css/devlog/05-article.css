@@ -3,6 +3,9 @@
 
 .article {
   --article-pad-x: 46px;
+  /* 內文最大寬度。well 比內文寬時，程式碼出血要多補這段差距（見 06-markdown.css），所以 well 設成 container */
+  --body-max: var(--prose-measure);
+  container-type: inline-size;
   padding: 40px var(--article-pad-x);
 }
 
@@ -41,7 +44,7 @@
 }
 
 .article__body {
-  max-width: var(--prose-measure);
+  max-width: var(--body-max);
 }
 
 .article__footer {
@@ -109,8 +112,8 @@
 }
 
 @media (max-width: 1023px) {
-  .article__body {
-    max-width: 640px;
+  .article {
+    --body-max: 640px;
   }
 }
 

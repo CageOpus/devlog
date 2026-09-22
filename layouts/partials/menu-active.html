@@ -1,0 +1,5 @@
+{{- /* 回傳選單項目是否為目前所在位置。首頁算在「文章」底下。
+       參數：.page（目前頁面）、.item（menu entry） */ -}}
+{{- $page := .page -}}
+{{- $item := .item -}}
+{{- return or ($page.IsMenuCurrent "main" $item) ($page.HasMenuCurrent "main" $item) (and $page.IsHome (eq $item.Identifier "posts")) -}}

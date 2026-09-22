@@ -123,16 +123,3 @@ a.cage-tag:hover {
   letter-spacing: .42em;
   color: var(--label);
 }
-
-/* 捲動條上的縮小版 */
-.wordmark--bar {
-  gap: 4px;
-}
-
-.wordmark--bar .wordmark__title {
-  font-size: 15px;
-}
-
-.wordmark--bar .wordmark__subtitle {
-  font-size: 9px;
-}

@@ -17,6 +17,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="CAGE Devlog">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+{{- /* 加到主畫面後，manifest 的 scope 決定哪些網址留在 app 裡。沒有 manifest 時 iOS 只把「加入時那一頁的目錄」
+       當成範圍，點到範圍外的連結會跳出系統瀏覽器的面板。start_url / scope 寫相對路徑，
+       部署到 GitHub Pages 的子路徑也成立。 */}}
+<link rel="manifest" href="{{ "manifest.webmanifest" | relURL }}">
 
 {{- range .AlternativeOutputFormats }}
 <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ site.Title }}">

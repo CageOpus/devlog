@@ -6,13 +6,13 @@
 <body class="cage">
   {{- partial "cage-mark-defs.html" . }}
   {{- partial "header.html" . }}
-  {{- partial "header-scrolled.html" . }}
   {{- partial "tag-strip.html" . }}
   <main class="site-main">
     {{- block "main" . }}{{ end }}
   </main>
   {{- partial "footer.html" . }}
   {{- partial "bottom-nav.html" . }}
+  {{- partial "rail-nav.html" . }}
   {{- $js := resources.Get "js/devlog.js" }}
   {{- if hugo.IsProduction }}{{ $js = $js | minify | fingerprint }}{{ end }}
   <script src="{{ $js.RelPermalink }}"></script>

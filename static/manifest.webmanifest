@@ -1,0 +1,9 @@
+{
+  "name": "CAGE Devlog",
+  "short_name": "CAGE Devlog",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000"
+}
