@@ -248,12 +248,23 @@
   }
 }
 
-/* ── 列表分頁 ── */
+/* ── 列表分頁：上一頁靠左、下一頁靠右，中間是頁碼讀數 ── */
 .pager {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
   gap: 13px;
   margin-top: 22px;
+}
+
+.pager__readout {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  color: var(--label);
+  text-shadow: var(--cut-text);
 }
 
 @media (max-width: 1279px) {
