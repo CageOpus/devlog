@@ -5,7 +5,7 @@
     {{- partial "article-heading.html" . }}
 
     <div class="article__meta">
-      {{- $items := slice (.Date.Format "2006 · 01 · 02") (printf "%d MIN" .ReadingTime) (printf "%d WORDS" .WordCount) (partial "author.html" . | upper) }}
+      {{- $items := slice (.Date.Format "2006 · 01 · 02") (printf "%d MIN" (partial "reading-time.html" .)) (printf "%d WORDS" .WordCount) (partial "author.html" . | upper) }}
       {{- range $i, $item := $items }}
       {{- if $i }}<span class="article__meta-sep">·</span>{{ end }}<span>{{ $item }}</span>
       {{- end }}

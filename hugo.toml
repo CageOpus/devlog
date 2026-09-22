@@ -48,6 +48,11 @@ hasCJKLanguage = true
   locale = 'en-US'
   label = 'English'
 
+  # 閱讀速度（每分鐘字數），用來估閱讀時間（見 layouts/partials/reading-time.html）。
+  # 技術文章，比一般非小說的每分鐘 240 字慢一些
+  [languages.en.params]
+    readingSpeed = 200
+
   [[languages.en.menus.main]]
     identifier = "posts"
     name = "Posts"
@@ -67,6 +72,8 @@ hasCJKLanguage = true
   # 可以直排的文字：橫屏 rail 的導覽鍵上豎排列，而不是整個字轉 90°
   [languages.zh-tw.params]
     verticalWriting = true
+    # 每分鐘字數：一般中文閱讀約 250 字，夾在中間的英文術語與程式碼一個單字只算一字，所以調高一點
+    readingSpeed = 300
 
   [[languages.zh-tw.menus.main]]
     identifier = "posts"

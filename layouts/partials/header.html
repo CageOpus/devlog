@@ -26,7 +26,7 @@
       <span class="site-header__title">{{ if not .IsHome }}{{ .Title }}{{ end }}</span>
       <span class="site-header__progress">
         {{- if .IsPage -}}
-          READ <span data-read-progress>0%</span> · {{ .ReadingTime }} MIN
+          READ <span data-read-progress>0%</span> · {{ partial "reading-time.html" . }} MIN
         {{- else -}}
           BUILD {{ site.Params.build }}
         {{- end -}}
