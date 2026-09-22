@@ -1,9 +1,10 @@
-// CAGE devlog 的頁面互動。五件事，彼此獨立：
+// CAGE devlog 的頁面互動。六件事，彼此獨立：
 //   1. Bright / Dim 開關
 //   2. 頁首跟著捲動變化：收合成捲動條，或（PWA 直拿）自動藏起
 //   3. 文章頁的閱讀進度
 //   4. 手機底部導覽列在 Safari 工具列收放時讓位
 //   5. 橫屏 rail 的返回鍵
+//   6. 瀏覽器語言跟這一頁不同、但有對應的譯本時，把語言切換鍵按三下提示
 
 (function initThemeSwitch() {
   const root = document.documentElement;
@@ -144,4 +145,43 @@
       history.back();
     }),
   );
+})();
+
+(function initLangHint() {
+  // 語言切換鍵只有在這一頁有譯本時才帶 data-lang-hint，hreflang 是譯本的語言（見 partials/lang-switch.html）
+  const keys = document.querySelectorAll("[data-lang-hint]");
+  if (keys.length === 0) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const userLang = navigator.languages?.[0] || navigator.language || "";
+  const pageLang = document.documentElement.lang;
+  const translationLang = keys[0].getAttribute("hreflang");
+  if (!userLang || speaks(userLang, pageLang) || !speaks(userLang, translationLang)) return;
+
+  // 用設計系統按鍵的 [data-pressing]（跟手指真的按下去是同一套樣式與回彈）：按住、放開、停一下，重複三次
+  const PRESS_MS = 110;
+  const REST_MS = 240;
+  const TIMES = 3;
+  const START_DELAY_MS = 400;
+
+  function press(round) {
+    keys.forEach((key) => key.setAttribute("data-pressing", ""));
+    setTimeout(() => {
+      keys.forEach((key) => key.removeAttribute("data-pressing"));
+      if (round < TIMES) setTimeout(() => press(round + 1), REST_MS);
+    }, PRESS_MS);
+  }
+
+  const start = () => setTimeout(() => press(1), START_DELAY_MS);
+  if (document.readyState === "complete") start();
+  else addEventListener("load", start, { once: true });
+
+  // 瀏覽器的語言標籤（en-GB、zh-Hant-TW……）算不算站上的某個語言（en、zh-tw，或 <html lang> 的 en-US、zh-TW）。
+  // 英文只看主語言，en-XX 都算；中文站是繁體，只算台灣、香港、澳門與標明繁體（zh-Hant）的
+  function speaks(browserTag, siteTag) {
+    const browser = browserTag.toLowerCase();
+    const primary = siteTag.toLowerCase().split("-")[0];
+    if (primary === "zh") return /^zh-(tw|hk|mo|hant)\b/.test(browser);
+    return browser.split("-")[0] === primary;
+  }
 })();

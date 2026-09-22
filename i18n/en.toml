@@ -3,6 +3,7 @@
 mainMenu = "Main menu"
 back = "Back"
 switchLanguage = "Switch language"
+noTranslation = "No translation for this page"
 
 # 區段與卡片的標籤，每個語言只印自己的一個
 posts = "Posts"

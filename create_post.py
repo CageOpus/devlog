@@ -6,6 +6,7 @@
     content/posts/<日期>-<slug>/index.zh-tw.md   中文
 
 圖檔直接丟進同一個資料夾，不標語言，兩個版本用同樣的檔名引用。
+--only en / --only zh-tw 可以只建一個語言（沒有翻譯時，語言切換鍵會停用）。
 front matter 的欄位說明見 content/posts/widget-reference/index.md。
 
 用法：
@@ -126,12 +127,14 @@ def parse_date(text):
     return parsed
 
 
-def create(post, dry_run=False):
+def create(post, dry_run=False, only=None):
+    """only 是 None（雙語）、"en" 或 "zh-tw"。"""
     folder = POSTS_DIR / f"{post['date'][:10]}-{post['slug']}"
-    files = {
-        folder / "index.md": front_matter(post, "en"),
-        folder / "index.zh-tw.md": front_matter(post, "zh"),
-    }
+    files = {}
+    if only in (None, "en"):
+        files[folder / "index.md"] = front_matter(post, "en")
+    if only in (None, "zh-tw"):
+        files[folder / "index.zh-tw.md"] = front_matter(post, "zh")
 
     if dry_run:
         for path, content in files.items():
@@ -147,6 +150,8 @@ def create(post, dry_run=False):
         print(f"已建立 {path.relative_to(POSTS_DIR.parent.parent)}")
     if post["draft"]:
         print("這篇是草稿（draft = true），用 hugo server -D 才看得到。")
+    if only == "zh-tw":
+        print("提醒：只有中文版時，沒標語言的圖檔不會輸出；圖要命名成 *.zh-tw.*，或補上英文版。")
 
 
 # ── 互動模式 ──
@@ -221,6 +226,7 @@ def build_parser():
     parser.add_argument("-d", "--description", default="", help="英文導言")
     parser.add_argument("--description-zh", default="", metavar="TEXT", help="中文導言")
     parser.add_argument("--date", help="日期 YYYY-MM-DD 或完整 ISO 8601（預設現在）")
+    parser.add_argument("--only", choices=["en", "zh-tw"], help="只建一個語言（預設中英兩個都建）")
     parser.add_argument("--publish", action="store_true", help="直接發布（draft = false）；預設存成草稿")
     parser.add_argument("--dry-run", action="store_true", help="只印出內容，不建立檔案")
     return parser
@@ -246,7 +252,7 @@ def main():
     slug = slugify(args.slug or args.title)
     if not slug:
         parser.error("英文標題產生不出 slug，請用 --slug 指定")
-    if not args.title_zh:
+    if not args.title_zh and args.only != "en":
         print("提醒：沒給 --zh，中文標題先用英文標題，記得回來改。")
 
     post = {
@@ -261,7 +267,7 @@ def main():
         "date": (parse_date(args.date) if args.date else now_with_offset()).isoformat(),
         "draft": not args.publish,
     }
-    create(post, dry_run=args.dry_run)
+    create(post, dry_run=args.dry_run, only=args.only)
 
 
 if __name__ == "__main__":

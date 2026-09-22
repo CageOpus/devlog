@@ -3,6 +3,7 @@
 mainMenu = "主選單"
 back = "返回"
 switchLanguage = "切換語言"
+noTranslation = "這一頁沒有翻譯"
 
 posts = "文章"
 tags = "標籤"
