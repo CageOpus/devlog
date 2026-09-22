@@ -4,6 +4,7 @@ draft = false
 title = '開發日誌 #0 -- 一切的起點'
 milestone = 'M0'
 eyebrow = 'DEVLOG #0'
+tags = ['devlog', 'simulation', 'gpu', 'rust']
 +++
 
 ## 太滿了

@@ -4,6 +4,7 @@ draft = false
 title = 'Devlog #0 -- Story Starts Here'
 milestone = 'M0'
 eyebrow = 'DEVLOG #0'
+tags = ['devlog', 'simulation', 'gpu', 'rust']
 +++
 
 ## Not Enough Room
