@@ -32,6 +32,13 @@ installMacSafari2 = "Choose “Add to Dock”."
 installDesktop1 = "Click the install icon at the right end of the address bar, or open the browser menu."
 installDesktop2 = "Choose “Install page as app”."
 
+# RSS 面板（見 layouts/partials/rss-dialog.html）
+rssIntro = "Follow new posts in an RSS reader. Paste this address into your reader, or open it straight in a reader app."
+rssFeedUrl = "Feed address"
+rssCopy = "Copy address"
+rssCopied = "Copied"
+rssOpenApp = "Open in app"
+
 notFoundText = "This road isn't on the plan."
 backHome = "Back to home"
 

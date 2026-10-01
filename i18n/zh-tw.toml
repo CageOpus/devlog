@@ -33,5 +33,12 @@ installMacSafari2 = "選「加入 Dock」。"
 installDesktop1 = "點網址列最右邊的安裝圖示，或打開瀏覽器選單。"
 installDesktop2 = "選「將網頁安裝為應用程式」。"
 
+# RSS 面板（見 layouts/partials/rss-dialog.html）
+rssIntro = "用 RSS 閱讀器追蹤新文章。把這個網址貼進你的閱讀器，或直接用閱讀器 App 開啟。"
+rssFeedUrl = "Feed 網址"
+rssCopy = "複製網址"
+rssCopied = "已複製"
+rssOpenApp = "用 App 開啟"
+
 notFoundText = "這個路段不在計畫圖上。"
 backHome = "回到首頁"

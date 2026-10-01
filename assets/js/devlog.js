@@ -6,6 +6,7 @@
 //   5. 橫屏 rail 的返回鍵
 //   6. 瀏覽器語言跟這一頁不同、但有對應的譯本時，把語言切換鍵按三下提示
 //   7. 「加入主畫面」鍵與說明面板
+//   8. RSS 鍵與面板
 
 (function initThemeSwitch() {
   const root = document.documentElement;
@@ -239,4 +240,49 @@
     if (isMacSafari) return "mac-safari";
     return "desktop";
   }
+})();
+
+(function initRss() {
+  const button = document.querySelector("[data-rss]");
+  const dialog = document.querySelector("[data-rss-dialog]");
+  if (!button || !dialog) return;
+
+  // 鍵本身是連到 XML 的連結（沒有 JS 時的退路）；有 JS 就改開面板
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
+    dialog.showModal();
+    dialog.focus();
+  });
+
+  // 點面板外面（backdrop）也關掉
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  // 網址欄點一下就全選，方便手動複製
+  const url = dialog.querySelector("[data-rss-url]");
+  url.addEventListener("focus", () => url.select());
+
+  // 複製：鍵上換成「已複製」並停用一下再恢復（兩個字都在鍵裡，CSS 切換顯示，鍵寬不變）。
+  // Clipboard API 不能用時（非 https 等）退回選取 + execCommand
+  const copy = dialog.querySelector("[data-rss-copy]");
+  const [copyLabel, copiedLabel] = copy.querySelectorAll(".rss-dialog__copy-label");
+  // 停用用 aria-disabled 而不是 disabled：原生 disabled 會把焦點從鍵上踢掉，鍵盤使用者會迷路
+  function setCopied(on) {
+    copy.classList.toggle("is-copied", on);
+    copy.setAttribute("aria-disabled", String(on));
+    copyLabel.setAttribute("aria-hidden", String(on));
+    copiedLabel.setAttribute("aria-hidden", String(!on));
+  }
+  copy.addEventListener("click", async () => {
+    if (copy.getAttribute("aria-disabled") === "true") return;
+    try {
+      await navigator.clipboard.writeText(url.value);
+    } catch (e) {
+      url.select();
+      document.execCommand("copy");
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1600);
+  });
 })();

@@ -1,0 +1,27 @@
+{{- /* RSS 面板，由狀態列的 [data-rss] 鍵打開（js/devlog.js）。
+       瀏覽器早就不內建 RSS 閱讀器，直接連到 index.xml 只會看到原始碼，所以改成這個面板：
+         複製網址    貼進任何一家閱讀器都能用
+         用 App 開啟  feed: 連結，交給系統登記的閱讀器 App（NetNewsWire、Reeder……）
+       沒有 JS 時狀態列的鍵照舊直接開 XML。樣式與「加入主畫面」面板共用（css/devlog/02-chrome.css）。 */ -}}
+{{- with site.Home.OutputFormats.Get "rss" }}
+<dialog class="rss-dialog cage-panel" aria-labelledby="rss-dialog-title" tabindex="-1" data-rss-dialog>
+  <div class="cage-panel__bar">
+    <span class="cage-panel__title" id="rss-dialog-title">RSS</span>
+    <form method="dialog" class="install-dialog__close">
+      <button class="cage-btn cage-face cage-btn--icon" aria-label="{{ T "close" }}">×</button>
+    </form>
+  </div>
+  <div class="cage-panel__body">
+    <p class="install-dialog__intro">{{ T "rssIntro" }}</p>
+    <input class="rss-dialog__url" type="text" value="{{ .Permalink }}" readonly aria-label="{{ T "rssFeedUrl" }}" data-rss-url>
+    <div class="rss-dialog__actions">
+      {{- /* 兩個字疊在同一格，鍵寬取兩者較寬的那個，換字時不會跳 */}}
+      <button type="button" class="rss-dialog__copy cage-btn cage-face cage-btn--sm" data-rss-copy>
+        <span class="rss-dialog__copy-label">{{ T "rssCopy" }}</span>
+        <span class="rss-dialog__copy-label" aria-hidden="true">{{ T "rssCopied" }}</span>
+      </button>
+      <a class="cage-btn cage-face cage-btn--sm" href="{{ printf "feed:%s" .Permalink | safeURL }}">{{ T "rssOpenApp" }}</a>
+    </div>
+  </div>
+</dialog>
+{{- end }}

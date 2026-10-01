@@ -731,8 +731,8 @@
   inset: -13px -4px;
 }
 
-/* ── 加入主畫面說明面板 ── */
-.install-dialog {
+/* ── 說明面板：加入主畫面、RSS 共用外框 ── */
+:is(.install-dialog, .rss-dialog) {
   width: min(420px, calc(100% - 2 * var(--page-pad-x, 16px)));
   max-height: calc(100% - 32px);
   margin: auto;
@@ -741,15 +741,15 @@
 }
 
 /* 焦點在面板本身時不畫框；裡面的按鍵照常顯示焦點 */
-.install-dialog:focus {
+:is(.install-dialog, .rss-dialog):focus {
   outline: none;
 }
 
-.install-dialog::backdrop {
+:is(.install-dialog, .rss-dialog)::backdrop {
   background: rgb(0 0 0 / .45);
 }
 
-.install-dialog .cage-panel__bar {
+:is(.install-dialog, .rss-dialog) .cage-panel__bar {
   justify-content: space-between;
 }
 
@@ -794,4 +794,52 @@
   font-size: 10.5px;
   color: var(--label);
   text-shadow: var(--cut-text);
+}
+
+/* RSS 面板：唯讀的網址欄（點一下全選），下面兩顆鍵 */
+.rss-dialog__url {
+  width: 100%;
+  margin-bottom: 11px;
+  padding: 7px 9px;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  background: var(--recess);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .18);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.rss-dialog__url:focus {
+  outline: 1px solid var(--ink-intensity);
+  outline-offset: 1px;
+}
+
+.rss-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.rss-dialog__actions .cage-btn {
+  text-decoration: none;
+}
+
+/* 複製鍵：「複製網址」與「已複製」疊在同一格，只顯示其中一個；鍵寬固定是兩者較寬的那個 */
+.rss-dialog__copy {
+  display: inline-grid;
+}
+
+.rss-dialog__copy-label {
+  grid-area: 1 / 1;
+  text-align: center;
+}
+
+.rss-dialog__copy-label + .rss-dialog__copy-label,
+.rss-dialog__copy.is-copied .rss-dialog__copy-label:first-child {
+  visibility: hidden;
+}
+
+.rss-dialog__copy.is-copied .rss-dialog__copy-label + .rss-dialog__copy-label {
+  visibility: visible;
 }
