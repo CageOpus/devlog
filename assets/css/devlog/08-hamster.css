@@ -136,6 +136,53 @@
   color: var(--label);
 }
 
+/* 放大鍵：跟名字、天數同一列，靠右 */
+.hamster__zoom {
+  align-self: center;
+  flex: none;
+}
+
+.hamster__zoom svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 兩個圖示疊在同一顆鍵上，一次只露一個（選擇器要壓過按鍵本身對 svg 的設定） */
+.hamster__zoom .hamster__zoom-out,
+.hamster.is-zoomed .hamster__zoom .hamster__zoom-in {
+  display: none;
+}
+
+.hamster.is-zoomed .hamster__zoom .hamster__zoom-out {
+  display: block;
+}
+
+/* ── 放大的 modal：外框就是籠子那塊 well 本身，dialog 只負責置中與遮罩 ── */
+.hamster-dialog {
+  width: min(960px, calc(100% - 2 * var(--page-pad-x, 16px)));
+  max-width: none;
+  max-height: calc(100% - 32px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.hamster-dialog:focus {
+  outline: none;
+}
+
+.hamster-dialog::backdrop {
+  background: rgb(0 0 0 / .45);
+}
+
 /* ── 場景 ── */
 .hamster__stage {
   display: grid;
@@ -976,4 +1023,9 @@
   .hamster__actions { grid-area: actions; }
   .hamster__ticker { grid-area: ticker; }
   .hamster__log { grid-area: log; }
+
+  /* 放大時場景是主角：佔大半寬度，右邊放儀表 */
+  .hamster.is-zoomed .hamster__body {
+    grid-template-columns: minmax(0, 1.8fr) minmax(220px, 1fr);
+  }
 }

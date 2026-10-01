@@ -1551,6 +1551,32 @@
   }).observe(root);
   addEventListener("pagehide", save);
 
+  // 放大：整個 section 搬進 modal（top layer，不受側欄的寬度限制），原位留一個記號，關掉時放回去。
+  // 搬動的是同一批節點，事件、狀態、迴圈都不用重接；IntersectionObserver 會自己回報新位置
+  const zoomBtn = $("[data-ham-zoom]");
+  const zoomDialog = document.querySelector("[data-ham-dialog]");
+  const zoomSlot = document.createComment("hamster");
+  const setZoomed = (on) => {
+    root.classList.toggle("is-zoomed", on);
+    zoomBtn.setAttribute("aria-label", zoomBtn.dataset[on ? "labelOut" : "labelIn"]);
+  };
+  zoomBtn.addEventListener("click", () => {
+    if (zoomDialog.open) return zoomDialog.close();
+    root.before(zoomSlot);
+    zoomDialog.append(root);
+    setZoomed(true);
+    zoomDialog.showModal();
+    zoomBtn.focus();
+  });
+  zoomDialog.addEventListener("close", () => {
+    zoomSlot.replaceWith(root);
+    setZoomed(false);
+    zoomBtn.focus({ preventScroll: true });
+  });
+  zoomDialog.addEventListener("click", (event) => {
+    if (event.target === zoomDialog) zoomDialog.close();
+  });
+
   // ═══ 開始 ═══
   root.hidden = false;
   const startAsleep = asleepNow(now0);
