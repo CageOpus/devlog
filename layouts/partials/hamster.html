@@ -58,6 +58,10 @@
           <line x1="0" y1="0" x2="0" y2="6" class="ham-hatch"/>
         </pattern>
         <clipPath id="hamBottleClip"><rect x="11" y="16" width="14" height="44" rx="3"/></clipPath>
+        {{- /* 筆電螢幕的光暈：中心亮、往外淡掉，用漸層做 bloom，不用模糊濾鏡（濾鏡每一格都要重算） */}}
+        <radialGradient id="hamGlow">
+          <stop offset="0" class="ham-glow-core"/><stop offset=".45" class="ham-glow-mid"/><stop offset="1" class="ham-glow-edge"/>
+        </radialGradient>
         <g id="hamSeed"><path d="M0 -2.6 C1.7 -1.4 1.7 1.4 0 2.6 C-1.7 1.4 -1.7 -1.4 0 -2.6Z"/></g>
       </defs>
 
@@ -86,26 +90,72 @@
         <line x1="70" y1="108" x2="104" y2="108" class="ham-bowl__lip"/>
       </g>
 
-      {{- /* 滾輪：支架不動，輪子整組轉 */}}
+      {{- /* 發電：滾輪的軸接一顆小發電機，電線從輪子後面拉到右邊牆上的充電樁，再垂下來接筆電（js/hamster.js 的「發電」）。
+             電線先畫，被滾輪蓋住；充電樁掛在後牆上，前排籠條在它前面 */}}
+      <path d="M160 72 C184 76 194 64 207 57" class="ham-cable"/>
+      {{- /* 往下接筆電的那條：尾端收進筆電螢幕後面，看不到接頭 */}}
+      <path d="M218 64 C221 80 226 92 217 104" class="ham-cable"/>
+      {{- /* 充電樁：上面是指針式瓦特錶（0–10 W，7 W 以上是紅區），下面是四格電池，右上角一顆指示燈 */}}
+      <g class="ham-charger" data-ham-charger data-state="idle">
+        <rect x="207" y="27" width="21" height="37" rx="2" class="ham-charger__box"/>
+        <rect x="209.5" y="30" width="16" height="12.5" rx="1" class="ham-charger__dial"/>
+        {{- /* 錶面以 (217.5, 40) 為圓心、半徑 6 的上半圓；刻度每 2.5 W 一格；指針由 JS 轉 */}}
+        {{- /* 紅區：7–10 W。指針角度 = −90° + 18° × W（0 W 指向左、10 W 指向右） */}}
+        <path d="M211.5 40 A6 6 0 0 1 223.5 40" class="ham-charger__scale"/>
+        <path d="M221.03 35.15 A6 6 0 0 1 223.5 40" class="ham-charger__redzone"/>
+        {{- range seq 0 4 }}
+        <line x1="217.5" y1="34" x2="217.5" y2="35.4" class="ham-charger__tick" transform="rotate({{ sub (mul . 45) 90 }} 217.5 40)"/>
+        {{- end }}
+        <line x1="217.5" y1="40" x2="217.5" y2="34.6" class="ham-charger__needle" transform="rotate(-90 217.5 40)" data-ham-needle/>
+        <circle cx="217.5" cy="40" r=".9" class="ham-charger__pivot"/>
+        <circle cx="225.6" cy="28.6" r=".7" class="ham-charger__led"/>
+        <rect x="211" y="45" width="13" height="16" rx=".8" class="ham-charger__face"/>
+        {{- /* 電池格：由下往上亮 */}}
+        {{- range seq 0 3 }}
+        <rect x="212.5" y="{{ sub 57.5 (mul . 3.6) }}" width="10" height="2.6" class="ham-charger__cell" data-ham-cell="{{ . }}"/>
+        {{- end }}
+      </g>
+
+      {{- /* 滾輪：支架不動，輪子整組轉。位置跟前排籠條一起排過：整組往左挪剛好一個籠條間距（18），停留點的構圖不變 */}}
       <g class="ham-wheel" data-ham-wheel-hit>
-        <path d="M178 72 L162 118 M178 72 L194 118" class="ham-wheel__edge ham-wheel__edge--stand"/>
-        <path d="M178 72 L162 118 M178 72 L194 118" class="ham-wheel__stand"/>
-        <circle cx="178" cy="72" r="46" class="ham-wheel__hit"/>
+        <path d="M160 72 L144 118 M160 72 L176 118" class="ham-wheel__edge ham-wheel__edge--stand"/>
+        <path d="M160 72 L144 118 M160 72 L176 118" class="ham-wheel__stand"/>
+        <circle cx="160" cy="72" r="46" class="ham-wheel__hit"/>
         <g data-ham-wheel>
           {{- /* 輪框：暗色的邊襯在下面、中間調壓在上面，看起來是一根有厚度的圓管 */}}
-          <circle cx="178" cy="72" r="42" class="ham-wheel__edge"/>
-          <circle cx="178" cy="72" r="42" class="ham-wheel__rim"/>
-          <circle cx="178" cy="72" r="42" class="ham-wheel__glint"/>
-          <circle cx="178" cy="72" r="38" class="ham-wheel__edge ham-wheel__edge--inner"/>
-          <circle cx="178" cy="72" r="38" class="ham-wheel__rim ham-wheel__rim--inner"/>
+          <circle cx="160" cy="72" r="42" class="ham-wheel__edge"/>
+          <circle cx="160" cy="72" r="42" class="ham-wheel__rim"/>
+          <circle cx="160" cy="72" r="42" class="ham-wheel__glint"/>
+          <circle cx="160" cy="72" r="38" class="ham-wheel__edge ham-wheel__edge--inner"/>
+          <circle cx="160" cy="72" r="38" class="ham-wheel__rim ham-wheel__rim--inner"/>
           {{- range seq 0 7 }}
-          <line x1="178" y1="72" x2="178" y2="34" class="ham-wheel__spoke" transform="rotate({{ mul . 45 }} 178 72)"/>
+          <line x1="160" y1="72" x2="160" y2="34" class="ham-wheel__spoke" transform="rotate({{ mul . 45 }} 160 72)"/>
           {{- end }}
           {{- range seq 0 23 }}
-          <circle cx="178" cy="32" r=".9" class="ham-wheel__rung" transform="rotate({{ mul . 15 }} 178 72)"/>
+          <circle cx="160" cy="32" r=".9" class="ham-wheel__rung" transform="rotate({{ mul . 15 }} 160 72)"/>
           {{- end }}
         </g>
-        <circle cx="178" cy="72" r="3" class="ham-wheel__hub"/>
+        <circle cx="160" cy="72" r="3" class="ham-wheel__hub"/>
+      </g>
+
+      {{- /* 筆電：放在右下角的墊料上，螢幕朝外，在跑倉鼠自己訓練的模型。有電時螢幕亮、周圍一圈光暈，沒電就暗掉。
+             點一下看訓練進度 */}}
+      <g class="ham-laptop" data-ham-laptop data-state="off">
+        <ellipse cx="212" cy="116" rx="21" ry="3.2" fill="url(#hamGlow)" class="ham-laptop__spill"/>
+        <ellipse cx="212" cy="103" rx="25" ry="17" fill="url(#hamGlow)" class="ham-laptop__halo"/>
+        <rect x="201.5" y="95.5" width="21" height="15.5" rx="1.2" class="ham-laptop__lid"/>
+        <rect x="203" y="97" width="18" height="12.5" class="ham-laptop__screen"/>
+        <g class="ham-laptop__text">
+          {{- range seq 0 2 }}
+          <rect x="204.3" y="{{ add 98.6 (mul . 2.3) }}" width="8" height=".9" class="ham-laptop__line" data-ham-line="{{ . }}"/>
+          {{- end }}
+          <rect x="204.3" y="106.9" width="15.4" height="1.2" class="ham-laptop__track"/>
+          <rect x="204.3" y="106.9" width="0" height="1.2" class="ham-laptop__bar" data-ham-train/>
+        </g>
+        {{- /* 疊在螢幕上的一層光：讓亮面溢到邊框外一點 */}}
+        <ellipse cx="212" cy="103" rx="12.5" ry="8.5" fill="url(#hamGlow)" class="ham-laptop__bloom"/>
+        <path d="M199 114.5 L225 114.5 L222.6 111 L201.4 111Z" class="ham-laptop__base"/>
+        <rect x="199" y="114.5" width="26" height="1" class="ham-laptop__edge"/>
       </g>
 
       {{- /* 倉鼠：原點在腳底中央、面向右；外層 g 負責位置與朝向（JS），內層 pose 負責姿勢（CSS） */}}
@@ -196,10 +246,27 @@
     <a class="hamster__news cage-paper" data-ham-news hidden></a>
   </div>
 
-  <div class="hamster__odo" aria-label="Odometer">
-    <span class="hamster__odo-label">ODO</span>
-    <span class="hamster__odo-digits" data-ham-odo></span>
-    <span class="hamster__odo-unit">KM</span>
+  {{- /* 讀數：上排里程，下排發電功率與充電樁電池。用跟下面四個儀表一樣的兩欄格線，左右緣與中間的分界都對齊；
+         單位收在讀數框裡靠右 */}}
+  <div class="hamster__readouts">
+    <div class="hamster__readout hamster__readout--wide">
+      <span class="hamster__readout-label">ODO</span>
+      <span class="hamster__readout-box" aria-label="Odometer"><span data-ham-odo></span><span class="hamster__readout-unit">KM</span></span>
+    </div>
+    <div class="hamster__readout">
+      <span class="hamster__readout-label">PWR</span>
+      <span class="hamster__readout-box hamster__gauge">
+        <span class="hamster__gauge-track"><span class="hamster__gauge-fill" data-ham-watts-bar></span></span>
+        <span class="hamster__gauge-value"><span data-ham-watts></span><span class="hamster__readout-unit">W</span></span>
+      </span>
+    </div>
+    <div class="hamster__readout">
+      <span class="hamster__readout-label">BAT</span>
+      <span class="hamster__readout-box hamster__gauge" aria-hidden="true">
+        <span class="hamster__gauge-track"><span class="hamster__gauge-fill" data-ham-battery></span></span>
+        <span class="hamster__gauge-value hamster__readout-unit" data-ham-battery-pct></span>
+      </span>
+    </div>
   </div>
 
   <div class="hamster__meters">

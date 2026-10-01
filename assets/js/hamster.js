@@ -45,6 +45,24 @@
     [40075, "繞地球一圈", "Around the Earth"],
   ];
 
+  // 發電（見 partials/hamster.html 的充電樁與筆電）：滾輪接一顆發電機，電存進充電樁的電池，筆電用電訓練模型
+  const W_PER_DEG = 2.4 / 360; // 一秒轉一圈約 2.4 W；倉鼠自己跑是一秒一圈，訪客點滾輪可以衝到 8 W 以上
+  const WH_PER_KM = (W_PER_DEG * 360) / 3600 / KM_PER_REV; // 轉一圈發的電 ÷ 一圈的距離，約 1 Wh/km（離線補算用）
+  const BATTERY_WH = 10;
+  const LAPTOP_W = 1;
+  const LAPTOP_BOOT_WH = 0.2; // 沒電關機之後，要充回這麼多才重新開機，免得在 0 附近一直開開關關
+  const GAUGE_W = 10; // 瓦特錶與功率條的滿刻度
+  // 成就：筆電累積用掉多少 Wh，就訓練出哪一版模型
+  const MODELS = [
+    [0.5, "HamGPT-0.1"],
+    [3, "HamGPT-0.5"],
+    [10, "HamGPT-1"],
+    [30, "HamGPT-2"],
+    [100, "HamGPT-3"],
+    [300, "HamGPT-4"],
+    [1000, "HamGPT-5"],
+  ];
+
   const zh = document.documentElement.lang.toLowerCase().startsWith("zh");
   const STR = zh
     ? {
@@ -73,6 +91,7 @@
           mood: (w) => `現在心情：${w}`,
           bowlEmpty: "碗空了",
           bottleEmpty: "水瓶空了",
+          compute: (w) => `筆電用了 ${w} Wh 訓練模型`,
         },
         msg: {
           adopt: (n) => `${n} 搬進來了。送你 5 顆瓜子，按「瓜子」放進碗裡。`,
@@ -95,6 +114,10 @@
           rename: (name) => `改名為 ${name}`,
           news: (name, t) => `${name} 叼來一張紙條：新文章《${t}》`,
           nap: (name) => `電量低、沒在充電：${name} 先睡了，點一下籠子叫醒牠`,
+          model: (name, model) => `成就：${name} 踩滾輪發的電訓練出 ${model}（+3 瓜子）`,
+          laptop: (model, pct, bat) => `筆電正在訓練 ${model}：${pct}%（電池 ${bat}%）`,
+          laptopDone: (bat) => `所有模型都訓練完了，筆電在跑推論（電池 ${bat}%）`,
+          laptopOff: (name) => `筆電沒電了，等 ${name} 跑滾輪充電`,
         },
       }
     : {
@@ -123,6 +146,7 @@
           mood: (w) => `Mood now: ${w}`,
           bowlEmpty: "The bowl is empty",
           bottleEmpty: "The bottle is empty",
+          compute: (w) => `The laptop spent ${w} Wh training`,
         },
         msg: {
           adopt: (n) => `${n} moved in. Here are 5 seeds — press Seed to drop one in the bowl.`,
@@ -145,6 +169,10 @@
           rename: (name) => `Renamed to ${name}`,
           news: (name, t) => `${name} brought a note: new post “${t}”`,
           nap: (name) => `Low battery, not charging: ${name} is asleep — tap the cage to wake it`,
+          model: (name, model) => `Achievement: ${name} pedalled ${model} into existence (+3 seeds)`,
+          laptop: (model, pct, bat) => `The laptop is training ${model}: ${pct}% (battery ${bat}%)`,
+          laptopDone: (bat) => `Every model is trained; the laptop is running inference (battery ${bat}%)`,
+          laptopOff: (name) => `The laptop is out of power — waiting for ${name} to run`,
         },
       };
 
@@ -175,6 +203,7 @@
       full: 80, energy: 70, mood: 60, bottle: 100, bowl: 100,
       bowlSeeds: 0, cheek: 0, hoard: 6, seeds: 5, treats: 0,
       km: 0, flings: 0, petAt: now,
+      wh: 5, laptopOn: true, computeWh: 0, models: 0, // 電池先給一半，搬進來就看得到筆電在跑
       read: {}, tags: {}, claims: {}, latestSeen: null, miles: 0,
       log: [],
     };
@@ -206,6 +235,8 @@
   let state = load();
   const isNew = !state;
   if (isNew) state = fresh(now0);
+  // 舊存檔沒有後來加的欄位（例如發電）：補上預設值
+  for (const [k, v] of Object.entries(fresh(now0))) if (!(k in state)) state[k] = v;
 
   // ═══ 作息 ═══
   // 晚上醒著；清晨與傍晚一半一半；白天大多在睡，偶爾會短暫醒來。用時段算雜湊，同一時段的結果固定，兩個分頁看到的一樣
@@ -263,12 +294,13 @@
   function catchUp(now) {
     const from = state.t;
     const start = Math.max(from, now - MAX_CATCH_UP_MS);
-    const report = { ms: now - from, km: 0, meals: 0, hoardEaten: 0, sleptH: 0 };
+    const report = { ms: now - from, km: 0, meals: 0, hoardEaten: 0, sleptH: 0, computeWh: 0 };
     let t = start;
     while (t + STEP_MS <= now) {
       t += STEP_MS;
       const asleep = shouldSleep(t, state.energy);
       let running = false;
+      let madeWh = 0;
       if (asleep) {
         report.sleptH += STEP_MS / 3600000;
       } else {
@@ -292,12 +324,15 @@
           const km = 0.19 * (0.7 + 0.6 * Math.random());
           state.km += km;
           report.km += km;
+          madeWh = km * WH_PER_KM;
         }
       }
       drift(STEP_MS / 3600000, asleep, running, t);
+      report.computeWh += powerStep(madeWh, STEP_MS / 3600000);
     }
     state.t = Math.max(from, t);
     checkMilestones();
+    checkModels();
     return report;
   }
 
@@ -325,6 +360,30 @@
     el.classList.add("is-fresh");
     clearTimeout(tickerTimer);
     tickerTimer = setTimeout(() => el.classList.remove("is-fresh"), 2400);
+  }
+
+  // 發電與用電：先把發的電充進電池（滿了就浪費掉），筆電開著就用電。回傳筆電這段用掉的 Wh
+  function powerStep(madeWh, hours) {
+    state.wh = Math.min(BATTERY_WH, state.wh + madeWh);
+    if (!state.laptopOn && state.wh >= LAPTOP_BOOT_WH) state.laptopOn = true;
+    if (!state.laptopOn) return 0;
+    const use = Math.min(state.wh, LAPTOP_W * hours);
+    state.wh -= use;
+    state.computeWh += use;
+    if (state.wh <= 1e-6) {
+      state.wh = 0;
+      state.laptopOn = false;
+    }
+    return use;
+  }
+
+  function checkModels() {
+    while (state.models < MODELS.length && state.computeWh >= MODELS[state.models][0]) {
+      const [, model] = MODELS[state.models];
+      state.models++;
+      grantSeeds(3);
+      log("model", [state.name, model]);
+    }
   }
 
   function checkMilestones() {
@@ -445,9 +504,12 @@
   const FLOOR = 116;
   // 停留點的 x 跟前排籠條一起排過（見 partials/hamster.html）：每個點的眼睛離籠條至少 3.4，改了要重新確認。
   // wheelX 是倉鼠在輪子裡站的位置，不是輪子的圓心（WHEEL_CX）
-  const SPOT = { nest: 36, bowl: 66, bottle: 31, wheelDoor: 142, wheelX: 177, wheelY: 110 };
-  const WHEEL_CX = 178;
+  // 滾輪連同門口、輪內的位置都往左挪了一個籠條間距（18），構圖跟原本一樣
+  const SPOT = { nest: 36, bowl: 66, bottle: 31, wheelDoor: 124, wheelX: 159, wheelY: 110 };
+  const WHEEL_CX = 160;
   const WHEEL_CY = 72;
+  // 散步、跟著游標能走到的範圍：碗的右邊到滾輪前面
+  const WANDER = [50, 114];
   const ham = {
     x: 100, y: FLOOR, dir: 1, rot: 0,
     inWheel: false,
@@ -459,6 +521,7 @@
     wakeUntil: 0,
   };
   const wheel = { angle: 0, speed: 0 };
+  let watts = 0; // 滾輪現在的發電功率
   const pointer = { x: null, y: null, inScene: false, since: 0 };
 
   function asleepNow(t) {
@@ -509,7 +572,7 @@
     const canRun = state.energy > 25 && state.full > 15 && state.bottle > 0;
     if (canRun && r < 0.45) return plan([{ walk: SPOT.wheelDoor, face: 1 }, { hop: "in" }, act("run", 10 + Math.random() * 25)]);
     if (r < 0.65) {
-      const x = 50 + Math.random() * 80;
+      const x = WANDER[0] + Math.random() * (WANDER[1] - WANDER[0]);
       return plan([{ walk: clearSpot(x, Math.sign(x - ham.x) || ham.dir, ["idle"]) }, act("idle", 1 + Math.random() * 2)]);
     }
     if (r < 0.8) return plan([act("groom", 2.5 + Math.random() * 2)]);
@@ -541,7 +604,7 @@
   }
 
   // 從 x 往兩側找最近的乾淨位置（最多挪 12），找不到就照原位
-  function clearSpot(x, dir, poses, lo = 50, hi = 132) {
+  function clearSpot(x, dir, poses, lo = WANDER[0], hi = WANDER[1]) {
     for (let d = 0; d <= 12; d += 0.5) {
       for (const c of d ? [x + d, x - d] : [x]) {
         if (c >= lo && c <= hi && eyeClear(c, dir, poses)) return c;
@@ -570,7 +633,7 @@
     // 游標停在籠子裡一陣子：醒著、手上沒事的話，走過去站起來看
     const interruptible = !ham.busy && !ham.inWheel && ["idle", "groom", "walk"].includes(ham.pose) && !asleepNow(t);
     if (pointer.inScene && interruptible && tp - pointer.since > 600) {
-      const target = clamp(pointer.x, 50, 132);
+      const target = clamp(pointer.x, WANDER[0], WANDER[1]);
       const face = Math.sign(pointer.x - target) || ham.dir;
       plan([{ walk: clearSpot(target, face, ["rear", "idle"]), face }, act("rear", 6)]);
     }
@@ -971,6 +1034,15 @@
     play(spinSound, wheel.speed);
   });
 
+  // 點筆電：看訓練進度
+  $("[data-ham-laptop]").addEventListener("click", (evt) => {
+    evt.stopPropagation();
+    const bat = Math.round((state.wh / BATTERY_WH) * 100);
+    if (!state.laptopOn) say("laptopOff", [state.name]);
+    else if (state.models >= MODELS.length) say("laptopDone", [bat]);
+    else say("laptop", [MODELS[state.models][1], Math.floor(trainingProgress() * 100), bat]);
+  });
+
   let bubbleTimer = 0;
   function bubble(str) {
     const el = $("[data-ham-bubble]");
@@ -1082,6 +1154,7 @@
       STR.away.km(report.km.toFixed(1)),
       STR.away.meals(report.meals, report.hoardEaten),
       STR.away.slept(Math.round(report.sleptH)),
+      ...(report.computeWh >= 0.05 ? [STR.away.compute(report.computeWh.toFixed(1))] : []),
       STR.away.mood(STR.mood(state.mood)),
     ];
     if (state.bowl < 5) lines.push(STR.away.bowlEmpty);
@@ -1103,11 +1176,21 @@
     water: $("[data-ham-water]"),
     odo: $("[data-ham-odo]"),
     bubble: $("[data-ham-bubble]"),
+    watts: $("[data-ham-watts]"),
+    wattsBar: $("[data-ham-watts-bar]"),
+    needle: $("[data-ham-needle]"),
+    battery: $("[data-ham-battery]"),
+    batteryPct: $("[data-ham-battery-pct]"),
+    charger: $("[data-ham-charger]"),
+    cells: [...svg.querySelectorAll("[data-ham-cell]")],
+    laptop: $("[data-ham-laptop]"),
+    lines: [...svg.querySelectorAll("[data-ham-line]")],
+    train: $("[data-ham-train]"),
     title: $("[data-ham-scene-title]"),
   };
 
   function drawScene() {
-    setAttr(els.wheel, "transform", `rotate(${wheel.angle.toFixed(2)} 178 72)`);
+    setAttr(els.wheel, "transform", `rotate(${wheel.angle.toFixed(2)} ${WHEEL_CX} ${WHEEL_CY})`);
     setAttr(els.ham, "transform", `translate(${ham.x.toFixed(2)} ${ham.y.toFixed(2)}) rotate(${ham.rot.toFixed(1)}) scale(${ham.dir} 1)`);
     if (els.ham.dataset.pose !== ham.pose) els.ham.dataset.pose = ham.pose;
     els.ham.classList.toggle("has-memo", ham.memo && ham.pose !== "sleep");
@@ -1123,6 +1206,8 @@
       const len = Math.hypot(dx, dy) || 1;
       setAttr(els.pupil, "transform", `translate(${((dx / len) * 0.7).toFixed(2)} ${((dy / len) * 0.7).toFixed(2)})`);
     }
+    // 瓦特錶的指針：0 W 指向左（−90°），滿刻度指向右（+90°）
+    setAttr(els.needle, "transform", `rotate(${(-90 + 180 * Math.min(1, watts / GAUGE_W)).toFixed(1)} 217.5 40)`);
     setAttr(els.bubble, "x", clamp(ham.x, 20, 220).toFixed(1));
     setAttr(els.bubble, "y", (ham.y - 34).toFixed(1));
   }
@@ -1156,8 +1241,53 @@
     drawPile($("[data-ham-bowl-seeds]"), state.bowlSeeds, bowlSeedAt, "ham-seed", "use");
     drawPile($("[data-ham-hoard]"), Math.min(state.hoard, 15), hoardAt, "ham-seed", "use");
 
+    renderPower();
+
     const doing = STR.doing[ham.pose === "fling" ? "dizzy" : ham.pose] || STR.doing.idle;
     setText(els.title, STR.sceneTitle(state.name, doing, STR.mood(state.mood)));
+  }
+
+  // 發電的讀數、充電樁的燈與電池格、筆電螢幕
+  let screenTick = 0;
+  function renderPower() {
+    const pct = (state.wh / BATTERY_WH) * 100;
+    setText(els.watts, watts.toFixed(1).padStart(4, "0"));
+    setStyleWidth(els.wattsBar, Math.min(1, watts / GAUGE_W));
+    setStyleWidth(els.battery, pct / 100);
+    els.battery.classList.toggle("is-low", pct < 25);
+    setText(els.batteryPct, `${Math.round(pct)}%`);
+
+    const charging = watts > 0.05 && pct < 99.9;
+    const chargerState = charging ? "charging" : pct >= 99.9 ? "full" : state.laptopOn ? "draining" : state.wh <= 0 ? "empty" : "idle";
+    setAttr(els.charger, "data-state", chargerState);
+    const lit = Math.ceil(pct / 25 - 1e-9);
+    // 充電中：正在充的那一格（最上面亮著的一格；全空時是最下面那格）閃爍
+    const filling = charging ? Math.max(0, lit - 1) : -1;
+    els.cells.forEach((cell, i) => {
+      cell.classList.toggle("is-on", i < lit && !(lit === 1 && i === 0));
+      cell.classList.toggle("is-low", lit === 1 && i === 0);
+      cell.classList.toggle("is-filling", i === filling);
+    });
+
+    setAttr(els.laptop, "data-state", state.laptopOn ? "on" : "off");
+    if (!state.laptopOn) return;
+    setAttr(els.train, "width", (15.4 * trainingProgress()).toFixed(2));
+    // 螢幕上的字每半秒換一次，像在一行一行吐出結果
+    if (++screenTick % 2) return;
+    els.lines.forEach((line) => setAttr(line, "width", (3 + Math.random() * 12).toFixed(1)));
+  }
+
+  function setStyleWidth(el, ratio) {
+    const width = `${(ratio * 100).toFixed(1)}%`;
+    if (el.style.width !== width) el.style.width = width;
+  }
+
+  // 目前這一版模型訓練到哪裡（0–1）；全部訓練完就是 1
+  function trainingProgress() {
+    if (state.models >= MODELS.length) return 1;
+    const from = state.models ? MODELS[state.models - 1][0] : 0;
+    const to = MODELS[state.models][0];
+    return clamp((state.computeWh - from) / (to - from), 0, 1);
   }
 
   const pelletAt = (i) => [76 + (i % 4) * 7 + (i > 3 ? 3.5 : 0), 106 - (i > 3 ? 3.2 : 0)];
@@ -1245,11 +1375,14 @@
 
     stepBrain(dt, nowPerf, t);
     stepWheel(dt);
+    watts = wheel.speed * W_PER_DEG;
+    powerStep((watts * dt) / 3600, dt / 3600);
     stepPetting(dt, nowPerf);
     const asleep = ham.pose === "sleep" || ham.pose === "rub";
     drift(dt / 3600, asleep, ham.inWheel && ham.pose === "run", t);
     state.t = t;
     checkMilestones();
+    checkModels();
 
     drawScene();
     if (retro) stepCssAnimations();
@@ -1279,7 +1412,7 @@
       ham.inWheel = false;
       ham.rot = 0;
       ham.y = FLOOR;
-      ham.x = asleepNow(now) ? SPOT.nest : clearSpot(60 + Math.random() * 60, ham.dir, ["idle"]);
+      ham.x = asleepNow(now) ? SPOT.nest : clearSpot(60 + Math.random() * 50, ham.dir, ["idle"]);
       ham.pose = asleepNow(now) ? "sleep" : "idle";
       plan([]);
     }
@@ -1421,7 +1554,7 @@
   // ═══ 開始 ═══
   root.hidden = false;
   const startAsleep = asleepNow(now0);
-  ham.x = startAsleep ? SPOT.nest : clearSpot(70 + Math.random() * 50, ham.dir, ["idle"]);
+  ham.x = startAsleep ? SPOT.nest : clearSpot(64 + Math.random() * 46, ham.dir, ["idle"]);
   ham.pose = startAsleep ? "sleep" : "idle";
   if (!isNew && now0 - state.t > 60000) {
     showAway(catchUp(now0));

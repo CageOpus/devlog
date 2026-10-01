@@ -32,6 +32,20 @@
   --ham-seed: #4A463F;
   --ham-seed-edge: #F7F4EC;
   --ham-pellet: #B48E5C;
+  /* 發電：電線、充電樁、筆電、螢幕的光 */
+  --ham-cable: #3A3935;
+  --ham-device: #5C5B57;
+  --ham-device-hi: #9A9993;
+  --ham-screen-off: #2B2D2E;
+  --ham-screen: #0F2228;
+  --ham-glow: #8FE3FF;
+  --ham-glow-strength: .32;
+  --ham-led-on: #39B86A;
+  --ham-led-out: #E39B2F;
+  --ham-led-empty: #C9503F;
+  --ham-dial: #F2EEE2;
+  --ham-dial-ink: #2E2C28;
+  --ham-dial-red: #C24A3A;
   container-type: inline-size;
   padding: 15px 17px 17px;
 }
@@ -62,6 +76,12 @@
   --ham-seed: #2A2723;
   --ham-seed-edge: #8C877C;
   --ham-pellet: #8E6F47;
+  --ham-cable: #0B0B0B;
+  --ham-device: #3A3A38;
+  --ham-device-hi: #6E6D69;
+  --ham-screen-off: #101112;
+  --ham-glow-strength: .7;
+  --ham-dial: #BDB7A8;
 }
 
 .hamster__body {
@@ -325,6 +345,185 @@
   stroke-width: .8;
 }
 
+/* ── 發電：電線、充電樁、筆電 ── */
+.ham-cable {
+  fill: none;
+  stroke: var(--ham-cable);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.ham-charger {
+  pointer-events: none;
+}
+
+.ham-charger__box {
+  fill: var(--ham-device);
+  stroke: var(--ham-ink);
+  stroke-width: .6;
+}
+
+.ham-charger__face {
+  fill: var(--ham-screen-off);
+}
+
+/* 瓦特錶：乳白錶面、黑刻度、7 W 以上紅區，指針跟著發電功率擺 */
+.ham-charger__dial {
+  fill: var(--ham-dial);
+  stroke: var(--ham-ink);
+  stroke-width: .4;
+}
+
+.ham-charger__tick {
+  stroke: var(--ham-dial-ink);
+  stroke-width: .45;
+}
+
+.ham-charger__scale {
+  fill: none;
+  stroke: var(--ham-dial-ink);
+  stroke-width: .3;
+}
+
+.ham-charger__redzone {
+  fill: none;
+  stroke: var(--ham-dial-red);
+  stroke-width: 1.1;
+}
+
+.ham-charger__needle {
+  stroke: var(--ham-dial-red);
+  stroke-width: .55;
+  stroke-linecap: round;
+}
+
+.ham-charger__pivot {
+  fill: var(--ham-dial-ink);
+}
+
+.ham-charger__led {
+  fill: var(--ham-screen-off);
+  stroke: var(--ham-ink);
+  stroke-width: .3;
+}
+
+/* 指示燈：充電中、充滿是綠燈，筆電在用電是琥珀色，沒電是紅燈 */
+.ham-charger:is([data-state="charging"], [data-state="full"]) .ham-charger__led {
+  fill: var(--ham-led-on);
+}
+
+.ham-charger[data-state="draining"] .ham-charger__led {
+  fill: var(--ham-led-out);
+}
+
+.ham-charger[data-state="empty"] .ham-charger__led {
+  fill: var(--ham-led-empty);
+}
+
+.ham-charger__cell {
+  fill: var(--ham-device);
+  opacity: .5;
+}
+
+.ham-charger__cell.is-on {
+  fill: var(--ham-led-on);
+  opacity: 1;
+}
+
+/* 充電中：正在充的那一格一亮一暗，像真的充電器。用 steps 直接切換，不做漸變 */
+.ham-charger__cell.is-filling {
+  fill: var(--ham-led-on);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ham-charger__cell.is-filling {
+    animation: ham-cell-fill 1.2s steps(1, end) infinite;
+  }
+}
+
+@keyframes ham-cell-fill {
+  0% { opacity: 1; }
+  50% { opacity: .2; }
+}
+
+/* 只剩最後一格（不到 25%）時，那一格換紅色 */
+.ham-charger__cell.is-low {
+  fill: var(--ham-led-empty);
+  opacity: 1;
+}
+
+.ham-laptop {
+  cursor: pointer;
+}
+
+.ham-laptop__lid,
+.ham-laptop__base {
+  fill: var(--ham-device);
+  stroke: var(--ham-ink);
+  stroke-width: .6;
+  stroke-linejoin: round;
+}
+
+.ham-laptop__edge {
+  fill: var(--ham-device-hi);
+}
+
+.ham-laptop__screen {
+  fill: var(--ham-screen-off);
+}
+
+/* 螢幕上的字與訓練進度：只有開機時看得到 */
+.ham-laptop__text {
+  display: none;
+}
+
+.ham-laptop__line {
+  fill: var(--ham-glow);
+  opacity: .85;
+}
+
+.ham-laptop__track {
+  fill: var(--ham-glow);
+  opacity: .2;
+}
+
+.ham-laptop__bar {
+  fill: var(--ham-glow);
+}
+
+/* bloom：三層漸層光（背後的光暈、照在墊料上的反光、疊在螢幕上的溢光），只在開機時出現 */
+.ham-glow-core { stop-color: var(--ham-glow); stop-opacity: 1; }
+.ham-glow-mid { stop-color: var(--ham-glow); stop-opacity: .35; }
+.ham-glow-edge { stop-color: var(--ham-glow); stop-opacity: 0; }
+
+.ham-laptop :is(.ham-laptop__halo, .ham-laptop__spill, .ham-laptop__bloom) {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .8s ease;
+}
+
+.ham-laptop[data-state="on"] .ham-laptop__screen {
+  fill: var(--ham-screen);
+}
+
+.ham-laptop[data-state="on"] .ham-laptop__text {
+  display: inline;
+}
+
+.ham-laptop[data-state="on"] .ham-laptop__halo {
+  opacity: calc(var(--ham-glow-strength) * .55);
+}
+
+.ham-laptop[data-state="on"] .ham-laptop__spill {
+  opacity: calc(var(--ham-glow-strength) * .6);
+}
+
+.ham-laptop[data-state="on"] .ham-laptop__bloom {
+  opacity: calc(var(--ham-glow-strength) * .45);
+}
+
 /* ── 倉鼠 ── */
 .ham {
   cursor: pointer;
@@ -540,33 +739,94 @@
   color: var(--ink-intensity);
 }
 
-/* ── 里程表 ── */
-.hamster__odo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* ── 讀數：里程、發電功率、電池 ──
+   跟下面四個儀表同一套兩欄格線（欄距 14px）：PWR 對齊左欄、BAT 對齊右欄，ODO 橫跨兩欄；
+   讀數框撐到欄的右緣，單位收在框裡靠右。標籤與數字都是等寬字，數字變動時不會跳 */
+.hamster__readouts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 14px;
 }
 
-.hamster__odo-label,
-.hamster__odo-unit {
-  font-family: var(--font-label);
+.hamster__readout {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hamster__readout--wide {
+  grid-column: 1 / -1;
+}
+
+.hamster__readout-label {
+  flex: none;
+  font-family: var(--font-mono);
   font-weight: 600;
   font-size: 9.5px;
-  letter-spacing: .14em;
+  letter-spacing: .08em;
   color: var(--label);
 }
 
-.hamster__odo-digits {
-  padding: 2px 7px;
+.hamster__readout-box {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  height: 13px;
+  padding: 0 5px;
   border: 1px solid var(--edge);
   border-radius: 2px;
   background: var(--recess);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .18);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .18);
   font-family: var(--font-mono);
-  font-size: 13px;
-  letter-spacing: .14em;
+  font-size: 9.5px;
+  line-height: 1;
+  letter-spacing: .1em;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   color: var(--ink);
+}
+
+.hamster__readout-unit {
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--label);
+}
+
+/* 功率、電池：同一種框，左邊一條指示條、右邊數值（固定寬度，數值變動時條不會伸縮）。
+   擬真的儀表不靠變色提示，看條的長短 */
+.hamster__gauge {
+  padding-left: 2px;
+}
+
+.hamster__gauge-track {
+  flex: 1;
+  align-self: stretch;
+  margin-block: 2px;
+}
+
+.hamster__gauge-fill {
+  display: block;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--ink-intensity);
+  transition: width .25s ease;
+}
+
+.hamster__gauge-fill.is-low {
+  background: var(--ink-revision);
+}
+
+.hamster__gauge-value {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  min-width: 4ch;
+  text-align: right;
 }
 
 /* ── 四個儀表 ── */
@@ -700,7 +960,7 @@
     grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
     grid-template-areas:
       "head  head"
-      "stage odo"
+      "stage readouts"
       "stage meters"
       "stage actions"
       "stage ticker"
@@ -711,7 +971,7 @@
 
   .hamster__head { grid-area: head; }
   .hamster__stage { grid-area: stage; align-self: start; }
-  .hamster__odo { grid-area: odo; }
+  .hamster__readouts { grid-area: readouts; }
   .hamster__meters { grid-area: meters; }
   .hamster__actions { grid-area: actions; }
   .hamster__ticker { grid-area: ticker; }
