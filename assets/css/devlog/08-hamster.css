@@ -454,8 +454,8 @@
   .ham[data-pose="dizzy"] .ham__stars { animation: ham-spin 1s linear infinite; transform-box: fill-box; transform-origin: center; }
 }
 
-/* 省電睡眠（見 js/hamster.js）：連 CSS 動畫也停，整個籠子是一張靜止的畫 */
-.hamster.is-napping .hamster__scene * {
+/* 省電睡眠、籠子捲出畫面（見 js/hamster.js）：連 CSS 動畫也停，整個籠子是一張靜止的畫 */
+.hamster:is(.is-napping, .is-offscreen) .hamster__scene * {
   animation-play-state: paused !important;
 }
 

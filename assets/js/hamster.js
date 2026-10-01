@@ -269,6 +269,8 @@
       t += STEP_MS;
       const asleep = shouldSleep(t, state.energy);
       let running = false;
+  // 籠子在不在畫面裡（下面的 IntersectionObserver 更新）
+  let onscreen = true;
       if (asleep) {
         report.sleptH += STEP_MS / 3600000;
       } else {
@@ -1239,14 +1241,14 @@
     requestAnimationFrame(frame);
   }
 
-  // fromNap：從省電睡眠叫醒。訪客一直都在頁面上，補算照做，但不貼「你不在的期間」
-  function resume(fromNap = false) {
-    if (running || powerNap) return;
+  // quiet：從省電睡眠叫醒、或籠子捲回畫面裡。訪客一直都在頁面上，補算照做，但不貼「你不在的期間」
+  function resume(quiet = false) {
+    if (running || powerNap || !onscreen || document.hidden) return;
     const now = Date.now();
     // 離開超過一分鐘就當成離線，用步進補算；剛剛才在的話直接接上
     if (now - state.t > 60000) {
       const report = catchUp(now);
-      if (!fromNap) showAway(report);
+      if (!quiet) showAway(report);
       // 回來時倉鼠在哪：睡著的話在窩裡，醒著就隨便一個位置
       ham.inWheel = false;
       ham.rot = 0;
@@ -1332,6 +1334,14 @@
   });
 
   document.addEventListener("visibilitychange", () => (document.hidden ? pause() : resume()));
+
+  // 籠子捲出畫面就停下動畫迴圈與 CSS 動畫（手機上籠子在頁面最底下，多數時間看不到）；捲回來再接上
+  new IntersectionObserver(([entry]) => {
+    onscreen = entry.isIntersecting;
+    root.classList.toggle("is-offscreen", !onscreen);
+    if (onscreen) resume(true);
+    else if (running) pause();
+  }).observe(root);
   addEventListener("pagehide", save);
 
   // ═══ 開始 ═══
