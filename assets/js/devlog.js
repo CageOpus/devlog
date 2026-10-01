@@ -153,12 +153,49 @@
   // 語言切換鍵只有在這一頁有譯本時才帶 data-lang-hint，hreflang 是譯本的語言（見 partials/lang-switch.html）
   const keys = document.querySelectorAll("[data-lang-hint]");
   if (keys.length === 0) return;
+
+  // 訪客自己按的語言記下來，之後從站外進首頁就去這個語言（轉址在 partials/head.html）
+  keys.forEach((key) =>
+    key.addEventListener("click", () => {
+      try {
+        localStorage.setItem("pref-lang", key.getAttribute("hreflang"));
+      } catch (e) {}
+    }),
+  );
+
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const userLang = navigator.languages?.[0] || navigator.language || "";
+  // 訪客自己按過語言鍵就以那次的選擇為準，沒按過才看瀏覽器的第一順位語言
+  let storedLang = null;
+  try {
+    storedLang = localStorage.getItem("pref-lang");
+  } catch (e) {}
+  const userLang = storedLang || navigator.languages?.[0] || navigator.language || "";
   const pageLang = document.documentElement.lang;
   const translationLang = keys[0].getAttribute("hreflang");
   if (!userLang || speaks(userLang, pageLang) || !speaks(userLang, translationLang)) return;
+
+  // 提示的次數上限，存的是每次提示的時間：一個月（滾動 30 天）最多三次，兩小時內最多兩次
+  const HINT_KEY = "lang-hint-shown";
+  const HINT_LIMITS = [
+    { windowMs: 30 * 24 * 60 * 60 * 1000, times: 3 },
+    { windowMs: 2 * 60 * 60 * 1000, times: 2 },
+  ];
+  const HINT_KEEP_MS = Math.max(...HINT_LIMITS.map((limit) => limit.windowMs));
+  let shown = [];
+  try {
+    shown = JSON.parse(localStorage.getItem(HINT_KEY)) || [];
+  } catch (e) {}
+  const now = Date.now();
+  shown = shown.filter((t) => typeof t === "number" && now - t < HINT_KEEP_MS);
+  const capped = HINT_LIMITS.some(
+    ({ windowMs, times }) => shown.filter((t) => now - t < windowMs).length >= times,
+  );
+  if (capped) return;
+  shown.push(now);
+  try {
+    localStorage.setItem(HINT_KEY, JSON.stringify(shown));
+  } catch (e) {}
 
   // 用設計系統按鍵的 [data-pressing]（跟手指真的按下去是同一套樣式與回彈）：按住、放開、停一下，重複三次
   const PRESS_MS = 110;
@@ -179,12 +216,10 @@
   else addEventListener("load", start, { once: true });
 
   // 瀏覽器的語言標籤（en-GB、zh-Hant-TW……）算不算站上的某個語言（en、zh-tw，或 <html lang> 的 en-US、zh-TW）。
-  // 英文只看主語言，en-XX 都算；中文站是繁體，只算台灣、香港、澳門與標明繁體（zh-Hant）的
+  // 只看主語言：en-XX 都算英文；zh-XX 不分繁簡都算中文（站上只有繁體，簡體讀者看繁體總比看英文順），
+  // 跟首頁轉址的規則一樣（見 partials/head.html）
   function speaks(browserTag, siteTag) {
-    const browser = browserTag.toLowerCase();
-    const primary = siteTag.toLowerCase().split("-")[0];
-    if (primary === "zh") return /^zh-(tw|hk|mo|hant)\b/.test(browser);
-    return browser.split("-")[0] === primary;
+    return browserTag.toLowerCase().split("-")[0] === siteTag.toLowerCase().split("-")[0];
   }
 })();
 

@@ -1,7 +1,8 @@
 {{- /* 語言切換鍵「文 / A」：放在 Bright / Dim 開關左邊，只是圖標，不標示目前的語言。
        這一頁有譯本才按得下去，連到譯本；沒有譯本就停用（aria-disabled，設計系統會把鍵調暗、不接受點擊）。
        目前只有兩種語言，所以譯本最多一個。
-       訪客的瀏覽器語言跟譯本相同時，js/devlog.js 會在載入後把鍵按三下提示（data-lang-hint）。 */ -}}
+       訪客的瀏覽器語言跟譯本相同時，js/devlog.js 會在載入後把鍵按三下提示（data-lang-hint），一個月最多提示三次、兩小時內最多兩次。
+       按下去時記住選的語言（pref-lang），之後從站外進首頁就去那個語言（見 partials/head.html）。 */ -}}
 {{- $glyphs := `<span class="lang-switch__glyph lang-switch__glyph--han" aria-hidden="true">文</span><span class="lang-switch__glyph lang-switch__glyph--latin" aria-hidden="true">A</span>` | safeHTML }}
 {{- with index .Translations 0 }}
 <a class="lang-switch cage-btn cage-face" href="{{ .RelPermalink }}" hreflang="{{ .Language.Lang }}" lang="{{ .Language.Locale }}" title="{{ .Language.Label }}" aria-label="{{ T "switchLanguage" }}: {{ .Language.Label }}" data-lang-hint>{{ $glyphs }}</a>

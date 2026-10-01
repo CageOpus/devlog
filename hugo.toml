@@ -9,7 +9,7 @@ hasCJKLanguage = true
 [params]
   # 網頁標題：首頁「Devlog | {gameName}」，其他頁「{頁面標題} | {gameName}」（見 layouts/partials/head.html）
   gameName = "City Architect: Golden Era"
-  # 加到主畫面時圖示下的名稱（約 12 字元以內才不會被截）；static/manifest.webmanifest 的 short_name 要一起改
+  # 加到主畫面時圖示下的名稱（約 12 字元以內才不會被截）；manifest 也用這個（layouts/home.webmanifest）
   shortName = "CAGE — Devlog"
   author = "Ray Chung"
   authorRole = "SOLO DEV · TAIPEI"
@@ -22,6 +22,20 @@ hasCJKLanguage = true
   [params.brand]
     title = "City Architect"
     subtitle = "Golden Era"
+
+# 加到主畫面的 manifest：每個語言的首頁各輸出一份（/manifest.webmanifest、/zh-tw/manifest.webmanifest），
+# 從哪個語言加入，打開就是哪個語言的首頁。樣板見 layouts/home.webmanifest
+[mediaTypes.'application/manifest+json']
+  suffixes = ['webmanifest']
+
+[outputFormats.webmanifest]
+  mediaType = 'application/manifest+json'
+  baseName = 'manifest'
+  isPlainText = true
+  notAlternative = true
+
+[outputs]
+  home = ['html', 'rss', 'webmanifest']
 
 [markup.goldmark.renderer]
   unsafe = true
@@ -76,6 +90,8 @@ hasCJKLanguage = true
 
   # 可以直排的文字：橫屏 rail 的導覽鍵上豎排列，而不是整個字轉 90°
   [languages.zh-tw.params]
+    # 加到主畫面時圖示下的名稱（蓋過上面 [params] 的 shortName）
+    shortName = "CAGE 開發日誌"
     verticalWriting = true
     # 每分鐘字數：一般中文閱讀約 250 字，夾在中間的英文術語與程式碼一個單字只算一字，所以調高一點
     readingSpeed = 300

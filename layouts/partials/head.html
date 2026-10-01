@@ -1,6 +1,31 @@
 {{- /* 覆寫 PaperMod 的 head：不載入 PaperMod 的 CSS，改載 CAGE 設計系統 + devlog 樣式。 */ -}}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+{{- /* 首頁的語言轉址：只在從站外進入首頁時（網址列、書籤、外部連結、搜尋結果）作用，越早跑越不會閃。
+       要去哪個語言：訪客自己按過語言鍵就照那次的選擇（localStorage 的 pref-lang，由 js/devlog.js 存），
+       沒按過就看瀏覽器的第一順位語言，中文（不分繁簡）去中文、英文去英文，其他語言不動。
+       從站內點回首頁、從主畫面 app 打開都不轉；文章頁一律不轉，分享出去的連結就是指那個語言的版本。
+       用 location.replace，上一頁不會又彈回轉址前的首頁。 */}}
+{{- if .IsHome }}
+{{- $homes := dict }}
+{{- range .AllTranslations }}{{ $homes = merge $homes (dict .Language.Lang .RelPermalink) }}{{ end }}
+<script>
+  (function () {
+    var homes = {{ $homes | jsonify | safeJS }};
+    var here = {{ .Language.Lang }};
+    if (document.referrer.indexOf(location.origin + "/") === 0) return;
+    if (matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) return;
+    var want = null;
+    try { want = localStorage.getItem("pref-lang"); } catch (e) {}
+    if (!want) {
+      var browser = ((navigator.languages && navigator.languages[0]) || navigator.language || "").toLowerCase();
+      want = /^zh\b/.test(browser) ? "zh-tw" : /^en\b/.test(browser) ? "en" : null;
+    }
+    if (want && want !== here && homes[want]) location.replace(homes[want] + location.search + location.hash);
+  })();
+</script>
+{{- end }}
 {{- if and hugo.IsProduction (ne .Params.robotsNoIndex true) }}
 <meta name="robots" content="index, follow">
 {{- else }}
@@ -32,9 +57,11 @@
 <meta name="apple-mobile-web-app-title" content="{{ site.Params.shortName }}">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 {{- /* 加到主畫面後，manifest 的 scope 決定哪些網址留在 app 裡。沒有 manifest 時 iOS 只把「加入時那一頁的目錄」
-       當成範圍，點到範圍外的連結會跳出系統瀏覽器的面板。start_url / scope 寫相對路徑，
-       部署到 GitHub Pages 的子路徑也成立。 */}}
-<link rel="manifest" href="{{ "manifest.webmanifest" | relURL }}">
+       當成範圍，點到範圍外的連結會跳出系統瀏覽器的面板。 */}}
+{{- /* manifest 每個語言一份（layouts/home.webmanifest），從哪個語言加入，打開就是哪個語言 */}}
+{{- with site.Home.OutputFormats.Get "webmanifest" }}
+<link rel="manifest" href="{{ .RelPermalink }}">
+{{- end }}
 
 {{- /* 圖示照 identity kit 的 App icon 規格輸出（static/icons/）：金屬板 + 刻在上面的標誌，64 px 以下用簡化標誌。
        apple-touch-icon 與 maskable 是滿版方形，形狀由系統自己裁（iOS 裁出來就是蘋果的方圓形；

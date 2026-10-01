@@ -1,0 +1,22 @@
+{{- /* 加到主畫面的 manifest，每個語言一份（輸出格式見 hugo.toml 的 [outputFormats.webmanifest]）。
+       start_url 是這個語言的首頁，所以從中文頁加入的圖示打開就是中文。
+       id 跟著 start_url 分開，兩個語言可以各裝一個，不會互相取代。
+       scope 一律是全站根目錄：在 app 裡切換語言（/ 與 /zh-tw/ 互跳）不會跳出 app 範圍。
+       網址都由 Hugo 算成相對站根的路徑，部署到 GitHub Pages 的子路徑也成立。 */ -}}
+{{- $icons := slice
+  (dict "src" ("icons/icon-192.png" | relURL) "sizes" "192x192" "type" "image/png" "purpose" "any")
+  (dict "src" ("icons/icon-512.png" | relURL) "sizes" "512x512" "type" "image/png" "purpose" "any")
+  (dict "src" ("icons/icon-maskable-512.png" | relURL) "sizes" "512x512" "type" "image/png" "purpose" "maskable")
+-}}
+{{- dict
+  "id" .RelPermalink
+  "name" site.Title
+  "short_name" site.Params.shortName
+  "lang" site.Language.Locale
+  "start_url" .RelPermalink
+  "scope" site.Sites.Default.Home.RelPermalink
+  "display" "standalone"
+  "background_color" "#000000"
+  "theme_color" "#000000"
+  "icons" $icons
+| jsonify (dict "indent" "  ") }}
