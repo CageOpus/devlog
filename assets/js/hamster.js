@@ -1350,6 +1350,9 @@
   // 量更新率用的（見下面的 sampleRate）
   let prevTick = 0;
   let lastJudge = 0;
+  let slowStreak = 0; // 連續幾次判斷都偏慢
+  const SLOW_FPS = 33; // 省電模式壓到 30 fps；一般模式偶爾掉到 35～40 不算
+  const SLOW_STREAK = 10; // 要連續這麼多秒都偏慢才算數，一次卡頓（剛載入、切分頁、捲到重的地方）不算
   const ticks = [];
   // 下一格的排程：一般模式跟著螢幕走（requestAnimationFrame），復古模式用計時器。
   // 計時器之間沒有人要畫面，瀏覽器可以真的閒下來；requestAnimationFrame 一掛著，瀏覽器就得照螢幕的節奏一直出格
@@ -1368,7 +1371,11 @@
 
   function frame(nowPerf) {
     if (!running) return;
-    if (!retro) sampleRate(nowPerf);
+    // 滾輪在轉的時候不量：那時的掉格是滾輪自己畫得重，不是瀏覽器省電；停下來再接著量（連續秒數不歸零）
+    if (!retro) {
+      if (wheel.speed === 0) sampleRate(nowPerf);
+      else prevTick = 0;
+    }
     const dt = Math.min(0.1, (nowPerf - last) / 1000);
     last = nowPerf;
     const t = Date.now();
@@ -1422,6 +1429,7 @@
     // 停下來的那段空檔不算進更新率
     prevTick = 0;
     ticks.length = 0;
+    slowStreak = 0;
     schedule();
   }
 
@@ -1494,7 +1502,8 @@
 
   // 什麼時候進復古模式：電量讀得到又不到一半，或是瀏覽器自己把更新率壓低了。
   // iPhone 讀不到電量，但開省電模式時 Safari 會把 requestAnimationFrame 壓到一秒 30 次；Chrome 的節約能源也會。
-  // 一般模式下動畫迴圈每次被叫都量一下間隔，每秒看一次最近 60 格的中位數，低於 40 fps 就進復古模式
+  // 一般模式下動畫迴圈每次被叫都量一下間隔，每秒看一次最近 60 格的中位數，連續 SLOW_STREAK 次都低於 SLOW_FPS 才進復古模式。
+  // 只量滾輪停著的時候（見 frame）
 
   function sampleRate(now) {
     if (prevTick) ticks.push(now - prevTick);
@@ -1503,7 +1512,8 @@
     if (ticks.length < 30 || now - lastJudge < 1000) return;
     lastJudge = now;
     const sorted = [...ticks].sort((a, b) => a - b);
-    if (1000 / sorted[sorted.length >> 1] < 40) enterRetro();
+    slowStreak = 1000 / sorted[sorted.length >> 1] < SLOW_FPS ? slowStreak + 1 : 0;
+    if (slowStreak >= SLOW_STREAK) enterRetro();
   }
 
   if (navigator.getBattery) {
