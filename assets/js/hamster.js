@@ -152,6 +152,14 @@
   const page = JSON.parse(root.querySelector("[data-hamster-page]").textContent || "{}");
   const $ = (sel) => root.querySelector(sel);
   const $$ = (sel) => root.querySelectorAll(sel);
+  // 面板每 0.25 秒重畫一次：只在值真的變了才寫進 DOM。就算內容一樣，寫 textContent 也會讓整頁重新排版，
+  // iOS Safari 在捲到底、回彈的途中遇到排版，會算錯能捲到哪裡，停在離底部還差一截的地方
+  const setText = (el, str) => {
+    if (el.textContent !== str) el.textContent = str;
+  };
+  const setAttr = (el, name, value) => {
+    if (el.getAttribute(name) !== value) el.setAttribute(name, value);
+  };
   const svg = $("[data-ham-scene]");
   const SVGNS = "http://www.w3.org/2000/svg";
 
@@ -1098,12 +1106,12 @@
   };
 
   function drawScene() {
-    els.wheel.setAttribute("transform", `rotate(${wheel.angle.toFixed(2)} 178 72)`);
-    els.ham.setAttribute("transform", `translate(${ham.x.toFixed(2)} ${ham.y.toFixed(2)}) rotate(${ham.rot.toFixed(1)}) scale(${ham.dir} 1)`);
-    els.ham.dataset.pose = ham.pose;
+    setAttr(els.wheel, "transform", `rotate(${wheel.angle.toFixed(2)} 178 72)`);
+    setAttr(els.ham, "transform", `translate(${ham.x.toFixed(2)} ${ham.y.toFixed(2)}) rotate(${ham.rot.toFixed(1)}) scale(${ham.dir} 1)`);
+    if (els.ham.dataset.pose !== ham.pose) els.ham.dataset.pose = ham.pose;
     els.ham.classList.toggle("has-memo", ham.memo && ham.pose !== "sleep");
     const s = 1 + state.cheek * 0.12;
-    els.cheek.setAttribute("transform", `translate(14.5 -9.5) scale(${s}) translate(-14.5 9.5)`);
+    setAttr(els.cheek, "transform", `translate(14.5 -9.5) scale(${s}) translate(-14.5 9.5)`);
 
     // 眼睛跟著游標：瞳孔最多偏 0.7（倉鼠面向左時 x 要反過來）
     if (pointer.x !== null) {
@@ -1112,42 +1120,43 @@
       const dx = (pointer.x - ex) * ham.dir;
       const dy = pointer.y - ey;
       const len = Math.hypot(dx, dy) || 1;
-      els.pupil.setAttribute("transform", `translate(${((dx / len) * 0.7).toFixed(2)} ${((dy / len) * 0.7).toFixed(2)})`);
+      setAttr(els.pupil, "transform", `translate(${((dx / len) * 0.7).toFixed(2)} ${((dy / len) * 0.7).toFixed(2)})`);
     }
-    els.bubble.setAttribute("x", clamp(ham.x, 20, 220).toFixed(1));
-    els.bubble.setAttribute("y", (ham.y - 34).toFixed(1));
+    setAttr(els.bubble, "x", clamp(ham.x, 20, 220).toFixed(1));
+    setAttr(els.bubble, "y", (ham.y - 34).toFixed(1));
   }
 
   // 數值、按鍵、碗、水瓶、囤糧：一秒畫幾次就夠
   function renderPanel() {
-    nameBtn.textContent = state.name;
-    $("[data-ham-age]").textContent = STR.day(Math.floor((Date.now() - state.born) / 86400000) + 1);
+    setText(nameBtn, state.name);
+    setText($("[data-ham-age]"), STR.day(Math.floor((Date.now() - state.born) / 86400000) + 1));
     const meters = { full: state.full, water: state.bottle, energy: state.energy, mood: state.mood };
     for (const [k, v] of Object.entries(meters)) {
-      $(`[data-ham-meter-label="${k}"]`).textContent = STR.meters[k];
+      setText($(`[data-ham-meter-label="${k}"]`), STR.meters[k]);
       const fill = $(`[data-ham-meter="${k}"]`);
-      fill.style.width = `${v.toFixed(1)}%`;
+      const width = `${v.toFixed(1)}%`;
+      if (fill.style.width !== width) fill.style.width = width;
       fill.classList.toggle("is-low", v < 20);
     }
-    els.odo.textContent = state.km.toFixed(3).padStart(9, "0");
+    setText(els.odo, state.km.toFixed(3).padStart(9, "0"));
 
     const btn = (k) => $(`[data-ham-act="${k}"]`);
-    btn("food").textContent = STR.food;
-    btn("food").setAttribute("aria-disabled", String(state.bowl >= 95));
-    btn("water").textContent = STR.water;
-    btn("water").setAttribute("aria-disabled", String(state.bottle >= 95));
-    btn("seed").textContent = STR.seed(state.seeds);
-    btn("seed").setAttribute("aria-disabled", String(state.seeds <= 0 || state.bowlSeeds >= BOWL_SEEDS_MAX));
-    btn("treat").textContent = STR.treat(state.treats);
-    btn("treat").hidden = state.treats <= 0;
+    setText(btn("food"), STR.food);
+    setAttr(btn("food"), "aria-disabled", String(state.bowl >= 95));
+    setText(btn("water"), STR.water);
+    setAttr(btn("water"), "aria-disabled", String(state.bottle >= 95));
+    setText(btn("seed"), STR.seed(state.seeds));
+    setAttr(btn("seed"), "aria-disabled", String(state.seeds <= 0 || state.bowlSeeds >= BOWL_SEEDS_MAX));
+    setText(btn("treat"), STR.treat(state.treats));
+    if (btn("treat").hidden !== state.treats <= 0) btn("treat").hidden = state.treats <= 0;
 
-    els.water.setAttribute("y", (16 + 44 * (1 - state.bottle / 100)).toFixed(1));
+    setAttr(els.water, "y", (16 + 44 * (1 - state.bottle / 100)).toFixed(1));
     drawPile($("[data-ham-pellets]"), Math.ceil(state.bowl / 100 * 7), pelletAt, "ham-pellet", "circle");
     drawPile($("[data-ham-bowl-seeds]"), state.bowlSeeds, bowlSeedAt, "ham-seed", "use");
     drawPile($("[data-ham-hoard]"), Math.min(state.hoard, 15), hoardAt, "ham-seed", "use");
 
     const doing = STR.doing[ham.pose === "fling" ? "dizzy" : ham.pose] || STR.doing.idle;
-    els.title.textContent = STR.sceneTitle(state.name, doing, STR.mood(state.mood));
+    setText(els.title, STR.sceneTitle(state.name, doing, STR.mood(state.mood)));
   }
 
   const pelletAt = (i) => [76 + (i % 4) * 7 + (i > 3 ? 3.5 : 0), 106 - (i > 3 ? 3.2 : 0)];
