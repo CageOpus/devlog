@@ -1,4 +1,4 @@
-{{- /* 標籤列（< 1280）：側邊欄收起來後，標籤改成頁首下方一條可橫向捲動的列。
+{{- /* 標籤列（< 1100）：側邊欄收起來後，標籤改成頁首下方一條可橫向捲動的列。
        文章頁列出該篇的標籤與日期，其他頁列出全站標籤與篇數；沒有標籤就整條不出現。 */ -}}
 {{- $posts := partial "post-pages.html" . }}
 {{- $hasTags := cond .IsPage (gt (len (.GetTerms "tags")) 0) (gt (len site.Taxonomies.tags) 0) }}

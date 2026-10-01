@@ -155,8 +155,8 @@
 
 /* ── 程式碼區塊 ──
    只有程式碼可以撐出 well，兩種撐法：
-     ≥ 1280  電腦：不出血，框線不動，只有內容在框內橫向捲動
-     < 1280  平板、手機、橫屏 rail：出血的是「捲動軌道」不是 block。
+     ≥ 1100  有側欄：不出血，框線不動，只有內容在框內橫向捲動
+     < 1100  平板、手機、橫屏 rail：出血的是「捲動軌道」不是 block。
              軌道撐到內容區兩緣（左到螢幕邊、右到螢幕邊或 rail），靜止時 block 左緣對齊內文；
              軌道尾端多一段等寬的空白，捲到底時右框線也落在內文對齊線上
    --bleed = 從內文對齊線到螢幕邊的距離 = 頁面留白 + well 框線 1px + well 內距
@@ -189,7 +189,7 @@
   font: inherit;
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 1099px) {
   .code-block__track {
     display: flex;
     margin-left: calc(-1 * var(--bleed-left));

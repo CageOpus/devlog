@@ -110,12 +110,6 @@
   color: var(--ink);
 }
 
-@media (max-width: 1023px) {
-  .article {
-    --body-max: 640px;
-  }
-}
-
 @media (max-width: 767px) {
   .article {
     --article-pad-x: 15px;

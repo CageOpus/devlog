@@ -1,7 +1,7 @@
 /* ══ 文章列表 ══ 一塊 well 上的橫列，列與列之間是一道刻線，不做卡片。
    每一列是 grid，版型只換 grid-template-areas：
-     ≥ 1280  編號自成左欄，日期在標題右側，閱讀時間在標籤右側
-     < 1280  編號、日期、閱讀時間併成標題上方的一行 */
+     ≥ 1100  編號自成左欄，日期在標題右側，閱讀時間在標籤右側（跟側欄同時出現）
+     < 1100  編號、日期、閱讀時間併成標題上方的一行 */
 
 .post-list {
   padding: 11px 21px 17px;
@@ -114,7 +114,7 @@
   color: var(--label);
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 1099px) {
   .post-list {
     padding: 2px 21px 15px;
   }
@@ -148,10 +148,6 @@
     content: "·";
     margin-right: 9px;
     color: var(--rule);
-  }
-
-  .post-row__summary {
-    max-width: 640px;
   }
 
   .post-row__time {

@@ -5,6 +5,8 @@
 .page {
   --page-pad-x: var(--gutter);
   --page-gap: 46px;
+  /* 主欄剛好容納一行 --prose-measure 的內文（加上 well 左右內距與 1px 框線） */
+  --main-w: calc(var(--prose-measure) + 2 * var(--article-pad-x) + 2px);
   display: flex;
   align-items: flex-start;
   gap: var(--page-gap);
@@ -24,19 +26,27 @@
   gap: 19px;
 }
 
-/* 桌機：主欄 + 側欄整組限寬、置中。主欄剛好容納一行 --prose-measure 的內文（加上 well 左右內距與 1px 框線），
-   視窗再寬，多出來的變成兩側的空白，而不是卡片裡內文右邊的一大片空白 */
+/* 桌機：主欄 + 側欄整組限寬、置中。視窗再寬，多出來的變成兩側的空白，而不是卡片裡內文右邊的一大片空白 */
 @media (min-width: 1280px) {
   .page {
-    --main-w: calc(var(--prose-measure) + 2 * var(--article-pad-x) + 2px);
     max-width: calc(var(--page-pad-x) + var(--main-w) + var(--page-gap) + var(--aside-w) + var(--page-pad-x));
     margin-inline: auto;
   }
 }
 
-/* 側欄收起來：整欄移到主欄下方；標籤改由頁首下的 tag-strip 呈現，這裡只剩作者卡 */
-@media (max-width: 1279px) {
+/* 窄雙欄（1100–1279）：側欄照樣在右邊，主欄隨視窗縮，欄距收到 34 */
+@media (min-width: 1100px) and (max-width: 1279px) {
   .page {
+    --page-gap: 34px;
+  }
+}
+
+/* 側欄收起來（< 1100）：整欄移到主欄下方；標籤改由頁首下的 tag-strip 呈現，這裡只剩作者卡 */
+@media (max-width: 1099px) {
+  /* 單欄同一個道理：主欄限寬成 --main-w 置中，內文就能撐滿卡片。
+     用加大頁面留白來置中（不是 max-width + margin），程式碼出血才會照樣算到螢幕邊（見 06-markdown.css） */
+  .page {
+    --page-pad-x: max(var(--gutter), (100vw - var(--main-w)) / 2);
     flex-direction: column;
     align-items: stretch;
     --page-gap: 26px;
@@ -262,7 +272,7 @@
   color: var(--label);
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 1099px) {
   .author-card {
     grid-template-columns: 44px minmax(0, 1fr) auto;
     grid-template-areas:
