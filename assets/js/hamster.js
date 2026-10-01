@@ -633,8 +633,9 @@
     const target = running ? (state.energy > 40 ? 360 : 250) : 0;
     if (wheel.speed < target) wheel.speed = Math.min(target, wheel.speed + 400 * dt);
     else wheel.speed = Math.max(target, wheel.speed - (running ? 260 : 160) * dt);
-    // 倉鼠往右跑，腳下的輪面往左走：輪子逆時針轉
-    wheel.angle = (wheel.angle - wheel.speed * dt) % 360;
+    // 倉鼠在輪子裡一律面向右跑，腳下的輪面往左走：輪子順時針轉（SVG 的 y 朝下，角度變大就是順時針）。
+    // 被甩出去的路線（stepFling）也是順時針：從底部帶到左側再飛出去
+    wheel.angle = (wheel.angle + wheel.speed * dt) % 360;
     if (ham.inWheel) {
       state.km += (wheel.speed * dt / 360) * KM_PER_REV;
       if (wheel.speed > 1150 && ham.flingT < 0) startFling();
