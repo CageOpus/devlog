@@ -635,6 +635,220 @@
     wheel.speed += 240;
   }
 
+  // ═══ 音效 ═══
+  // 只有訪客自己動手時才出聲（點擊本身就是使用者操作，瀏覽器允許播放）；倉鼠自己做的事都是安靜的。
+  // 全部用 Web Audio 現場合成，不載音檔：
+  //   滾輪：手指敲上去的一聲悶響，接著輪框每轉 30° 咔一下，間隔照點完之後的轉速往下減速算；點得越兇越密、越長
+  //   飼料：從袋子倒進碗裡，一陣嘩啦啦的顆粒聲，越後面越疏
+  //   瓜子：掉進陶瓷碗，彈兩三下
+  //   加水：一串氣泡，音高隨水位往上爬
+  let audio = null;
+  let noiseBuffer = null;
+
+  // 第一次建立 AudioContext 要等音訊裝置開起來，很慢：滑鼠第一次移進籠子（整個 widget）時就先在背景建好，
+  // 順便把噪聲緩衝生出來。hover 不算使用者操作，建好的 context 先停在 suspended；
+  // 按下去（pointerdown，比 click 早）就喚醒，等 click 真的要出聲時裝置已經在跑了
+  function ensureAudio() {
+    try {
+      audio ??= new (window.AudioContext || window.webkitAudioContext)();
+      noise(audio);
+      return audio;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  root.addEventListener("pointerenter", ensureAudio, { once: true });
+  root.addEventListener("pointerdown", () => {
+    if (ensureAudio()?.state === "suspended") audio.resume();
+  });
+
+  function play(sound, ...args) {
+    if (!ensureAudio()) return;
+    if (audio.state === "suspended") audio.resume();
+    sound(audio, audio.destination, audio.currentTime + 0.01, ...args);
+  }
+
+  function spinSound(ctx, dest, t0, speed) {
+    const out = ctx.createGain();
+    out.gain.value = 0.9;
+    out.connect(dest);
+    clank(ctx, out, t0);
+
+    // 從點完之後的轉速開始，照空輪的摩擦（每秒少 160°）減速，每經過 30° 排一聲咔
+    const FRICTION = 160;
+    let v = Math.min(speed, 1400);
+    let t = 0;
+    let travelled = 0;
+    let next = 30;
+    while (v > 50 && t < 2) {
+      const dt = 0.004;
+      travelled += v * dt;
+      t += dt;
+      v -= FRICTION * dt;
+      if (travelled >= next) {
+        next += 30;
+        tick(ctx, out, t0 + t, Math.min(1, v / 500));
+      }
+    }
+    setTimeout(() => out.disconnect(), (t + 0.5) * 1000);
+  }
+
+  function noise(ctx) {
+    if (noiseBuffer && noiseBuffer.sampleRate === ctx.sampleRate) return noiseBuffer;
+    noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.08), ctx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    return noiseBuffer;
+  }
+
+  function envelope(ctx, dest, t, peak, decay) {
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(peak, t + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+    g.connect(dest);
+    return g;
+  }
+
+  // 手指敲到鐵輪：一聲短促的悶響，不帶金屬的餘音
+  function clank(ctx, dest, t) {
+    const src = ctx.createBufferSource();
+    src.buffer = noise(ctx);
+    const band = ctx.createBiquadFilter();
+    band.type = "bandpass";
+    band.frequency.value = 900;
+    band.Q.value = 1.2;
+    src.connect(band).connect(envelope(ctx, dest, t, 0.5, 0.05));
+    src.start(t);
+    src.stop(t + 0.07);
+  }
+
+  // 輪框的鐵線經過支架：一聲很短的咔，帶一點點金屬的泛音
+  function tick(ctx, dest, t, intensity) {
+    const src = ctx.createBufferSource();
+    src.buffer = noise(ctx);
+    const band = ctx.createBiquadFilter();
+    band.type = "bandpass";
+    band.frequency.value = 2600 + Math.random() * 900;
+    band.Q.value = 5;
+    src.connect(band).connect(envelope(ctx, dest, t, 0.35 * intensity + 0.08, 0.025));
+    src.start(t, Math.random() * 0.04);
+    src.stop(t + 0.03);
+    const ping = ctx.createOscillator();
+    ping.frequency.value = 3300 + Math.random() * 200;
+    ping.connect(envelope(ctx, dest, t, 0.025 * intensity + 0.005, 0.04));
+    ping.start(t);
+    ping.stop(t + 0.05);
+  }
+
+  // 瓜子掉進陶瓷碗：清脆的一下，再彈兩下，一下比一下輕、間隔一下比一下短
+  function seedSound(ctx, dest, t0) {
+    const out = ctx.createGain();
+    out.gain.value = 0.9;
+    out.connect(dest);
+    const bounces = [[0, 1], [0.085, 0.45], [0.14, 0.2]];
+    for (const [dt, level] of bounces) {
+      const t = t0 + dt;
+      const src = ctx.createBufferSource();
+      src.buffer = noise(ctx);
+      const band = ctx.createBiquadFilter();
+      band.type = "bandpass";
+      band.frequency.value = 4200 + Math.random() * 600;
+      band.Q.value = 8;
+      src.connect(band).connect(envelope(ctx, out, t, 0.45 * level, 0.018));
+      src.start(t, Math.random() * 0.04);
+      src.stop(t + 0.025);
+      // 陶瓷碗本身的一點共鳴
+      const body = ctx.createOscillator();
+      body.type = "triangle";
+      body.frequency.value = 2100;
+      body.connect(envelope(ctx, out, t, 0.04 * level, 0.06));
+      body.start(t);
+      body.stop(t + 0.07);
+    }
+    setTimeout(() => out.disconnect(), 600);
+  }
+
+  // 加飼料：一把飼料倒進陶瓷碗。顆粒的間隔從密到疏、一顆比一顆輕，
+  // 比瓜子低一點、乾一點；底下墊一層很輕的沙沙聲，是飼料從袋口滑出來
+  function foodSound(ctx, dest, t0) {
+    const out = ctx.createGain();
+    out.gain.value = 0.9;
+    out.connect(dest);
+
+    const DURATION = 0.7;
+    const pour = ctx.createBufferSource();
+    pour.buffer = noise(ctx);
+    pour.loop = true;
+    const hiss = ctx.createBiquadFilter();
+    hiss.type = "bandpass";
+    hiss.frequency.value = 3200;
+    hiss.Q.value = 0.8;
+    const hissGain = ctx.createGain();
+    hissGain.gain.setValueAtTime(0, t0);
+    hissGain.gain.linearRampToValueAtTime(0.04, t0 + 0.05);
+    hissGain.gain.exponentialRampToValueAtTime(0.0001, t0 + DURATION);
+    pour.connect(hiss).connect(hissGain).connect(out);
+    pour.start(t0);
+    pour.stop(t0 + DURATION + 0.05);
+
+    let t = 0;
+    while (t < DURATION) {
+      const k = t / DURATION;
+      const level = (1 - k) * (0.6 + Math.random() * 0.4);
+      const at = t0 + t;
+      const src = ctx.createBufferSource();
+      src.buffer = noise(ctx);
+      const band = ctx.createBiquadFilter();
+      band.type = "bandpass";
+      band.frequency.value = 2000 + Math.random() * 1400;
+      band.Q.value = 6;
+      src.connect(band).connect(envelope(ctx, out, at, 0.42 * level + 0.03, 0.015));
+      src.start(at, Math.random() * 0.05);
+      src.stop(at + 0.02);
+      // 大約三顆裡有一顆敲到碗壁，帶出一點陶瓷的共鳴
+      if (Math.random() < 0.35) {
+        const body = ctx.createOscillator();
+        body.type = "triangle";
+        body.frequency.value = 1900 + Math.random() * 300;
+        body.connect(envelope(ctx, out, at, 0.025 * level, 0.05));
+        body.start(at);
+        body.stop(at + 0.06);
+      }
+      // 開頭每 8–20 ms 一顆，到最後拉長到 60–110 ms
+      t += 0.008 + k * k * 0.06 + Math.random() * (0.012 + k * 0.05);
+    }
+    setTimeout(() => out.disconnect(), (DURATION + 0.5) * 1000);
+  }
+
+  // 加水：一串氣泡，每個泡泡是一段往上滑的正弦；整串的音高隨水位升高
+  function waterSound(ctx, dest, t0) {
+    const out = ctx.createGain();
+    out.gain.value = 0.9;
+    out.connect(dest);
+    const lowpass = ctx.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 2400;
+    lowpass.connect(out);
+    const COUNT = 9;
+    let t = t0;
+    for (let i = 0; i < COUNT; i++) {
+      const fill = i / (COUNT - 1);
+      const base = 320 + fill * 380 + Math.random() * 60;
+      const len = 0.05 + Math.random() * 0.03;
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(base, t);
+      osc.frequency.exponentialRampToValueAtTime(base * 2.1, t + len);
+      osc.connect(envelope(ctx, lowpass, t, 0.16 * (1 - fill * 0.4), len));
+      osc.start(t);
+      osc.stop(t + len + 0.02);
+      t += 0.055 + Math.random() * 0.06;
+    }
+    setTimeout(() => out.disconnect(), (t - t0 + 0.4) * 1000);
+  }
+
   function startFling() {
     state.flings += 1;
     log("fling", [state.name, state.flings]);
@@ -745,6 +959,7 @@
   $("[data-ham-wheel-hit]").addEventListener("click", (evt) => {
     evt.stopPropagation();
     boostWheel();
+    play(spinSound, wheel.speed);
   });
 
   let bubbleTimer = 0;
@@ -756,20 +971,40 @@
     bubbleTimer = setTimeout(() => el.classList.remove("is-on"), 1300);
   }
 
+  // 作弊：按住 Option / Alt 再按操作鍵，只播那顆鍵的音效，不動任何狀態（調音效用）。
+  // 停用的鍵平常被 CSS 擋掉滑鼠，按住 Option 時 .is-previewing 會把它放開
+  const PREVIEW = { food: foodSound, seed: seedSound, water: waterSound };
+
+  function setPreviewing(on) {
+    root.classList.toggle("is-previewing", on);
+  }
+  addEventListener("keydown", (e) => e.key === "Alt" && setPreviewing(true));
+  addEventListener("keyup", (e) => e.key === "Alt" && setPreviewing(false));
+  addEventListener("blur", () => setPreviewing(false));
+
   $$("[data-ham-act]").forEach((btn) =>
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (evt) => {
       const kind = btn.dataset.hamAct;
+      if (evt.altKey) {
+        if (PREVIEW[kind]) play(PREVIEW[kind]);
+        return;
+      }
+      // 停用的鍵滑鼠點不到（CSS 擋掉），但鍵盤還按得到
+      if (btn.getAttribute("aria-disabled") === "true") return;
       if (kind === "food") {
         state.bowl = 100;
         say("foodFull");
+        play(foodSound);
       } else if (kind === "water") {
         state.bottle = 100;
         say("waterFull");
+        play(waterSound);
       } else if (kind === "seed") {
         if (state.seeds <= 0 || state.bowlSeeds >= BOWL_SEEDS_MAX) return;
         state.seeds--;
         state.bowlSeeds++;
         say("seedIn");
+        play(seedSound);
         // 醒著而且手上沒事就馬上過來拿；在跑滾輪的話，再跑一下就下來
         if (["idle", "groom", "walk", "rear"].includes(ham.pose) && !ham.inWheel && !ham.busy) plan([]);
         if (ham.step && ham.step.pose === "run") ham.step.dur = Math.min(ham.step.dur, ham.step.t + 1.5);

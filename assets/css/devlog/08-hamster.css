@@ -627,6 +627,12 @@
   padding-inline: 9px;
 }
 
+/* 按住 Option / Alt 預覽音效時，停用的鍵也要點得到（見 js/hamster.js） */
+.hamster.is-previewing .hamster__actions .cage-btn[aria-disabled="true"] {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
 /* 拿到瓜子或零食時，那顆鍵亮一下 */
 .hamster__actions .cage-btn.is-flash {
   animation: ham-flash 1.2s ease-out;
