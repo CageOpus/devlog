@@ -11,9 +11,11 @@
       <a class="cage-tag" href="{{ .RelPermalink }}">{{ .LinkTitle | upper }}</a>
       {{- end }}
     {{- else }}
+      {{- $all := site.GetPage "/posts" }}
       {{- range site.Taxonomies.tags.ByCount }}
       {{- $isCurrent := eq .Page $ }}
-      <a class="cage-tag{{ if $isCurrent }} cage-tag--current{{ end }}" href="{{ .Page.RelPermalink }}"{{ if $isCurrent }} aria-current="page"{{ end }}>{{ .Page.LinkTitle | upper }} {{ .Count }}</a>
+      {{- /* 目前的標籤再點一次就取消篩選，回到全部文章 */}}
+      <a class="cage-tag{{ if $isCurrent }} cage-tag--current{{ end }}" href="{{ if and $isCurrent $all }}{{ $all.RelPermalink }}{{ else }}{{ .Page.RelPermalink }}{{ end }}"{{ if $isCurrent }} aria-current="page" title="{{ T "clearFilter" }}"{{ end }}>{{ .Page.LinkTitle | upper }} {{ .Count }}</a>
       {{- end }}
     {{- end }}
   </div>
