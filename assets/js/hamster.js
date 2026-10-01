@@ -66,7 +66,7 @@
   const zh = document.documentElement.lang.toLowerCase().startsWith("zh");
   const STR = zh
     ? {
-        defaultName: "夯姆",
+        defaultName: "賽博哈姆",
         renamePrompt: "幫牠取個名字",
         day: (n) => `第 ${n} 天`,
         meters: { full: "飽足", water: "水瓶", energy: "體力", mood: "心情" },
