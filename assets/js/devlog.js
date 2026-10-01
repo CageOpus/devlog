@@ -321,3 +321,118 @@
     setTimeout(() => setCopied(false), 1600);
   });
 })();
+
+(function initCheats() {
+  // 連按 BUILD 讀數二十下（每下間隔不到一秒）跳出密技面板；目前只有 /debug（見 partials/cheat-dialog.html）
+  const dialog = document.querySelector("[data-cheat-dialog]");
+  if (!dialog) return;
+  const form = dialog.querySelector("[data-cheat-form]");
+  const input = dialog.querySelector("[data-cheat-input]");
+  const result = dialog.querySelector("[data-cheat-result]");
+  const TAPS = 20;
+  const GAP_MS = 1000;
+  const DEBUG_KEY = "cage-debug";
+  // 回應的字串由樣板依語言放在 data-* 上（i18n/）
+  const STR = {
+    unknown: dialog.dataset.cheatUnknown,
+    on: dialog.dataset.cheatDebugOn,
+    off: dialog.dataset.cheatDebugOff,
+  };
+
+  let taps = 0;
+  let lastTap = 0;
+  document.querySelectorAll("[data-build]").forEach((el) =>
+    el.addEventListener("click", () => {
+      const now = Date.now();
+      taps = now - lastTap < GAP_MS ? taps + 1 : 1;
+      lastTap = now;
+      if (taps < TAPS) return;
+      taps = 0;
+      input.value = "";
+      result.textContent = "";
+      dialog.showModal();
+      input.focus();
+    }),
+  );
+
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const code = input.value.trim().toLowerCase();
+    if (code === "/debug") {
+      const on = !readout;
+      setDebug(on);
+      result.textContent = on ? STR.on : STR.off;
+    } else {
+      result.textContent = STR.unknown;
+    }
+    input.select();
+  });
+
+  // ── 除錯讀數：右上角，每半秒更新。開關記在 localStorage，重新整理後還在 ──
+  let readout = null;
+  let timer = 0;
+  let frameId = 0;
+
+  function setDebug(on) {
+    try {
+      if (on) localStorage.setItem(DEBUG_KEY, "1");
+      else localStorage.removeItem(DEBUG_KEY);
+    } catch (e) {}
+    if (on && !readout) startReadout();
+    if (!on && readout) {
+      clearInterval(timer);
+      cancelAnimationFrame(frameId);
+      readout.remove();
+      readout = null;
+    }
+  }
+
+  function startReadout() {
+    readout = document.createElement("pre");
+    readout.className = "debug-readout";
+    readout.setAttribute("aria-hidden", "true");
+    document.body.append(readout);
+
+    // 頁面本身的更新率：requestAnimationFrame 一秒跑幾次（iOS 省電模式會壓到 30 左右）
+    let pageFrames = 0;
+    const countFrame = () => {
+      pageFrames++;
+      frameId = requestAnimationFrame(countFrame);
+    };
+    frameId = requestAnimationFrame(countFrame);
+
+    let battery = null;
+    navigator.getBattery?.().then((b) => (battery = b), () => {});
+
+    let lastTime = performance.now();
+    let lastHamFrames = window.cageHamster?.frames ?? 0;
+    const render = () => {
+      const now = performance.now();
+      const sec = (now - lastTime) / 1000;
+      const ham = window.cageHamster;
+      const hamFrames = ham?.frames ?? 0;
+      const lines = [
+        `FPS  ${Math.round(pageFrames / sec)}`,
+        ham ? `HAM  ${Math.round((hamFrames - lastHamFrames) / sec)} · ${ham.state()}${ham.retro() ? " · RETRO" : ""}` : "HAM  —",
+        `BAT  ${battery ? `${Math.round(battery.level * 100)}%${battery.charging ? " · CHARGING" : ""}` : "n/a"}`,
+      ];
+      readout.textContent = lines.join("\n");
+      pageFrames = 0;
+      lastTime = now;
+      lastHamFrames = hamFrames;
+    };
+    // 第一次要等半秒才有數字可算
+    readout.textContent = "FPS  …";
+    timer = setInterval(render, 500);
+  }
+
+  let stored = null;
+  try {
+    stored = localStorage.getItem(DEBUG_KEY);
+  } catch (e) {}
+  if (stored) startReadout();
+})();

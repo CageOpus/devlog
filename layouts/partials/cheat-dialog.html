@@ -1,0 +1,15 @@
+{{- /* 密技面板：連按 BUILD 讀數（[data-build]）二十下才會跳出來，輸入密技按 Enter（js/devlog.js）。
+       目前只有 /debug：開關右上角的除錯讀數（更新率、夯姆的狀態、電量）。樣式與 RSS 面板共用（css/devlog/02-chrome.css）。 */ -}}
+<dialog class="cheat-dialog cage-panel" aria-labelledby="cheat-dialog-title" tabindex="-1" data-cheat-dialog
+  data-cheat-unknown="{{ T "cheatUnknown" }}" data-cheat-debug-on="{{ T "cheatDebugOn" }}" data-cheat-debug-off="{{ T "cheatDebugOff" }}">
+  <div class="cage-panel__bar">
+    <span class="cage-panel__title" id="cheat-dialog-title">{{ T "cheatTitle" }}</span>
+    <form method="dialog" class="install-dialog__close">
+      <button class="cage-btn cage-face cage-btn--icon" aria-label="{{ T "close" }}">×</button>
+    </form>
+  </div>
+  <form class="cage-panel__body" data-cheat-form>
+    <input class="rss-dialog__url cheat-dialog__input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" aria-label="{{ T "cheatTitle" }}" data-cheat-input>
+    <p class="install-dialog__intro cheat-dialog__result" aria-live="polite" data-cheat-result></p>
+  </form>
+</dialog>

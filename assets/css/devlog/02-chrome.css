@@ -731,8 +731,8 @@
   inset: -13px -4px;
 }
 
-/* ── 說明面板：加入主畫面、RSS 共用外框 ── */
-:is(.install-dialog, .rss-dialog) {
+/* ── 說明面板：加入主畫面、RSS、密技共用外框 ── */
+:is(.install-dialog, .rss-dialog, .cheat-dialog) {
   width: min(420px, calc(100% - 2 * var(--page-pad-x, 16px)));
   max-height: calc(100% - 32px);
   margin: auto;
@@ -741,15 +741,15 @@
 }
 
 /* 焦點在面板本身時不畫框；裡面的按鍵照常顯示焦點 */
-:is(.install-dialog, .rss-dialog):focus {
+:is(.install-dialog, .rss-dialog, .cheat-dialog):focus {
   outline: none;
 }
 
-:is(.install-dialog, .rss-dialog)::backdrop {
+:is(.install-dialog, .rss-dialog, .cheat-dialog)::backdrop {
   background: rgb(0 0 0 / .45);
 }
 
-:is(.install-dialog, .rss-dialog) .cage-panel__bar {
+:is(.install-dialog, .rss-dialog, .cheat-dialog) .cage-panel__bar {
   justify-content: space-between;
 }
 
@@ -842,4 +842,41 @@
 
 .rss-dialog__copy.is-copied .rss-dialog__copy-label + .rss-dialog__copy-label {
   visibility: visible;
+}
+
+/* BUILD 讀數可以連按（密技面板的入口）：連點時不要選到字、不要被當成雙擊放大 */
+[data-build] {
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+/* 密技面板：輸入欄沿用 RSS 網址欄的樣子；16px 以上 iOS 聚焦時才不會自動放大畫面 */
+.cheat-dialog__input {
+  margin-bottom: 0;
+  font-size: 16px;
+}
+
+.cheat-dialog__result {
+  margin: 9px 0 0;
+}
+
+.cheat-dialog__result:empty {
+  display: none;
+}
+
+/* 除錯讀數（密技 /debug）：右上角、頁首底下一小塊（不蓋住 BUILD 讀數），不擋點擊 */
+.debug-readout {
+  position: fixed;
+  top: calc(62px + env(safe-area-inset-top, 0px));
+  right: calc(8px + env(safe-area-inset-right, 0px));
+  z-index: 100;
+  margin: 0;
+  padding: 5px 7px;
+  border-radius: 2px;
+  background: rgb(0 0 0 / .75);
+  color: #8f8;
+  font: 10px/1.4 var(--font-mono);
+  white-space: pre;
+  pointer-events: none;
 }

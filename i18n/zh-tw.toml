@@ -42,3 +42,9 @@ rssOpenApp = "用 App 開啟"
 
 notFoundText = "這個路段不在計畫圖上。"
 backHome = "回到首頁"
+
+# 密技面板（見 layouts/partials/cheat-dialog.html）
+cheatTitle = "密技"
+cheatUnknown = "什麼事也沒發生。"
+cheatDebugOn = "除錯讀數已開啟。"
+cheatDebugOff = "除錯讀數已關閉。"

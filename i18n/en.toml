@@ -42,6 +42,12 @@ rssOpenApp = "Open in app"
 notFoundText = "This road isn't on the plan."
 backHome = "Back to home"
 
+# 密技面板（見 layouts/partials/cheat-dialog.html）
+cheatTitle = "Cheat code"
+cheatUnknown = "Nothing happens."
+cheatDebugOn = "Debug readout on."
+cheatDebugOff = "Debug readout off."
+
 # 篇數：TOML 的表格會吃掉後面所有的 key，所以放在檔案最後
 [postCount]
   one = '{{ printf "%02d" .Count }} post'

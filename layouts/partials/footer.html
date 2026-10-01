@@ -2,7 +2,7 @@
 {{- $year := now.Year }}
 <footer class="site-footer cage-status">
   {{- /* 手機上跟 extra 一起隱藏：手機頁首本來就有 BUILD 讀數，狀態列要讓位給「加入主畫面」鍵 */}}
-  <span class="site-footer__extra">BUILD {{ site.Params.build }}</span>
+  <span class="site-footer__extra" data-build>BUILD {{ site.Params.build }}</span>
   <span class="site-footer__extra">HUGO + PAPERMOD + CAGE</span>
   <span class="site-footer__extra">{{ $year }}</span>
   {{- with site.Home.OutputFormats.Get "rss" }}

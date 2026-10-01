@@ -28,7 +28,7 @@
         {{- if .IsPage -}}
           READ <span data-read-progress>0%</span> · {{ partial "reading-time.html" . }} MIN
         {{- else -}}
-          BUILD {{ site.Params.build }}
+          <span data-build>BUILD {{ site.Params.build }}</span>
         {{- end -}}
       </span>
     </div>
@@ -40,7 +40,7 @@
           <div class="site-header__readout">
             <span class="site-header__readout-label">Devlog</span>
             <span class="site-header__readout-value">
-              BUILD {{ site.Params.build }}<span class="site-header__readout-extra"> · {{ site.Params.stack }}</span>
+              <span data-build>BUILD {{ site.Params.build }}</span><span class="site-header__readout-extra"> · {{ site.Params.stack }}</span>
             </span>
           </div>
           <span class="vrule site-header__panel-rule"></span>
