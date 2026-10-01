@@ -1213,9 +1213,32 @@
   let running = false;
   // 籠子在不在畫面裡（下面的 IntersectionObserver 更新）
   let onscreen = true;
+  // 復古模式：電量不到一半、或瀏覽器把更新率壓低時，動畫迴圈與 CSS 動畫都鎖在一秒 15 格（見下面的「省電」）。
+  // 進去之後就一直鎖到換頁，不再切回來
+  let retro = false;
+  const RETRO_FRAME_MS = 1000 / 15;
+  // 量更新率用的（見下面的 sampleRate）
+  let prevTick = 0;
+  let lastJudge = 0;
+  const ticks = [];
+  // 下一格的排程：一般模式跟著螢幕走（requestAnimationFrame），復古模式用計時器。
+  // 計時器之間沒有人要畫面，瀏覽器可以真的閒下來；requestAnimationFrame 一掛著，瀏覽器就得照螢幕的節奏一直出格
+  let nextFrame = 0;
+
+  function schedule() {
+    nextFrame = retro ? setTimeout(() => frame(performance.now()), RETRO_FRAME_MS) : requestAnimationFrame(frame);
+  }
+
+  function unschedule() {
+    clearTimeout(nextFrame);
+    cancelAnimationFrame(nextFrame);
+  }
+  // 給除錯讀數（密技 /debug，見 js/devlog.js）看的：動畫迴圈實際走了幾格、現在是什麼狀態。只加數字，不碰 DOM
+  const stats = (window.cageHamster = { frames: 0, state: () => (powerNap ? "nap" : !onscreen ? "offscreen" : running ? "running" : "paused"), retro: () => retro });
 
   function frame(nowPerf) {
     if (!running) return;
+    if (!retro) sampleRate(nowPerf);
     const dt = Math.min(0.1, (nowPerf - last) / 1000);
     last = nowPerf;
     const t = Date.now();
@@ -1229,6 +1252,8 @@
     checkMilestones();
 
     drawScene();
+    if (retro) stepCssAnimations();
+    stats.frames++;
     panelClock += dt;
     if (panelClock > 0.25) {
       panelClock = 0;
@@ -1239,7 +1264,7 @@
       saveClock = 0;
       save();
     }
-    requestAnimationFrame(frame);
+    schedule();
   }
 
   // quiet：從省電睡眠叫醒、或籠子捲回畫面裡。訪客一直都在頁面上，補算照做，但不貼「你不在的期間」
@@ -1261,13 +1286,17 @@
     state.t = now;
     running = true;
     last = performance.now();
-    requestAnimationFrame(frame);
+    // 停下來的那段空檔不算進更新率
+    prevTick = 0;
+    ticks.length = 0;
+    schedule();
   }
 
   // ═══ 省電 ═══
-  // 網頁讀不到瀏覽器的省電模式，用電池狀態近似：沒在充電、電量 ≤ 20%（Chrome 預設在這時自動開節約能源）。
-  // 只有 Chromium 有 navigator.getBattery；Safari、Firefox 讀不到就照常。
-  // 判定省電時，倉鼠回窩裡睡，動畫迴圈與 CSS 動畫全部停下；訪客碰一下籠子才醒，醒了之後這一頁就不再進省電睡眠
+  // 網頁讀不到瀏覽器的省電模式，用電池狀態近似。只有 Chromium 有 navigator.getBattery；Safari、Firefox 讀不到就照常。
+  //   沒在充電、電量不到 50%：復古模式，動畫鎖在一秒 15 格，一直到換頁
+  //   沒在充電、電量 ≤ 20%（Chrome 預設在這時自動開節約能源）：倉鼠回窩裡睡，動畫迴圈與 CSS 動畫全部停下；
+  //   訪客碰一下籠子才醒，醒了之後這一頁就不再進省電睡眠
   let powerNap = false;
   let wokenByUser = false;
 
@@ -1303,9 +1332,51 @@
   root.addEventListener("pointerdown", wakeFromNap, true);
   root.addEventListener("keydown", wakeFromNap, true);
 
+  // 復古模式的 CSS 動畫（腳步、晃動、呼吸……）：全部停住，由動畫迴圈每一格撥一下，跟倉鼠的位置一起一格一格跳。
+  // 不照真實時間取樣：跑步的腳步一圈只有 0.14 秒，一秒 15 格去抽，一圈只抽得到 2.1 格，
+  // 每格都落在差不多的位置，腳看起來像停住。所以改成每格固定前進「一圈的 1/n」：
+  // n 是一圈在 15 格下大約幾格，湊成偶數、至少 2。這些動作的兩個極端都在 0% 與 50%，
+  // 偶數格就一定輪流踩到兩頭；最快的跑步就是左右兩個極端來回切，每一格都看得出在動。
+  // 記的是每個動畫已經走了幾格（換姿勢時 CSS 會換一個新的動畫，從 0 開始）。
+  // currentTime 不加 animation-delay，zzz 三個字錯開出場的節奏照樣保留
+  const cssSteps = new WeakMap();
+
+  function stepCssAnimations() {
+    for (const anim of svg.getAnimations({ subtree: true })) {
+      if (anim.playState === "running") anim.pause();
+      const k = cssSteps.get(anim) ?? 0;
+      cssSteps.set(anim, k + 1);
+      const duration = Number(anim.effect.getTiming().duration) || 0;
+      const perCycle = Math.max(2, Math.round(duration / RETRO_FRAME_MS / 2) * 2);
+      anim.currentTime = (k * duration) / perCycle;
+    }
+  }
+
+  // 只進不出：一路鎖到換頁。下一格起改用計時器排程（見 schedule）
+  function enterRetro() {
+    if (retro) return;
+    retro = true;
+    root.classList.add("is-retro");
+  }
+
+  // 什麼時候進復古模式：電量讀得到又不到一半，或是瀏覽器自己把更新率壓低了。
+  // iPhone 讀不到電量，但開省電模式時 Safari 會把 requestAnimationFrame 壓到一秒 30 次；Chrome 的節約能源也會。
+  // 一般模式下動畫迴圈每次被叫都量一下間隔，每秒看一次最近 60 格的中位數，低於 40 fps 就進復古模式
+
+  function sampleRate(now) {
+    if (prevTick) ticks.push(now - prevTick);
+    prevTick = now;
+    if (ticks.length > 60) ticks.shift();
+    if (ticks.length < 30 || now - lastJudge < 1000) return;
+    lastJudge = now;
+    const sorted = [...ticks].sort((a, b) => a - b);
+    if (1000 / sorted[sorted.length >> 1] < 40) enterRetro();
+  }
+
   if (navigator.getBattery) {
     navigator.getBattery().then((battery) => {
       const check = () => {
+        if (!battery.charging && battery.level < 0.5) enterRetro();
         if (!battery.charging && battery.level <= 0.2) enterNap();
       };
       check();
@@ -1316,6 +1387,8 @@
 
   function pause() {
     running = false;
+    // 把排好的下一格取消：不然很快又 resume 時，舊的那一格也會跑，變成兩條迴圈
+    unschedule();
     save();
   }
 
