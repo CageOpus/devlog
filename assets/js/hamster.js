@@ -269,8 +269,6 @@
       t += STEP_MS;
       const asleep = shouldSleep(t, state.energy);
       let running = false;
-  // 籠子在不在畫面裡（下面的 IntersectionObserver 更新）
-  let onscreen = true;
       if (asleep) {
         report.sleptH += STEP_MS / 3600000;
       } else {
@@ -1213,6 +1211,8 @@
   let panelClock = 0;
   let saveClock = 0;
   let running = false;
+  // 籠子在不在畫面裡（下面的 IntersectionObserver 更新）
+  let onscreen = true;
 
   function frame(nowPerf) {
     if (!running) return;
