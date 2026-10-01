@@ -3,7 +3,13 @@
        目前只有兩種語言，所以譯本最多一個。
        訪客的瀏覽器語言跟譯本相同時，js/devlog.js 會在載入後把鍵按三下提示（data-lang-hint），一個月最多提示三次、兩小時內最多兩次。
        按下去時記住選的語言（pref-lang），之後從站外進首頁就去那個語言（見 partials/head.html）。 */ -}}
-{{- $glyphs := `<span class="lang-switch__glyph lang-switch__glyph--han" aria-hidden="true">文</span><span class="lang-switch__glyph lang-switch__glyph--latin" aria-hidden="true">A</span>` | safeHTML }}
+{{- /* 「文」與「A」畫成路徑，不排字：各平台的字型與行高算法不同（IBM Plex Sans TC 也不在 Google Fonts 上，
+       「文」一直掉到系統字型），排字的位置每個平台都差一點。路徑取自 IBM Plex Sans TC Regular 的「文」
+       （IBM 官方 github.com/IBM/plex）與 Barlow Semi Condensed Regular 的「A」，兩者都是 SIL OFL 1.1。
+       座標系是 27px 鍵的內框（25 × 25）。位置與大小照原本排字時在 Mac 上量到的字形外框：
+       「文」中心 (8.28, 7.57)、字級 7.45（比兩格的正中央高一點，視覺上才對稱），「A」中心 (16.72, 16.79)、字級 9.72；
+       中間的斜線還是 CSS 畫（css/devlog/02-chrome.css 的 .lang-switch::after） */}}
+{{- $glyphs := `<svg class="lang-switch__glyphs" viewBox="0 0 25 25" aria-hidden="true" focusable="false"><path d="M11.47 10.86Q9.48 10.18 8.26 9.28Q7.11 10.18 5.09 10.88L4.88 10.42Q5.84 10.09 6.57 9.74Q7.3 9.39 7.86 8.97Q6.39 7.71 6.06 5.83H4.96V5.37H7.95V4.26H8.46V5.37H11.59V5.83H10.31Q10.13 6.82 9.71 7.58Q9.3 8.35 8.64 8.96Q9.77 9.75 11.68 10.41ZM6.57 5.83Q6.72 6.71 7.14 7.4Q7.56 8.09 8.25 8.66Q8.85 8.11 9.24 7.42Q9.63 6.74 9.81 5.83Z"/><path d="M18.24 20.1 17.92 18.89Q17.91 18.86 17.87 18.86H15.55Q15.51 18.86 15.5 18.89L15.18 20.1Q15.16 20.19 15.07 20.19H14.57Q14.52 20.19 14.5 20.16Q14.47 20.13 14.48 20.09L16.3 13.48Q16.32 13.39 16.41 13.39H17.03Q17.12 13.39 17.13 13.48L18.95 20.09L18.96 20.11Q18.96 20.19 18.86 20.19H18.35Q18.26 20.19 18.24 20.1ZM15.71 18.3H17.72Q17.74 18.3 17.75 18.28Q17.77 18.27 17.76 18.26L16.73 14.35Q16.72 14.33 16.71 14.33Q16.7 14.33 16.69 14.35L15.67 18.26Q15.66 18.27 15.67 18.28Q15.69 18.3 15.71 18.3Z"/></svg>` | safeHTML }}
 {{- with index .Translations 0 }}
 <a class="lang-switch cage-btn cage-face" href="{{ .RelPermalink }}" hreflang="{{ .Language.Lang }}" lang="{{ .Language.Locale }}" title="{{ .Language.Label }}" aria-label="{{ T "switchLanguage" }}: {{ .Language.Label }}" data-lang-hint>{{ $glyphs }}</a>
 {{- else }}

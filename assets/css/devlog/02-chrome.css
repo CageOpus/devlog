@@ -539,18 +539,12 @@
    字、內距、斜線粗細都跟著等比例縮放。 */
 .lang-switch {
   --lang-key: 27px;
-  --lang-inset: calc(var(--lang-key) * .15);
   --lang-stroke: max(1.5px, calc(var(--lang-key) * .045));
   position: relative;
   flex: none;
   width: var(--lang-key);
   height: var(--lang-key);
-  padding: var(--lang-inset);
-  display: grid;
-  gap: 0;
-  grid-template: 1fr 1fr / 1fr 1fr;
-  place-items: center;
-  line-height: 1;
+  padding: 0;
   text-decoration: none;
 }
 
@@ -568,18 +562,20 @@
   pointer-events: none;
 }
 
-/* 方塊字塞滿整個字身，拉丁字母只佔大寫高度：同樣字級下「文」看起來大得多，
-   所以「文」縮小、「A」放大，兩個字的視覺份量才平衡；字重相同，筆畫才一樣粗 */
-.lang-switch__glyph--han {
-  grid-area: 1 / 1;
-  font-family: var(--font-cjk);
-  font-size: calc(var(--lang-key) * .27);
+/* 「文」「A」是一張 SVG（partials/lang-switch.html），蓋滿鍵的內框，跟著鍵縮放；
+   刻字效果跟排字時一樣：上緣一道暗、下緣一道亮（--cut-text，SVG 吃不到 text-shadow，改用 drop-shadow） */
+.lang-switch__glyphs {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  filter: drop-shadow(0 -1px 0 rgba(0, 0, 0, .16)) drop-shadow(0 1px 0 rgba(255, 255, 255, .95));
+  pointer-events: none;
 }
 
-.lang-switch__glyph--latin {
-  grid-area: 2 / 2;
-  font-family: var(--font-label);
-  font-size: calc(var(--lang-key) * .36);
+[data-theme="dark"] .lang-switch__glyphs {
+  filter: drop-shadow(0 -1px 1px rgba(0, 0, 0, .62)) drop-shadow(0 1px 0 rgba(255, 255, 255, .22));
 }
 
 /* ── Bright / Dim 開關 ──
@@ -592,25 +588,25 @@
   flex: none;
 }
 
+/* 燈號：一個刻在面板上的圓，Bright 塗滿左半（◐），Dim 塗滿右半（◑）。
+   用 CSS 畫，不用 ◐ ◑ 這兩個字元：設計系統的字型都沒有這兩個符號，會掉到各平台自己的系統字型，
+   大小、粗細、上下位置每個平台都不一樣，跟旁邊的鍵對不齊。
+   刻痕跟刻字一樣：上緣一道暗、下緣一道亮（--cut-text 的兩層，換成 box-shadow 的寫法） */
 .theme-switch__lamp {
-  position: relative;
-  top: -3px;
-  height: 21px;
-  display: flex;
-  align-items: center;
-  font-family: var(--font-mono);
-  font-size: 26px;
-  line-height: 1;
-  color: var(--label);
-  text-shadow: var(--cut-text);
+  --lamp: 15px;
+  flex: none;
+  width: var(--lamp);
+  height: var(--lamp);
+  box-sizing: border-box;
+  border: 1.5px solid var(--label);
+  border-radius: 50%;
+  background: linear-gradient(to right, var(--label) 50%, transparent 50%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .95), inset 0 1px 0 rgba(0, 0, 0, .16);
 }
 
-.theme-switch__lamp::before {
-  content: "◐";
-}
-
-[data-theme="dark"] .theme-switch__lamp::before {
-  content: "◑";
+[data-theme="dark"] .theme-switch__lamp {
+  background: linear-gradient(to left, var(--label) 50%, transparent 50%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .22), inset 0 1px 1px rgba(0, 0, 0, .62);
 }
 
 .theme-switch .cage-switch {

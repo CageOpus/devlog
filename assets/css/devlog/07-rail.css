@@ -106,10 +106,8 @@
     text-transform: uppercase;
   }
 
-  /* 上面 .rail-nav .cage-btn 把內距歸零了，這顆鍵要把自己的內距拿回來 */
   .rail-nav .lang-switch {
     --lang-key: 44px;
-    padding: var(--lang-inset);
   }
 
   .rail-nav__spacer {
@@ -130,9 +128,7 @@
   }
 
   .rail-nav .theme-switch__lamp {
-    top: 0;
-    height: auto;
-    font-size: 22px;
+    --lamp: 13px;
   }
 
   /* ── 頁首 → 64px 標題列：不固定、不收合，只放標誌、刊名與 readout ── */
