@@ -433,9 +433,59 @@
   if (stored) startReadout();
 })();
 
+
+/* ── 面板關掉時先播完動畫（css/devlog/02-chrome.css「開面板的動畫」） ──
+   瀏覽器一關掉 dialog 就把它移出 top layer，Safari 還不支援延後移出（overlay），收回去的動畫來不及播。
+   所以關閉都先經過這裡：掛上 .is-closing 播動畫，CLOSE_MS 後才真的關。會關掉面板的路徑都接過來：
+   程式呼叫 close()、Esc（cancel 事件）、面板裡 method="dialog" 的表單（× 鍵）。close 事件因此在動畫播完才發 */
+(function initDialogClose() {
+  const CLOSE_MS = 300;
+  const motion = matchMedia("(prefers-reduced-motion: no-preference)");
+  const close = HTMLDialogElement.prototype.close;
+  for (const d of document.querySelectorAll("dialog")) {
+    d.close = function (value) {
+      if (!this.open || this.classList.contains("is-closing")) return;
+      if (!motion.matches) return close.call(this, value);
+      this.classList.add("is-closing");
+      setTimeout(() => {
+        this.classList.remove("is-closing");
+        close.call(this, value);
+      }, CLOSE_MS);
+    };
+    d.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      d.close();
+    });
+    d.querySelectorAll('form[method="dialog"]').forEach((form) =>
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        d.close(event.submitter?.value);
+      }),
+    );
+  }
+})();
+
+/* ── Firefox：網點動畫先偷播一次（css/devlog/02-chrome.css 的 dialog-dither-in / -out） ──
+   Firefox 第一次用到遮罩圖時才解碼、點陣化，第一次開面板的網點會缺格。載入完、閒下來時拿一個
+   幾乎透明、不吃點擊的小方塊把兩段網點動畫原樣播一遍（遮罩格子同樣 8px），之後開面板就直接用快取 */
+(function warmDither() {
+  if (!/firefox/i.test(navigator.userAgent)) return;
+  if (!matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
+  const run = () => {
+    const el = document.createElement("div");
+    el.setAttribute("aria-hidden", "true");
+    el.style.cssText =
+      "position:fixed;left:0;top:0;width:16px;height:16px;opacity:.01;pointer-events:none;background:#000;" +
+      "mask-size:8px 8px;animation:dialog-dither-in .3s linear both,dialog-dither-out .2s linear .3s forwards";
+    el.addEventListener("animationend", (event) => event.animationName === "dialog-dither-out" && el.remove());
+    document.body.append(el);
+  };
+  const idle = () => ("requestIdleCallback" in window ? requestIdleCallback(run, { timeout: 2000 }) : setTimeout(run, 200));
+  document.readyState === "complete" ? idle() : addEventListener("load", idle, { once: true });
+})();
 /* ── 毛玻璃從頁面上拿起來（css/devlog/02-chrome.css「開面板的動畫」） ──
    玻璃淡入的同時，隔著玻璃看到的頁面慢慢放大到 LIFT 倍，面板開著時就維持略大；關掉時從當下的大小縮回原狀，
-   跟玻璃淡出同一條曲線、同樣長。backdrop-filter 只能原地取背後的像素，不會放大，所以放大的是頁面本身。
+   跟玻璃淡出同一條曲線、同樣長（關掉從面板掛上 .is-closing 那一刻算起）。backdrop-filter 只能原地取背後的像素，不會放大，所以放大的是頁面本身。
    縮放的是頁面的每一塊（.site-header 與 body 底下除了 slot 以外的子元素），不是整個 body：
    頁首、底部導覽是 fixed，外層一有 transform 它們就改以外層定位而跳位。每一塊的 transform-origin
    都換算成同一個點（畫面正中央），縮起來才像整頁一起縮；面板開著時背景還是捲得動，捲動時重算。
@@ -496,12 +546,12 @@
   };
 
   const sync = () => {
-    const open = dialogs.some((d) => d.open);
+    const open = dialogs.some((d) => d.open && !d.classList.contains("is-closing"));
     if (open === wasOpen) return;
     wasOpen = open;
     if (!motion.matches) return;
     open ? lift() : settle();
   };
   const watch = new MutationObserver(sync);
-  dialogs.forEach((d) => watch.observe(d, { attributes: true, attributeFilter: ["open"] }));
+  dialogs.forEach((d) => watch.observe(d, { attributes: true, attributeFilter: ["open", "class"] }));
 })();

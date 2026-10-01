@@ -78,6 +78,18 @@ body {
   flex: 1;
 }
 
+/* 頁面的捲動交給 html，body 本身把超出的部分裁掉：開面板時頁面會放大（css/devlog/02-chrome.css「開面板的動畫」），
+   放大出去的部分不能撐出捲軸。一直維持這樣，不在動畫時才切換——Safari / Firefox 一切換 overflow 就重建
+   整頁的捲動區域，捲軸會跳。html 寫 auto 跟瀏覽器預設的捲動行為一樣；
+   html 一定要寫，否則 body 的 overflow 會被拿去當成視窗的，整頁就不能捲了 */
+html {
+  overflow: auto;
+}
+
+body {
+  overflow: clip;
+}
+
 .cage-mark-defs {
   position: absolute;
   width: 0;

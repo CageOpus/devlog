@@ -1562,27 +1562,65 @@
     root.classList.toggle("is-zoomed", on);
     zoomBtn.setAttribute("aria-label", zoomBtn.dataset[on ? "labelOut" : "labelIn"]);
   };
+  // 離開側欄時原位先放一份複本，用網點消失（.is-leaving），播完才換成空框；複本只是畫面，不能點、讀屏器也不念
+  const motion = matchMedia("(prefers-reduced-motion: no-preference)");
+  let ghost = null;
   zoomBtn.addEventListener("click", () => {
     if (zoomDialog.open) return zoomDialog.close();
-    // 上一次關掉的動畫還沒跑完時，籠子還在 modal 裡，直接重新打開就好
-    if (!zoomDialog.contains(root)) {
-      zoomSlot.style.height = `${root.getBoundingClientRect().height}px`;
+    root.classList.remove("is-returning");
+    zoomSlot.style.height = `${root.getBoundingClientRect().height}px`;
+    if (motion.matches) {
+      ghost = root.cloneNode(true);
+      ghost.removeAttribute("data-hamster");
+      ghost.setAttribute("aria-hidden", "true");
+      ghost.inert = true;
+      ghost.classList.add("is-leaving");
+      ghost.style.height = zoomSlot.style.height;
+      ghost.addEventListener("animationend", (event) => {
+        if (event.target !== ghost || event.animationName !== "dialog-dither-out") return;
+        ghost.replaceWith(zoomSlot);
+        ghost = null;
+      });
+      root.before(ghost);
+    } else {
       root.before(zoomSlot);
-      zoomDialog.append(root);
     }
+    zoomDialog.append(root);
     setZoomed(true);
     zoomDialog.showModal();
     zoomBtn.focus();
   });
-  // 關掉時 modal 還要往上收一段（css/devlog/02-chrome.css），等它收完才把籠子放回側欄，不然收回去的是一個空框
+  // close 事件在收回去的動畫播完才發（js/devlog.js 的 initDialogClose），這時才把籠子放回側欄，收回去的不會是空框
+  // 回到側欄時用網點顯現（css/devlog/08-hamster.css 的 .is-returning，跟面板同一組動畫），播完就拿掉
+  const returned = (event) => {
+    if (event.target !== root || event.animationName !== "dialog-dither-in") return;
+    root.classList.remove("is-returning");
+  };
+  root.addEventListener("animationend", returned);
+  // 關閉動畫一開始（面板掛上 .is-closing，js/devlog.js 的 initDialogClose），側欄就先放一份複本用網點長出來，
+  // 跟 modal 收回去同時進行；動畫播完、close 事件發的時候再拿籠子本身無縫換掉複本
+  let back = null;
+  new MutationObserver(() => {
+    if (!zoomDialog.classList.contains("is-closing") || back) return;
+    back = root.cloneNode(true);
+    back.removeAttribute("data-hamster");
+    back.setAttribute("aria-hidden", "true");
+    back.inert = true;
+    back.classList.remove("is-zoomed", "is-leaving");
+    back.classList.add("is-returning");
+    // 跟空框一樣高：換來換去版面一點都不動，捲動位置才不會被瀏覽器調整
+    back.style.height = zoomSlot.style.height;
+    (ghost?.isConnected ? ghost : zoomSlot).replaceWith(back);
+    ghost = null;
+  }).observe(zoomDialog, { attributes: true, attributeFilter: ["class"] });
   zoomDialog.addEventListener("close", () => {
-    const ms = parseFloat(getComputedStyle(zoomDialog).transitionDuration) * 1000 || 0;
-    setTimeout(() => {
-      if (zoomDialog.open) return;
-      zoomSlot.replaceWith(root);
-      setZoomed(false);
-      zoomBtn.focus({ preventScroll: true });
-    }, ms);
+    // 複本已經長出來了就直接換掉；沒有複本（不播動畫時）才在這裡放回去並顯現
+    const holder = back?.isConnected ? back : ghost?.isConnected ? ghost : zoomSlot;
+    holder.replaceWith(root);
+    if (holder !== back) root.classList.add("is-returning");
+    back = ghost = null;
+    setZoomed(false);
+    zoomBtn.focus({ preventScroll: true });
   });
   zoomDialog.addEventListener("click", (event) => {
     if (event.target === zoomDialog) zoomDialog.close();
