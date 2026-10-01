@@ -162,7 +162,7 @@
   display: block;
 }
 
-/* ── 放大的 modal：外框就是籠子那塊 well 本身，dialog 只負責置中與遮罩 ── */
+/* ── 放大的 modal：外框就是籠子那塊 well 本身，dialog 只負責置中；遮罩是共用的毛玻璃（css/devlog/02-chrome.css） ── */
 .hamster-dialog {
   width: min(960px, calc(100% - 2 * var(--page-pad-x, 16px)));
   max-width: none;
@@ -175,12 +175,13 @@
   overscroll-behavior: contain;
 }
 
-.hamster-dialog:focus {
-  outline: none;
+/* 籠子搬進 modal 時留在側欄原位的空框：同高，頁面不會變矮；看起來是一塊空著的 well */
+.hamster-slot {
+  opacity: .5;
 }
 
-.hamster-dialog::backdrop {
-  background: rgb(0 0 0 / .45);
+.hamster-dialog:focus {
+  outline: none;
 }
 
 /* ── 場景 ── */

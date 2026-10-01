@@ -355,10 +355,6 @@
     }),
   );
 
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dialog.close();
-  });
-
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const code = input.value.trim().toLowerCase();
@@ -435,4 +431,77 @@
     stored = localStorage.getItem(DEBUG_KEY);
   } catch (e) {}
   if (stored) startReadout();
+})();
+
+/* ── 毛玻璃從頁面上拿起來（css/devlog/02-chrome.css「開面板的動畫」） ──
+   玻璃淡入的同時，隔著玻璃看到的頁面慢慢放大到 LIFT 倍，面板開著時就維持略大；關掉時從當下的大小縮回原狀，
+   跟玻璃淡出同一條曲線、同樣長。backdrop-filter 只能原地取背後的像素，不會放大，所以放大的是頁面本身。
+   縮放的是頁面的每一塊（.site-header 與 body 底下除了 slot 以外的子元素），不是整個 body：
+   頁首、底部導覽是 fixed，外層一有 transform 它們就改以外層定位而跳位。每一塊的 transform-origin
+   都換算成同一個點（畫面正中央），縮起來才像整頁一起縮；面板開著時背景還是捲得動，捲動時重算。
+   密技面板沒有毛玻璃，不放大 */
+(function initGlassLift() {
+  const motion = matchMedia("(prefers-reduced-motion: no-preference)");
+  const html = document.documentElement;
+  const LIFT = 1.04;
+  const OPEN = { duration: 450, easing: "cubic-bezier(.25, .8, .25, 1)" };
+  const CLOSE = { duration: 300, easing: "cubic-bezier(.4, 0, .2, 1)" };
+  const dialogs = [...document.querySelectorAll(".install-dialog, .rss-dialog, .hamster-dialog")];
+  let parts = [];
+  let anims = [];
+  let wasOpen = false;
+
+  const aim = () => {
+    const cx = innerWidth / 2;
+    const cy = innerHeight / 2;
+    for (const el of parts) {
+      // 要的是縮放前的位置：以 origin 為中心縮放 k 倍後，左上角會移到 left + ox × (1 − k)，反推回去
+      const r = el.getBoundingClientRect();
+      const k = parseFloat(getComputedStyle(el).scale) || 1;
+      const [ox, oy] = (el.style.transformOrigin || "0px 0px").split(" ").map(parseFloat);
+      const left = r.left - ox * (1 - k);
+      const top = r.top - oy * (1 - k);
+      el.style.transformOrigin = `${cx - left}px ${cy - top}px`;
+    }
+  };
+
+  const lift = () => {
+    if (!html.classList.contains("is-lifted")) {
+      html.style.setProperty("--lift-extent", `${html.scrollHeight}px`);
+      parts = [...document.querySelectorAll(".site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout)")];
+      parts.forEach((el) => (el.style.transformOrigin = ""));
+      aim();
+      html.classList.add("is-lifted");
+      addEventListener("scroll", aim, { passive: true });
+    }
+    const from = parts.map((el) => getComputedStyle(el).scale);
+    anims.forEach((a) => a.cancel());
+    anims = parts.map((el, i) =>
+      el.animate([{ scale: from[i] === "none" ? 1 : from[i] }, { scale: LIFT }], { ...OPEN, fill: "forwards" }),
+    );
+  };
+
+  const settle = () => {
+    const from = parts.map((el) => getComputedStyle(el).scale);
+    anims.forEach((a) => a.cancel());
+    anims = parts.map((el, i) => el.animate([{ scale: from[i] === "none" ? 1 : from[i] }, { scale: 1 }], CLOSE));
+    const mine = anims;
+    Promise.all(mine.map((a) => a.finished)).then(() => {
+      if (mine !== anims) return;
+      removeEventListener("scroll", aim);
+      html.classList.remove("is-lifted");
+      parts.forEach((el) => (el.style.transformOrigin = ""));
+      anims = [];
+    }, () => {});
+  };
+
+  const sync = () => {
+    const open = dialogs.some((d) => d.open);
+    if (open === wasOpen) return;
+    wasOpen = open;
+    if (!motion.matches) return;
+    open ? lift() : settle();
+  };
+  const watch = new MutationObserver(sync);
+  dialogs.forEach((d) => watch.observe(d, { attributes: true, attributeFilter: ["open"] }));
 })();

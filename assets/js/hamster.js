@@ -1551,27 +1551,38 @@
   }).observe(root);
   addEventListener("pagehide", save);
 
-  // 放大：整個 section 搬進 modal（top layer，不受側欄的寬度限制），原位留一個記號，關掉時放回去。
+  // 放大：整個 section 搬進 modal（top layer，不受側欄的寬度限制），原位換成一塊同高的空框，關掉時放回去。
+  // 空框撐住原本的高度，頁面不會變矮，捲軸也不會跳。
   // 搬動的是同一批節點，事件、狀態、迴圈都不用重接；IntersectionObserver 會自己回報新位置
   const zoomBtn = $("[data-ham-zoom]");
   const zoomDialog = document.querySelector("[data-ham-dialog]");
-  const zoomSlot = document.createComment("hamster");
+  const zoomSlot = document.createElement("div");
+  zoomSlot.className = "hamster-slot cage-well";
   const setZoomed = (on) => {
     root.classList.toggle("is-zoomed", on);
     zoomBtn.setAttribute("aria-label", zoomBtn.dataset[on ? "labelOut" : "labelIn"]);
   };
   zoomBtn.addEventListener("click", () => {
     if (zoomDialog.open) return zoomDialog.close();
-    root.before(zoomSlot);
-    zoomDialog.append(root);
+    // 上一次關掉的動畫還沒跑完時，籠子還在 modal 裡，直接重新打開就好
+    if (!zoomDialog.contains(root)) {
+      zoomSlot.style.height = `${root.getBoundingClientRect().height}px`;
+      root.before(zoomSlot);
+      zoomDialog.append(root);
+    }
     setZoomed(true);
     zoomDialog.showModal();
     zoomBtn.focus();
   });
+  // 關掉時 modal 還要往上收一段（css/devlog/02-chrome.css），等它收完才把籠子放回側欄，不然收回去的是一個空框
   zoomDialog.addEventListener("close", () => {
-    zoomSlot.replaceWith(root);
-    setZoomed(false);
-    zoomBtn.focus({ preventScroll: true });
+    const ms = parseFloat(getComputedStyle(zoomDialog).transitionDuration) * 1000 || 0;
+    setTimeout(() => {
+      if (zoomDialog.open) return;
+      zoomSlot.replaceWith(root);
+      setZoomed(false);
+      zoomBtn.focus({ preventScroll: true });
+    }, ms);
   });
   zoomDialog.addEventListener("click", (event) => {
     if (event.target === zoomDialog) zoomDialog.close();
