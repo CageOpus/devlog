@@ -436,10 +436,11 @@
 
 /* ── 面板關掉時先播完動畫（css/devlog/02-chrome.css「開面板的動畫」） ──
    瀏覽器一關掉 dialog 就把它移出 top layer，Safari 還不支援延後移出（overlay），收回去的動畫來不及播。
-   所以關閉都先經過這裡：掛上 .is-closing 播動畫，CLOSE_MS 後才真的關。會關掉面板的路徑都接過來：
+   所以關閉都先經過這裡：掛上 .is-closing 播動畫，等面板與裡面的收回動畫都播完才真的關（每個面板長度不同，
+   夯姆的比較慢）；只等 dialog-* 這組，籠子裡倉鼠自己的動畫不等，最多等 MAX_MS。會關掉面板的路徑都接過來：
    程式呼叫 close()、Esc（cancel 事件）、面板裡 method="dialog" 的表單（× 鍵）。close 事件因此在動畫播完才發 */
 (function initDialogClose() {
-  const CLOSE_MS = 300;
+  const MAX_MS = 1000;
   const motion = matchMedia("(prefers-reduced-motion: no-preference)");
   const close = HTMLDialogElement.prototype.close;
   for (const d of document.querySelectorAll("dialog")) {
@@ -447,10 +448,14 @@
       if (!this.open || this.classList.contains("is-closing")) return;
       if (!motion.matches) return close.call(this, value);
       this.classList.add("is-closing");
-      setTimeout(() => {
+      const exits = this.getAnimations({ subtree: true }).filter((a) => a.animationName?.startsWith("dialog-"));
+      const done = () => {
+        if (!this.classList.contains("is-closing")) return;
         this.classList.remove("is-closing");
         close.call(this, value);
-      }, CLOSE_MS);
+      };
+      Promise.all(exits.map((a) => a.finished)).then(done, done);
+      setTimeout(done, MAX_MS);
     };
     d.addEventListener("cancel", (event) => {
       event.preventDefault();
