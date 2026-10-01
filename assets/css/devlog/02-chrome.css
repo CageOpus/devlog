@@ -708,9 +708,9 @@
   }
 }
 
-/* 「加入主畫面」鍵：狀態列只有 24 高，鍵本身壓到 18；
+/* 狀態列上的鍵（RSS、加入主畫面）：狀態列只有 24 高，鍵本身壓到 18；
    手機上主要是給手指按的，用透明的 ::before 往外擴出 44 高的觸控範圍 */
-.site-footer__install {
+.site-footer__key {
   position: relative;
   height: 18px;
   padding: 0 9px;
@@ -725,7 +725,7 @@
   display: none;
 }
 
-.site-footer__install::before {
+.site-footer__key::before {
   content: "";
   position: absolute;
   inset: -13px -4px;

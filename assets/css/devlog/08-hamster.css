@@ -1,0 +1,713 @@
+/* ══ 倉鼠籠 ══ 側邊欄最下面的一塊 well（見 partials/hamster.html、js/hamster.js）
+   場景是一個放在燈下的籠子：房間、塑膠底盤、金屬籠條。顏色全部是這裡的 --ham-* token，
+   Bright 是白天的房間與鍍鋅鐵線，Dim 是關了燈的房間與黑色烤漆；倉鼠的毛色在 Dim 也只壓暗一點。
+   well 自己是 container：側欄裡（252）由上往下排；單欄時欄寬夠了，場景在左、儀表在右。 */
+
+.hamster {
+  /* 房間與底盤 */
+  --ham-room-hi: #F4F1E8;
+  --ham-room-lo: #DAD6CB;
+  --ham-tray-hi: #EEEBE3;
+  --ham-tray: #D3CFC5;
+  --ham-tray-lo: #B4B0A6;
+  --ham-bedding-bg: #EFE7D4;
+  --ham-bedding: #CDBF9F;
+  --ham-nest: #E3D6B8;
+  /* 鍍鋅鐵線：偏冷的淺灰，高光接近白 */
+  --ham-metal-lo: #6F6D68;
+  --ham-metal-mid: #AEACA6;
+  --ham-metal-hi: #F7F6F2;
+  /* 碗、水瓶、滾輪等器物的線條與面 */
+  --ham-line: var(--graphite);
+  --ham-glass: rgba(255, 255, 255, .55);
+  --ham-water: #8EC3CE;
+  --ham-ceramic: #E4E0D7;
+  --ham-accent: var(--ink-revision);
+  --ham-zzz: var(--ink-intensity);
+  /* 倉鼠 */
+  --ham-ink: var(--graphite);
+  --ham-fur: #E0BE8A;
+  --ham-belly: #FBF5E8;
+  --ham-pink: #E2A39A;
+  --ham-seed: #4A463F;
+  --ham-seed-edge: #F7F4EC;
+  --ham-pellet: #B48E5C;
+  container-type: inline-size;
+  padding: 15px 17px 17px;
+}
+
+/* Dim：關了燈的房間。籠條換成黑色烤漆，高光收斂成一道灰；倉鼠比環境亮一點，才是畫面的主角 */
+[data-theme="dark"] .hamster {
+  --ham-room-hi: #2B2B2A;
+  --ham-room-lo: #151515;
+  --ham-tray-hi: #3C3C3A;
+  --ham-tray: #2A2A29;
+  --ham-tray-lo: #1A1A19;
+  --ham-bedding-bg: #3A352D;
+  --ham-bedding: #57503F;
+  --ham-nest: #4A4336;
+  --ham-metal-lo: #050505;
+  --ham-metal-mid: #232323;
+  --ham-metal-hi: #8C8C8A;
+  --ham-line: #B9B5AB;
+  --ham-glass: rgba(255, 255, 255, .1);
+  --ham-water: #4F8E9B;
+  --ham-ceramic: #45453F;
+  --ham-accent: #E2687F;
+  --ham-zzz: #74B9C7;
+  --ham-ink: #161615;
+  --ham-fur: #CFAC78;
+  --ham-belly: #E8E0CF;
+  --ham-pink: #CF8E86;
+  --ham-seed: #2A2723;
+  --ham-seed-edge: #8C877C;
+  --ham-pellet: #8E6F47;
+}
+
+.hamster__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 11px;
+}
+
+.hamster[hidden],
+.hamster [hidden] {
+  display: none !important;
+}
+
+/* ── 標頭：名字 ── 第 N 天 ── */
+.hamster__head {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  min-width: 0;
+}
+
+.hamster__name,
+.hamster__name-input {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dashed transparent;
+  background: none;
+  font-family: var(--font-cjk);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ink);
+  cursor: text;
+}
+
+.hamster__name:hover {
+  border-bottom-color: var(--rule);
+}
+
+.hamster__name-input {
+  width: 9em;
+  border-bottom-color: var(--ink);
+  outline: none;
+}
+
+.hamster__age {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--label);
+}
+
+/* ── 場景 ── */
+.hamster__stage {
+  display: grid;
+  gap: 7px;
+}
+
+.hamster__scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px var(--edge-soft);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.ham-room-hi { stop-color: var(--ham-room-hi); }
+.ham-room-lo { stop-color: var(--ham-room-lo); }
+.ham-tray-hi { stop-color: var(--ham-tray-hi); }
+.ham-tray { stop-color: var(--ham-tray); }
+.ham-tray-lo { stop-color: var(--ham-tray-lo); }
+.ham-m-lo { stop-color: var(--ham-metal-lo); }
+.ham-m-mid { stop-color: var(--ham-metal-mid); }
+.ham-m-hi { stop-color: var(--ham-metal-hi); }
+
+/* 籠條：後牆淡、在倉鼠後面。前排只有 Dim 有，蓋在倉鼠前面但不吃滑鼠 */
+.ham-bars--back {
+  opacity: .5;
+}
+
+[data-theme="dark"] .ham-bars--back {
+  opacity: .3;
+}
+
+.ham-bars--front {
+  display: none;
+  opacity: .55;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+
+[data-theme="dark"] .ham-bars--front {
+  display: inline;
+}
+
+/* 游標移進籠子（要逗倉鼠、點滾輪）時，前排的直籠條淡出，框架留著。只給有 hover 的裝置，觸控點一下不會卡住 */
+@media (hover: hover) {
+  .hamster__scene:hover .ham-bars--front {
+    opacity: 0;
+  }
+}
+
+.ham-bars--posts {
+  pointer-events: none;
+}
+
+.ham-tray-edge {
+  stroke: var(--ham-tray-lo);
+  stroke-width: .5;
+  pointer-events: none;
+}
+
+.ham-bedding-bg {
+  fill: var(--ham-bedding-bg);
+}
+
+.ham-hatch {
+  stroke: var(--ham-bedding);
+  stroke-width: .8;
+}
+
+.ham-bedding {
+  fill: url(#hamBedding);
+}
+
+.ham-nest {
+  fill: var(--ham-nest);
+  stroke: var(--ham-bedding);
+  stroke-width: .7;
+}
+
+.ham-seed {
+  fill: var(--ham-seed);
+  stroke: var(--ham-seed-edge);
+  stroke-width: .4;
+}
+
+.ham-pellet {
+  fill: var(--ham-pellet);
+  stroke: var(--ham-ink);
+  stroke-width: .35;
+}
+
+/* 水瓶 */
+.ham-bottle {
+  pointer-events: none;
+}
+
+.ham-bottle__glass {
+  fill: var(--ham-glass);
+}
+
+.ham-bottle__water {
+  fill: var(--ham-water);
+  opacity: .8;
+  transition: y .6s ease;
+}
+
+.ham-bottle__rim {
+  fill: none;
+  stroke: var(--ham-line);
+  stroke-width: .8;
+}
+
+.ham-bottle__clip {
+  stroke: var(--ham-metal-lo);
+  stroke-width: .4;
+}
+
+.ham-bottle__spout {
+  stroke: var(--ham-metal-mid);
+  stroke-width: 1.4;
+}
+
+.ham-bottle__ball {
+  fill: var(--ham-metal-hi);
+  stroke: var(--ham-metal-lo);
+  stroke-width: .6;
+}
+
+/* 碗：陶瓷 */
+.ham-bowl__body {
+  fill: var(--ham-ceramic);
+  stroke: var(--ham-line);
+  stroke-width: .8;
+}
+
+.ham-bowl__lip {
+  stroke: var(--ham-line);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+/* 滾輪：跟籠條同一種金屬。整個輪子都是按鍵，點了加速 */
+.ham-wheel {
+  cursor: pointer;
+}
+
+.ham-wheel__hit {
+  fill: transparent;
+}
+
+.ham-wheel__edge {
+  fill: none;
+  stroke: var(--ham-metal-lo);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+}
+
+.ham-wheel__edge--inner {
+  stroke-width: 1.6;
+}
+
+.ham-wheel__edge--stand {
+  stroke-width: 2.4;
+}
+
+.ham-wheel__stand {
+  fill: none;
+  stroke: var(--ham-metal-mid);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.ham-wheel__rim {
+  fill: none;
+  stroke: var(--ham-metal-mid);
+  stroke-width: 1.6;
+}
+
+/* 輪框上一小段高光：跟著輪子轉，轉起來看得出是金屬在反光 */
+.ham-wheel__glint {
+  fill: none;
+  stroke: var(--ham-metal-hi);
+  stroke-width: .8;
+  stroke-dasharray: 18 246;
+  stroke-linecap: round;
+}
+
+.ham-wheel__rim--inner {
+  stroke-width: .7;
+}
+
+.ham-wheel__spoke {
+  stroke: var(--ham-metal-lo);
+  stroke-width: .6;
+}
+
+.ham-wheel__rung {
+  fill: var(--ham-metal-lo);
+}
+
+.ham-wheel__hub {
+  fill: var(--ham-metal-hi);
+  stroke: var(--ham-metal-lo);
+  stroke-width: .8;
+}
+
+/* ── 倉鼠 ── */
+.ham {
+  cursor: pointer;
+}
+
+.ham :is(.ham__body, .ham__head, .ham__ear, .ham__tail) {
+  fill: var(--ham-fur);
+  stroke: var(--ham-ink);
+  stroke-width: .8;
+}
+
+.ham :is(.ham__belly, .ham__cheek) {
+  fill: var(--ham-belly);
+}
+
+.ham__cheek {
+  stroke: var(--ham-ink);
+  stroke-width: .5;
+  stroke-opacity: .5;
+}
+
+.ham__ear-in,
+.ham__nose {
+  fill: var(--ham-pink);
+}
+
+.ham__foot {
+  fill: var(--ham-pink);
+  stroke: var(--ham-ink);
+  stroke-width: .5;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.ham__eye-ball {
+  fill: var(--ham-ink);
+}
+
+.ham__pupil {
+  fill: #fff;
+}
+
+.ham :is(.ham__eye-shut, .ham__mouth, .ham__whisker) {
+  fill: none;
+  stroke: var(--ham-ink);
+  stroke-width: .6;
+  stroke-linecap: round;
+}
+
+.ham__whisker {
+  stroke-width: .35;
+  opacity: .7;
+}
+
+.ham__pose {
+  transform-origin: -8px 0;
+  transition: transform .25s ease;
+}
+
+/* 平常：醒著的身體，眼睛張開；其他配件都收起來 */
+.ham__asleep,
+.ham__eye-shut,
+.ham__zzz,
+.ham__stars,
+.ham__memo {
+  display: none;
+}
+
+.ham__zzz text {
+  font-family: var(--font-mono);
+  font-size: 6px;
+  fill: var(--ham-zzz);
+}
+
+.ham__star {
+  fill: var(--ham-accent);
+}
+
+.ham__memo-paper {
+  fill: var(--paper-hi);
+  stroke: var(--ham-ink);
+  stroke-width: .5;
+}
+
+.ham__memo line {
+  stroke: var(--ham-ink);
+  stroke-width: .4;
+}
+
+.ham.has-memo .ham__memo {
+  display: inline;
+}
+
+/* 睡覺：換成縮成一團的身體，飄 z */
+.ham[data-pose="sleep"] .ham__awake { display: none; }
+.ham[data-pose="sleep"] :is(.ham__asleep, .ham__asleep .ham__eye-shut, .ham__zzz) { display: inline; }
+
+/* 閉眼的姿勢 */
+.ham:is([data-pose="rub"], [data-pose="groom"], [data-pose="fling"], [data-pose="dizzy"]) .ham__eye { display: none; }
+.ham:is([data-pose="rub"], [data-pose="groom"], [data-pose="fling"], [data-pose="dizzy"]) .ham__eye-shut { display: inline; }
+.ham[data-pose="dizzy"] .ham__stars { display: inline; }
+
+/* 站起來：喝水、看著游標 */
+.ham:is([data-pose="drink"], [data-pose="rear"]) .ham__pose { transform: rotate(-32deg); }
+/* 低頭：在窩裡藏糧食 */
+.ham[data-pose="stash"] .ham__pose { transform: rotate(14deg); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ham[data-pose="walk"] .ham__foot--front { animation: ham-step .28s linear infinite; }
+  .ham[data-pose="walk"] .ham__foot--back { animation: ham-step .28s linear infinite reverse; }
+  .ham[data-pose="walk"] .ham__pose { animation: ham-bob .28s ease-in-out infinite; }
+
+  .ham[data-pose="run"] .ham__foot--front { animation: ham-step .14s linear infinite; }
+  .ham[data-pose="run"] .ham__foot--back { animation: ham-step .14s linear infinite reverse; }
+  .ham[data-pose="run"] .ham__pose { animation: ham-bob .14s ease-in-out infinite; }
+
+  .ham:is([data-pose="eat"], [data-pose="stuff"], [data-pose="treat"]) .ham__pose { animation: ham-nibble .3s ease-in-out infinite; }
+  .ham:is([data-pose="eat"], [data-pose="stuff"], [data-pose="treat"]) .ham__cheek { animation: ham-chew .3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  .ham[data-pose="stash"] .ham__pose { animation: ham-dig .22s ease-in-out infinite; }
+  .ham[data-pose="groom"] .ham__pose { animation: ham-groom .6s ease-in-out infinite; }
+  .ham[data-pose="rub"] .ham__pose { animation: ham-shake .2s ease-in-out 4; }
+  .ham[data-pose="bite"] .ham__pose { animation: ham-lunge .25s ease-in-out 2; }
+  .ham[data-pose="sleep"] .ham__asleep { animation: ham-breathe 2.8s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom; }
+  .ham[data-pose="sleep"] .ham__zzz text { animation: ham-zzz 3s ease-in-out infinite; }
+  .ham[data-pose="sleep"] .ham__zzz text:nth-child(2) { animation-delay: .5s; }
+  .ham[data-pose="sleep"] .ham__zzz text:nth-child(3) { animation-delay: 1s; }
+  .ham[data-pose="dizzy"] .ham__stars { animation: ham-spin 1s linear infinite; transform-box: fill-box; transform-origin: center; }
+}
+
+/* 省電睡眠（見 js/hamster.js）：連 CSS 動畫也停，整個籠子是一張靜止的畫 */
+.hamster.is-napping .hamster__scene * {
+  animation-play-state: paused !important;
+}
+
+@keyframes ham-step { 0%, 100% { translate: -1.2px 0; } 50% { translate: 1.2px -.8px; } }
+@keyframes ham-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -.7px; } }
+@keyframes ham-nibble { 0%, 100% { rotate: 0deg; } 50% { rotate: 4deg; } }
+@keyframes ham-chew { 0%, 100% { scale: 1; } 50% { scale: 1.08 .94; } }
+@keyframes ham-dig { 0%, 100% { translate: 0 0; } 50% { translate: .8px .6px; } }
+@keyframes ham-groom { 0%, 100% { rotate: 0deg; } 50% { rotate: -8deg; } }
+@keyframes ham-shake { 0%, 100% { translate: 0 0; } 25% { translate: -.8px 0; } 75% { translate: .8px 0; } }
+@keyframes ham-lunge { 0%, 100% { translate: 0 0; } 50% { translate: 3px -1px; } }
+@keyframes ham-breathe { 0%, 100% { scale: 1 1; } 50% { scale: 1.03 1.06; } }
+@keyframes ham-zzz { 0% { opacity: 0; translate: 0 2px; } 30%, 70% { opacity: 1; } 100% { opacity: 0; translate: 2px -3px; } }
+@keyframes ham-spin { to { rotate: 360deg; } }
+
+/* 倉鼠頭上冒的字（♥、咬！） */
+.ham-bubble {
+  font-family: var(--font-cjk);
+  font-weight: 600;
+  font-size: 9px;
+  text-anchor: middle;
+  fill: var(--ham-accent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+
+.ham-bubble.is-on {
+  opacity: 1;
+}
+
+/* ── 貼在籠子下緣的紙條：不在期間的摘要、新文章。側欄裡場景只有 80 高，不能蓋在場景上 ── */
+.hamster__away,
+.hamster__news {
+  margin-inline: 4%;
+  border: 1px solid var(--massing-line-soft);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .18);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.hamster__away {
+  padding: 8px 11px 9px;
+  rotate: -1.2deg;
+}
+
+.hamster__away-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.hamster__away-close {
+  margin-left: auto;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--massing-line-soft);
+  cursor: pointer;
+}
+
+.hamster__away-list {
+  margin: 0;
+  padding-left: 1.1em;
+}
+
+.hamster__news {
+  display: block;
+  padding: 6px 10px;
+  rotate: .8deg;
+  /* 紙不跟著 Dim 反相，所以不用 --link（Dim 會把它提亮），直接用製圖的修訂墨與強度墨 */
+  color: var(--ink-revision);
+  text-decoration: none;
+}
+
+.hamster__news:hover {
+  color: var(--ink-intensity);
+}
+
+/* ── 里程表 ── */
+.hamster__odo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hamster__odo-label,
+.hamster__odo-unit {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  color: var(--label);
+}
+
+.hamster__odo-digits {
+  padding: 2px 7px;
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  background: var(--recess);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .18);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: .14em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* ── 四個儀表 ── */
+.hamster__meters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px 14px;
+}
+
+.hamster__meter {
+  display: grid;
+  gap: 3px;
+}
+
+.hamster__meter-label {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.hamster__meter-label:lang(zh) {
+  font-family: var(--font-cjk);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+.hamster__meter-track {
+  height: 5px;
+  border: 1px solid var(--edge-soft);
+  border-radius: 1px;
+  background: var(--recess);
+  overflow: hidden;
+}
+
+.hamster__meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--ink-intensity);
+  transition: width .4s ease, background-color .4s;
+}
+
+.hamster__meter-fill.is-low {
+  background: var(--ink-revision);
+}
+
+/* ── 操作鍵 ── */
+.hamster__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hamster__actions .cage-btn {
+  padding-inline: 9px;
+}
+
+/* 拿到瓜子或零食時，那顆鍵亮一下 */
+.hamster__actions .cage-btn.is-flash {
+  animation: ham-flash 1.2s ease-out;
+}
+
+@keyframes ham-flash {
+  0%, 30% { border-color: var(--ink-intensity); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ink-intensity) 35%, transparent); }
+}
+
+/* ── 最新一則消息與紀錄 ── */
+.hamster__ticker {
+  min-height: 1.6em;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--label);
+  transition: color .6s;
+}
+
+.hamster__ticker.is-fresh {
+  color: var(--ink);
+  transition: none;
+}
+
+.hamster__log summary {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--label);
+  cursor: pointer;
+}
+
+.hamster__log summary:lang(zh) {
+  font-family: var(--font-cjk);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+.hamster__log-list {
+  max-height: 160px;
+  margin: 7px 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.hamster__log-list li + li {
+  margin-top: 4px;
+}
+
+.hamster__log-list time {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--label);
+}
+
+/* ── 單欄時欄寬夠：場景在左，其餘疊在右邊 ── */
+@container (min-width: 520px) {
+  .hamster__body {
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    grid-template-areas:
+      "head  head"
+      "stage odo"
+      "stage meters"
+      "stage actions"
+      "stage ticker"
+      "stage log";
+    grid-template-rows: auto auto auto auto auto 1fr;
+    column-gap: 21px;
+  }
+
+  .hamster__head { grid-area: head; }
+  .hamster__stage { grid-area: stage; align-self: start; }
+  .hamster__odo { grid-area: odo; }
+  .hamster__meters { grid-area: meters; }
+  .hamster__actions { grid-area: actions; }
+  .hamster__ticker { grid-area: ticker; }
+  .hamster__log { grid-area: log; }
+}

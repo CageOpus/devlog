@@ -17,5 +17,8 @@
   {{- $js := resources.Get "js/devlog.js" }}
   {{- if hugo.IsProduction }}{{ $js = $js | minify | fingerprint }}{{ end }}
   <script src="{{ $js.RelPermalink }}"></script>
+  {{- $hamster := resources.Get "js/hamster.js" }}
+  {{- if hugo.IsProduction }}{{ $hamster = $hamster | minify | fingerprint }}{{ end }}
+  <script src="{{ $hamster.RelPermalink }}"></script>
 </body>
 </html>

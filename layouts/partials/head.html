@@ -43,8 +43,15 @@
 <link rel="icon" type="image/png" sizes="32x32" href="{{ "icons/favicon-32.png" | relURL }}">
 <link rel="apple-touch-icon" href="{{ "icons/apple-touch-icon.png" | relURL }}">
 
+{{- /* RSS：每一頁都指向這個語言的全站 feed，閱讀器貼任何一頁的網址都找得到；
+       標籤頁、文章區段另外再列出自己那份 */}}
+{{- with site.Home.OutputFormats.Get "rss" }}
+<link rel="alternate" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ site.Title }}">
+{{- end }}
+{{- if not .IsHome }}
 {{- range .AlternativeOutputFormats }}
-<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ site.Title }}">
+<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ $pageTitle }} — {{ site.Title }}">
+{{- end }}
 {{- end }}
 
 {{- /* Bright / Dim 必須在第一次繪製前決定，否則會閃一下。

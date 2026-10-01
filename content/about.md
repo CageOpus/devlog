@@ -2,6 +2,7 @@
 title = 'City Architect: Golden Era'
 date = '2026-04-25'
 layout = 'about'
+hiddenInRss = true
 eyebrow = 'RUST + WGPU · 1 000 000 AGENTS'
 specs = [
   { label = 'Engine', value = 'RUST + WGPU · BEVY ECS' },
