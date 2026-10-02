@@ -29,6 +29,8 @@
   /* 車燈：白天是淺色、不發光（bloom 0）；夜裡是暖黃燈加光暈 */
   --anim-headlight: #FBFAF6;
   --anim-bloom: 0;
+  /* 方向燈：換道試探時閃的琥珀色 */
+  --anim-indicator: #D98A12;
   --anim-car-shade: 0%;
   /* 路面上車頭前的安全區：白天畫；夜裡不畫，車燈已經照出那一段 */
   --anim-buffer: 1;
@@ -62,6 +64,7 @@
   --anim-car-edge: #0E0E0D;
   --anim-headlight: #FFD27A;
   --anim-bloom: .85;
+  --anim-indicator: #FFB13D;
   --anim-car-shade: 38%;
   --anim-buffer: 0;
   --anim-guide-lift: 55%;

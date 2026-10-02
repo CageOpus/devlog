@@ -78,7 +78,7 @@
     road: "var(--anim-road)", dash: "var(--anim-dash)", grid: "var(--anim-grid)",
     ink: "var(--anim-ink)", soft: "var(--anim-soft)",
     teal: "var(--anim-intensity)", red: "var(--anim-revision)", lost: "var(--anim-lost)",
-    carEdge: "var(--anim-car-edge)", headlight: "var(--anim-headlight)",
+    carEdge: "var(--anim-car-edge)", headlight: "var(--anim-headlight)", indicator: "var(--anim-indicator)",
     a: "var(--anim-a)", b: "var(--anim-b)", c: "var(--anim-c)",
   };
   TA.MONO = "var(--font-mono)";

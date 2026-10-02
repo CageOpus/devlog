@@ -21,4 +21,6 @@ TODO
 
 ## 換道
 
+{{< anim name="lanechange" title="Changing lanes: probe, then commit" caption="兩條車道同一個 tick 都核准，才動" zoomable="true" >}}
+
 TODO

@@ -21,4 +21,6 @@ TODO
 
 ## Lane changes
 
+{{< anim name="lanechange" title="Changing lanes: probe, then commit" caption="Both lanes approved in the same tick, or no move" zoomable="true" >}}
+
 TODO
