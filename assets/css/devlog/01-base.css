@@ -29,6 +29,10 @@
   --cut-fa: .84;
   --cut-lip: rgba(252, 248, 238, .55);
   --cut-shade: rgba(0, 0, 0, .42);
+
+  /* 鍵上的 SVG 圖示的刻字感：SVG 吃不到 text-shadow，用 drop-shadow 照抄設計系統 --cut-text 的兩層
+     （上緣一道暗、下緣一道亮），Bright / Dim 各一組 */
+  --cut-icon: drop-shadow(0 -1px 0 rgba(0, 0, 0, .16)) drop-shadow(0 1px 0 rgba(255, 255, 255, .95));
 }
 
 [data-theme="dark"] {
@@ -36,6 +40,7 @@
   --cut-fa: .92;
   --cut-lip: rgba(0, 0, 0, .6);
   --cut-shade: rgba(255, 255, 255, .13);
+  --cut-icon: drop-shadow(0 -1px 1px rgba(0, 0, 0, .62)) drop-shadow(0 1px 0 rgba(255, 255, 255, .22));
 }
 
 @media (max-width: 767px) {

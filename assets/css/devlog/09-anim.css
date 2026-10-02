@@ -131,6 +131,51 @@
   width: 34px;
 }
 
+/* 語音導覽鍵（js/traffic-anim/99-init.js「語音導覽」）：比圖示鍵寬，圖示加字；右上角一個紅色 beta。
+   字的刻字感來自 .cage-face 的 --cut-text，圖示的來自 --cut-icon（02-chrome.css）。
+   紅色用設計系統的修訂紅 --ink-revision，不另開色票。導覽中鍵是按下去的（.cage-face--sunk） */
+.anim__tour {
+  position: relative;
+  height: var(--control-h);
+  padding: 0 25px 0 9px;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.anim__controls .anim-icon--tour {
+  width: 14px;
+  height: 10.5px;
+}
+
+.anim__tour-beta {
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-family: var(--font-mono);
+  font-size: 7px;
+  line-height: 1;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ink-revision);
+}
+
+/* 語音導覽的確認面板（partials/tour-dialog.html）：外觀沿用 .install-dialog，這裡只補鍵列和標題旁的 beta */
+.tour-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.tour-dialog__beta {
+  margin-left: 6px;
+  vertical-align: super;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: .04em;
+  color: var(--ink-revision);
+}
+
 /* 控制鍵的圖示（shortcodes/anim.html）：內嵌 SVG，跨平台同大小。播放鍵裡疊三個，看 data-state 露一個 */
 .anim__controls .anim-icon {
   display: block;
@@ -260,5 +305,11 @@
   .anim__beats {
     flex-basis: 100%;
     margin-left: 0;
+    order: 1;
+  }
+
+  /* 進度條自己佔一列、排到最後；語音導覽鍵留在鍵那一列的右端 */
+  .anim__tour {
+    margin-left: auto;
   }
 }

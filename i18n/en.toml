@@ -55,6 +55,12 @@ animPlay = "Play"
 animPause = "Pause"
 animPrev = "Previous step"
 animNext = "Next step"
+# 「語音導覽」鍵：整篇的動畫依序播完，旁白用瀏覽器朗讀（見 js/traffic-anim/99-init.js）。{voice} 換成實際挑到的聲音
+animTour = "Narrated"
+animTourNotice = "This browser's reading voice ({voice}) may not sound natural. Narrated playback is still in beta, and sounds best in Chrome."
+animTourNoVoice = "This browser can't read aloud, so only the animation will play. Narrated playback is still in beta."
+animTourGo = "Play anyway"
+animTourCancel = "Cancel"
 
 # 圖卡放大鍵（見 layouts/partials/figure-zoom.html）
 figureZoomIn = "Enlarge"

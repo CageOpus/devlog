@@ -570,7 +570,7 @@
   width: 100%;
   height: 100%;
   fill: currentColor;
-  filter: drop-shadow(0 -1px 0 rgba(0, 0, 0, .16)) drop-shadow(0 1px 0 rgba(255, 255, 255, .95));
+  filter: var(--cut-icon);
   pointer-events: none;
 }
 
@@ -1092,6 +1092,12 @@
   font: 10px/1.4 var(--font-mono);
   white-space: pre;
   pointer-events: none;
+}
+
+/* ── 鍵上的圖示也要刻字感 ──
+   .cage-face 的字有 --cut-text，但 SVG 圖示吃不到 text-shadow；用 01-base.css 的 --cut-icon（drop-shadow 版）補上 */
+.cage-face svg {
+  filter: var(--cut-icon);
 }
 
 /* ── 放大／縮回圖示（partials/zoom-icons.html）：籠子與示意動畫的放大鍵共用 ──

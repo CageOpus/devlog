@@ -15,6 +15,7 @@
   {{- partial "rss-dialog.html" . }}
   {{- partial "cheat-dialog.html" . }}
   {{- partial "figure-dialog.html" . }}
+  {{- if and .IsPage (.HasShortcode "anim") }}{{ partial "tour-dialog.html" . }}{{ end }}
   {{- partial "bottom-nav.html" . }}
   {{- partial "rail-nav.html" . }}
   {{- $js := resources.Get "js/devlog.js" }}

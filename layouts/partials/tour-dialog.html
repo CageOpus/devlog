@@ -1,0 +1,20 @@
+{{- /* 語音導覽的確認面板（js/traffic-anim/99-init.js「語音導覽」）。
+       按「語音導覽」時，訪客的朗讀聲音不在白名單裡（或根本不能朗讀），先問一聲再播。
+       {voice} 由 JS 換成實際挑到的聲音名稱。外觀、毛玻璃、開關動畫都沿用「加入主畫面」面板（.install-dialog）。
+       只在有示意動畫的頁面放（baseof.html）。 */ -}}
+<dialog class="install-dialog tour-dialog cage-panel" aria-labelledby="tour-dialog-title" tabindex="-1" data-tour-dialog
+  data-l-voice="{{ T "animTourNotice" }}" data-l-novoice="{{ T "animTourNoVoice" }}">
+  <div class="cage-panel__bar">
+    <span class="cage-panel__title" id="tour-dialog-title">{{ T "animTour" }}<span class="tour-dialog__beta">beta</span></span>
+    <form method="dialog" class="install-dialog__close">
+      <button class="cage-btn cage-face cage-btn--icon" aria-label="{{ T "close" }}">×</button>
+    </form>
+  </div>
+  <div class="cage-panel__body">
+    <p class="install-dialog__intro" data-tour-text></p>
+    <form method="dialog" class="tour-dialog__actions">
+      <button class="cage-btn cage-face cage-btn--sm" value="cancel">{{ T "animTourCancel" }}</button>
+      <button class="cage-btn cage-face cage-btn--sm" value="play" data-tour-go>{{ T "animTourGo" }}</button>
+    </form>
+  </div>
+</dialog>

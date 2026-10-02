@@ -29,6 +29,10 @@
       <button type="button" class="cage-btn cage-face cage-btn--icon" data-anim-next aria-label="{{ T "animNext" }}">
         <svg class="anim-icon" viewBox="0 0 12 12" aria-hidden="true"><path d="M10 2H8.4v8H10zM2 2v8L7.8 6z"/></svg></button>
       <div class="anim__beats"></div>
+      <button type="button" class="cage-btn cage-face anim__tour" data-anim-tour aria-pressed="false">
+        <svg class="anim-icon anim-icon--tour" viewBox="0 0 16 12" aria-hidden="true"><path d="M1.5 1.6v8.8L8.6 6z"/><path class="anim-icon__stroke" d="M10.6 3.9a3 3 0 0 1 0 4.2M12.9 1.9a5.8 5.8 0 0 1 0 8.2"/></svg>
+        <span class="anim__tour-label">{{ T "animTour" }}</span>
+        <span class="anim__tour-beta">beta</span></button>
     </div>
   </div>
   {{- with .Get "caption" }}
