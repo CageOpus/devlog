@@ -309,6 +309,20 @@
   pointer-events: none;
 }
 
+/* 籠條烤好的拉絲紋（見 js/hamster.js 的 bakeGrain）。圖裡的強度是給暗色主題的；亮色主題的金屬色淺，同樣的明暗變化要的黑比較少、白比較多 */
+.ham-grain--dark {
+  opacity: var(--ham-grain-dark, .22);
+}
+
+.ham-grain--light {
+  opacity: var(--ham-grain-light, 1);
+}
+
+[data-theme="dark"] .hamster {
+  --ham-grain-dark: 1;
+  --ham-grain-light: .4;
+}
+
 .ham-tray-edge {
   stroke: var(--ham-tray-lo);
   stroke-width: .5;

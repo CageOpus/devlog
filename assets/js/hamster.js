@@ -191,6 +191,99 @@
   const svg = $("[data-ham-scene]");
   const SVGNS = "http://www.w3.org/2000/svg";
 
+  // ═══ 籠條的拉絲紋：先烤成圖 ═══
+  // 籠條的金屬紋原本是即時濾鏡（feTurbulence）。濾鏡蓋在滾輪上，滾輪一轉，底下那塊每一格都要重算噪聲；
+  // 手機像素多又是 CPU 在畫，會掉到 30 fps。所以載入時用同一組噪聲參數算一次、烤成一張圖，籠條上改疊這張圖：
+  // 原本是「原色 + 噪聲 × .3 − .15」，用一般的疊色做不出加減，所以拆成兩張：變暗的部分疊半透明黑、變亮的部分疊半透明白。
+  // 同樣減 .1，疊黑要多不透明取決於底色（底色越暗要越黑），兩個主題的金屬色差很多，強度交給 CSS 依主題調（--ham-grain-*）。之後每一格只是貼圖。
+  // 網址帶 ?ham-filter=live 就留著即時濾鏡，在手機上對照更新率用
+  function bakeGrain() {
+    if (new URLSearchParams(location.search).get("ham-filter") === "live") return;
+    // 噪聲只在一個方向細：直條沿 x 細、沿 y 拉長，所以圖可以一邊密一邊疏，圖小很多
+    const kinds = [
+      { id: "hamBrushV", grain: "hamGrainV", freq: "2.4 .035", seed: 11, w: 1440, h: 140 },
+      { id: "hamBrushH", grain: "hamGrainH", freq: ".035 2.4", seed: 5, w: 240, h: 840 },
+    ];
+    const defs = svg.querySelector("defs");
+    Promise.all(
+      kinds.map(
+        (k) =>
+          new Promise((resolve, reject) => {
+            const src = `<svg xmlns="${SVGNS}" width="${k.w}" height="${k.h}" viewBox="0 0 240 140" preserveAspectRatio="none">` +
+              `<filter id="n" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">` +
+              `<feTurbulence type="fractalNoise" baseFrequency="${k.freq}" numOctaves="2" seed="${k.seed}"/>` +
+              `<feColorMatrix type="saturate" values="0"/></filter>` +
+              `<rect width="240" height="140" filter="url(#n)"/></svg>`;
+            const img = new Image();
+            img.onload = () => {
+              try {
+                const canvas = document.createElement("canvas");
+                canvas.width = k.w;
+                canvas.height = k.h;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                const noise = ctx.getImageData(0, 0, k.w, k.h).data;
+                // 兩張的透明度都先放大（黑 ×7、白 ×3，夠暗色主題用），亮色主題再用 CSS 調淡
+                const toBlob = (white, gain) => {
+                  const out = ctx.createImageData(k.w, k.h);
+                  const px = out.data;
+                  for (let i = 0; i < px.length; i += 4) {
+                    // 濾鏡的 arithmetic 是拿預乘過透明度的值在算（噪聲本身的透明度也是噪聲），這裡照樣乘回去
+                    const d = 0.3 * (noise[i] / 255) * (noise[i + 3] / 255) - 0.15;
+                    px[i] = px[i + 1] = px[i + 2] = white ? 255 : 0;
+                    px[i + 3] = Math.min(255, Math.max(0, white ? d : -d) * gain * 255);
+                  }
+                  ctx.putImageData(out, 0, 0);
+                  return new Promise((ok, fail) => canvas.toBlob((blob) => (blob ? ok(URL.createObjectURL(blob)) : fail())));
+                };
+                toBlob(false, 7)
+                  .then((dark) => toBlob(true, 3).then((light) => resolve([k, { dark, light }])))
+                  .catch(reject);
+              } catch (e) {
+                reject(e);
+              }
+            };
+            img.onerror = reject;
+            img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(src);
+          }),
+      ),
+    )
+      .then((done) => {
+        for (const [k, urls] of done) {
+          for (const tone of ["dark", "light"]) {
+            const pattern = document.createElementNS(SVGNS, "pattern");
+            pattern.id = `${k.grain}-${tone}`;
+            pattern.setAttribute("patternUnits", "userSpaceOnUse");
+            pattern.setAttribute("width", "240");
+            pattern.setAttribute("height", "140");
+            const image = document.createElementNS(SVGNS, "image");
+            image.setAttribute("href", urls[tone]);
+            image.setAttribute("width", "240");
+            image.setAttribute("height", "140");
+            image.setAttribute("preserveAspectRatio", "none");
+            pattern.append(image);
+            defs.append(pattern);
+          }
+          // 同一組裡每根籠條再疊兩根同形狀、填紋理的，疊在組裡面，組的透明度才會一起算
+          for (const g of svg.querySelectorAll(`[filter="url(#${k.id})"]`)) {
+            for (const rect of [...g.querySelectorAll("rect")]) {
+              for (const tone of ["dark", "light"]) {
+                const grain = rect.cloneNode();
+                grain.setAttribute("fill", `url(#${k.grain}-${tone})`);
+                grain.classList.add("ham-grain", `ham-grain--${tone}`);
+                g.append(grain);
+              }
+            }
+            g.removeAttribute("filter");
+          }
+        }
+      })
+      .catch(() => {
+        // 烤不出來（舊瀏覽器、canvas 被擋）就留著即時濾鏡
+      });
+  }
+  bakeGrain();
+
   // ═══ 狀態與儲存 ═══
 
   function fresh(now) {
@@ -598,7 +691,7 @@
     eat: [13.6, 18.5],
     dizzy: [13.6, 17.4],
   };
-  const BARS = [...svg.querySelectorAll("[data-ham-front-bars] rect")].map((r) => {
+  const BARS = [...svg.querySelectorAll("[data-ham-front-bars] rect:not(.ham-grain)")].map((r) => {
     const x = Number(r.getAttribute("x"));
     return [x, x + Number(r.getAttribute("width"))];
   });
