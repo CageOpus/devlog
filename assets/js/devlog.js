@@ -434,55 +434,112 @@
 })();
 
 
+/* ── 放大進面板（共用）：籠子（js/hamster.js）與圖卡（下面的「圖卡放大」）都用這一套 ──
+   把一塊東西整個搬進 modal（top layer，不受欄寬限制），原位換成一塊同高的空框（slot），關掉時放回去。
+   搬動的是同一批節點，裡面的事件、狀態、迴圈都不用重接。
+   進出原位都有網點：
+     搬走時原位先放一份複本（.is-leaving）用網點消失，播完才換成空框；
+     關閉動畫一開始（面板掛上 .is-closing，見下面的 initDialogClose），原位就放一份複本（.is-returning）用網點長出來，
+     跟面板收回去同時進行；close 事件發的時候再拿本尊無縫換掉複本。
+   複本只是畫面：不能點、讀屏器不念，跟空框一樣高，換來換去版面一點都不動，捲動位置也不會被瀏覽器調整。
+   兩個 class 的動畫由各自的 CSS 決定（.hamster 在 08-hamster.css，.cage-figure 在 02-chrome.css）。
+   用法：const zoom = DevlogZoom(dialog); zoom.open(target, { button, slot, scrub })
+     button 放大鍵，在面板裡換成縮回（target 掛 .is-zoomed、aria-label 換成 data-label-out），關掉後焦點回到它；
+     slot   原位的空框，高度由這裡設；scrub(copy) 讓呼叫端從複本拿掉不該重複的東西（例如 data-* 掛鉤）。
+   一個面板一次只放一塊；Esc、點面板外面都會放回去。 */
+window.DevlogZoom = (() => {
+  const controllers = new WeakMap();
+  const motion = matchMedia("(prefers-reduced-motion: no-preference)");
+  return (dialog) => {
+    if (controllers.has(dialog)) return controllers.get(dialog);
+    let cur = null;
+    const setZoomed = (on) => {
+      cur.target.classList.toggle("is-zoomed", on);
+      cur.button?.setAttribute("aria-label", cur.button.dataset[on ? "labelOut" : "labelIn"]);
+    };
+    const copy = (cls) => {
+      const c = cur.target.cloneNode(true);
+      cur.scrub?.(c);
+      c.setAttribute("aria-hidden", "true");
+      c.inert = true;
+      c.classList.remove("is-zoomed", "is-leaving", "is-returning");
+      c.classList.add(cls);
+      c.style.height = cur.slot.style.height;
+      return c;
+    };
+    const open = (target, { button, slot, scrub } = {}) => {
+      if (dialog.open) return;
+      cur = { target, button, slot, scrub, ghost: null, back: null };
+      target.classList.remove("is-returning");
+      slot.style.height = `${target.getBoundingClientRect().height}px`;
+      if (motion.matches) {
+        const ghost = (cur.ghost = copy("is-leaving"));
+        ghost.addEventListener("animationend", (event) => {
+          if (event.target !== ghost || !event.animationName.startsWith("dialog-dither-out")) return;
+          if (ghost.isConnected) ghost.replaceWith(slot);
+        });
+        target.before(ghost);
+      } else {
+        target.before(slot);
+      }
+      dialog.append(target);
+      setZoomed(true);
+      dialog.showModal();
+      button?.focus();
+    };
+    new MutationObserver(() => {
+      if (!cur || !dialog.classList.contains("is-closing") || cur.back) return;
+      cur.back = copy("is-returning");
+      (cur.ghost?.isConnected ? cur.ghost : cur.slot).replaceWith(cur.back);
+    }).observe(dialog, { attributes: true, attributeFilter: ["class"] });
+    dialog.addEventListener("close", () => {
+      if (!cur) return;
+      const { target, button, slot, ghost, back } = cur;
+      // 複本已經長出來了就直接換掉；沒有複本（不播動畫時）才在這裡放回去並顯現
+      const holder = back?.isConnected ? back : ghost?.isConnected ? ghost : slot;
+      holder.replaceWith(target);
+      if (holder !== back) target.classList.add("is-returning");
+      setZoomed(false);
+      button?.focus({ preventScroll: true });
+      cur = null;
+    });
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    // 顯現播完就拿掉 .is-returning（不播動畫時留著也無妨，下次放大會先清掉）
+    dialog.ownerDocument.addEventListener("animationend", (event) => {
+      if (event.animationName.startsWith("dialog-dither-in") && event.target.classList?.contains("is-returning") && !event.target.inert) event.target.classList.remove("is-returning");
+    });
+    const api = { open };
+    controllers.set(dialog, api);
+    return api;
+  };
+})();
+
 /* ── 圖卡放大（partials/figure-zoom.html、partials/figure-dialog.html） ──
-   圖卡抬頭的放大鍵把整張 .cage-figure 搬進面板（top layer，不受內文欄寬限制），原位換成一塊同高的空框，
-   關掉時放回去；作法和籠子的放大一樣（js/hamster.js）。搬動的是同一批節點，裡面的東西（示意動畫的播放器）
-   不用重接。同一顆鍵在面板裡換成縮回圖示（.is-zoomed），就是關閉鍵；Esc、點外面也會放回 */
+   圖卡抬頭的放大鍵把整張 .cage-figure 搬進面板（上面的 DevlogZoom），原位換成同高的空框。
+   同一顆鍵在面板裡換成縮回圖示（.is-zoomed），就是關閉鍵；Esc、點外面也會放回 */
 (function initFigureZoom() {
   const dialog = document.querySelector("[data-figure-dialog]");
   if (!dialog) return;
-  let card = null;
-  let hole = null;
-  const setZoomed = (on) => {
-    card.classList.toggle("is-zoomed", on);
-    const btn = card.querySelector("[data-figure-zoom]");
-    btn?.setAttribute("aria-label", btn.dataset[on ? "labelOut" : "labelIn"]);
-  };
+  const zoom = window.DevlogZoom(dialog);
   document.addEventListener("click", (event) => {
     const btn = event.target.closest("[data-figure-zoom]");
     if (!btn) return;
     if (dialog.open) return dialog.close();
-    card = btn.closest(".cage-figure");
+    const card = btn.closest(".cage-figure");
     if (!card) return;
-    hole = document.createElement("div");
-    hole.className = "figure-zoom-hole";
-    hole.style.height = `${card.getBoundingClientRect().height}px`;
-    card.replaceWith(hole);
-    dialog.append(card);
     // 面板的無障礙名稱跟著圖卡的標題
     dialog.setAttribute("aria-label", card.querySelector(".cage-figure__title")?.textContent || "FIG");
-    setZoomed(true);
-    dialog.showModal();
-    btn.focus();
-  });
-  // close 事件在收回去的動畫播完才發（下面的 initDialogClose），這時才把圖卡放回原位
-  dialog.addEventListener("close", () => {
-    if (!card) return;
-    setZoomed(false);
-    hole.replaceWith(card);
-    // 焦點回到放回原位的那顆放大鍵，鍵盤使用者不會被丟回頁首
-    card.querySelector("[data-figure-zoom]")?.focus({ preventScroll: true });
-    card = hole = null;
-  });
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dialog.close();
+    const slot = document.createElement("div");
+    slot.className = "figure-zoom-hole";
+    zoom.open(card, { button: btn, slot });
   });
 })();
 
 /* ── 面板關掉時先播完動畫（css/devlog/02-chrome.css「開面板的動畫」） ──
    瀏覽器一關掉 dialog 就把它移出 top layer，Safari 還不支援延後移出（overlay），收回去的動畫來不及播。
-   所以關閉都先經過這裡：掛上 .is-closing 播動畫，等面板與裡面的收回動畫都播完才真的關（每個面板長度不同，
-   夯姆的比較慢）；只等 dialog-* 這組，籠子裡倉鼠自己的動畫不等，最多等 MAX_MS。會關掉面板的路徑都接過來：
+   所以關閉都先經過這裡：掛上 .is-closing 播動畫，等面板與裡面的收回動畫都播完才真的關；只等 dialog-* 這組，籠子裡倉鼠自己的動畫不等，最多等 MAX_MS。會關掉面板的路徑都接過來：
    程式呼叫 close()、Esc（cancel 事件）、面板裡 method="dialog" 的表單（× 鍵）。close 事件因此在動畫播完才發 */
 (function initDialogClose() {
   const MAX_MS = 1000;

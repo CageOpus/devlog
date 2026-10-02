@@ -783,6 +783,29 @@
   }
 }
 
+/* Firefox 的毛玻璃：backdrop-filter 的 blur 取不到畫面外的像素，四周會把透明糊進來，變成一圈暗角
+   （Chrome / Safari 會沿用邊緣的像素，所以沒有）。Firefox 的玻璃因此只調飽和與亮度，模糊改到頁面本身：
+   面板開著時，玻璃後面那幾塊（跟 js/devlog.js「毛玻璃從頁面上拿起來」放大的是同一組）各自 filter: blur，
+   元素自己的內容延伸到畫面外，四周有真的像素可以取。開關跟玻璃同一條曲線、同樣長 */
+@supports ((backdrop-filter: blur(1px)) and (-moz-appearance: none)) {
+  :is(.install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog)::backdrop {
+    backdrop-filter: saturate(1.15) brightness(.35);
+  }
+
+  [data-theme="dark"] :is(.install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog)::backdrop {
+    backdrop-filter: saturate(1.1) brightness(.8);
+  }
+
+  :is(.site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout)) {
+    transition: filter .3s cubic-bezier(.4, 0, .2, 1);
+  }
+
+  html:has(:is(.install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog)[open]:not(.is-closing)) :is(.site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout)) {
+    filter: blur(4px);
+    transition: filter .45s cubic-bezier(.25, .8, .25, 1);
+  }
+}
+
 /* ── 開面板的動畫：毛玻璃從頁面上拿起來 ──
    玻璃（::backdrop）淡入；面板從 .97 放大到原本大小，同時用網點（dithering）一階一階顯現，不是淡入；
    隔著玻璃看到的頁面由 js/devlog.js 慢慢放大到 1.04，開著時維持略大。面板放大的幅度比頁面小（3% 對 4%），一前一後才有景深。
@@ -1119,4 +1142,30 @@
 /* 圖卡搬走後留在原位的空框，撐住原本的高度，頁面不跳 */
 .figure-zoom-hole {
   display: block;
+}
+
+/* 進出原位：跟籠子一樣（css/devlog/08-hamster.css），回來時跟面板打開同一組網點與顯影，離開時反過來。
+   複本與時序由 js/devlog.js 的 DevlogZoom 處理；顯影的濾鏡只套在內容上，紙色不跟著褪 */
+@media (prefers-reduced-motion: no-preference) {
+  .cage-figure.is-returning {
+    mask-size: 8px 8px;
+    animation:
+      dialog-dither-in .3s linear both,
+      dialog-fade-in .3s linear both;
+  }
+
+  .cage-figure.is-returning > * {
+    animation: dialog-tint-in .3s linear both;
+  }
+
+  .cage-figure.is-leaving {
+    mask-size: 8px 8px;
+    animation:
+      dialog-dither-out .2s linear both,
+      dialog-fade-out .2s linear both;
+  }
+
+  .cage-figure.is-leaving > * {
+    animation: dialog-tint-out .2s linear both;
+  }
 }

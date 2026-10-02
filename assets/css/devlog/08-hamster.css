@@ -196,32 +196,6 @@
   }
 }
 
-/* 夯姆的 modal 網點比其他面板慢：畫面大、又是彩色的，像老機器一格一格算出來（其他面板見 css/devlog/02-chrome.css）。
-   只有網點、顯影、淡入淡出放慢；縮放與玻璃照舊。關閉會等這裡的動畫播完才真的關（js/devlog.js 的 initDialogClose） */
-@media (prefers-reduced-motion: no-preference) {
-  .hamster-dialog[open] {
-    animation:
-      dialog-dither-in .6s linear both,
-      dialog-grow .45s cubic-bezier(.25, .8, .25, 1) both,
-      dialog-fade-in .6s linear both;
-  }
-
-  .hamster-dialog[open] .hamster__body {
-    animation: dialog-tint-in .6s linear both;
-  }
-
-  .hamster-dialog[open].is-closing {
-    animation:
-      dialog-dither-out .45s linear both,
-      dialog-shrink .3s cubic-bezier(.4, 0, .2, 1) both,
-      dialog-fade-out .45s linear both;
-  }
-
-  .hamster-dialog[open].is-closing .hamster__body {
-    animation: dialog-tint-out .45s linear both;
-  }
-}
-
 .hamster-dialog:focus {
   outline: none;
 }

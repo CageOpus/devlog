@@ -1752,79 +1752,18 @@
   }).observe(root);
   addEventListener("pagehide", save);
 
-  // 放大：整個 section 搬進 modal（top layer，不受側欄的寬度限制），原位換成一塊同高的空框，關掉時放回去。
-  // 空框撐住原本的高度，頁面不會變矮，捲軸也不會跳。
-  // 搬動的是同一批節點，事件、狀態、迴圈都不用重接；IntersectionObserver 會自己回報新位置
+  // 放大：整個 section 搬進 modal，原位換成一塊同高的空 well，關掉時放回去；進出側欄都用網點
+  // （搬動、複本、網點的時序都在 js/devlog.js 的 DevlogZoom，圖卡放大也用同一套）。
+  // IntersectionObserver 會自己回報新位置
   const zoomBtn = $("[data-ham-zoom]");
   const zoomDialog = document.querySelector("[data-ham-dialog]");
   const zoomSlot = document.createElement("div");
   zoomSlot.className = "hamster-slot cage-well";
-  const setZoomed = (on) => {
-    root.classList.toggle("is-zoomed", on);
-    zoomBtn.setAttribute("aria-label", zoomBtn.dataset[on ? "labelOut" : "labelIn"]);
-  };
-  // 離開側欄時原位先放一份複本，用網點消失（.is-leaving），播完才換成空框；複本只是畫面，不能點、讀屏器也不念
-  const motion = matchMedia("(prefers-reduced-motion: no-preference)");
-  let ghost = null;
+  const zoom = window.DevlogZoom(zoomDialog);
   zoomBtn.addEventListener("click", () => {
     if (zoomDialog.open) return zoomDialog.close();
-    root.classList.remove("is-returning");
-    zoomSlot.style.height = `${root.getBoundingClientRect().height}px`;
-    if (motion.matches) {
-      ghost = root.cloneNode(true);
-      ghost.removeAttribute("data-hamster");
-      ghost.setAttribute("aria-hidden", "true");
-      ghost.inert = true;
-      ghost.classList.add("is-leaving");
-      ghost.style.height = zoomSlot.style.height;
-      ghost.addEventListener("animationend", (event) => {
-        if (event.target !== ghost || event.animationName !== "dialog-dither-out") return;
-        ghost.replaceWith(zoomSlot);
-        ghost = null;
-      });
-      root.before(ghost);
-    } else {
-      root.before(zoomSlot);
-    }
-    zoomDialog.append(root);
-    setZoomed(true);
-    zoomDialog.showModal();
-    zoomBtn.focus();
-  });
-  // close 事件在收回去的動畫播完才發（js/devlog.js 的 initDialogClose），這時才把籠子放回側欄，收回去的不會是空框
-  // 回到側欄時用網點顯現（css/devlog/08-hamster.css 的 .is-returning，跟面板同一組動畫），播完就拿掉
-  const returned = (event) => {
-    if (event.target !== root || event.animationName !== "dialog-dither-in") return;
-    root.classList.remove("is-returning");
-  };
-  root.addEventListener("animationend", returned);
-  // 關閉動畫一開始（面板掛上 .is-closing，js/devlog.js 的 initDialogClose），側欄就先放一份複本用網點長出來，
-  // 跟 modal 收回去同時進行；動畫播完、close 事件發的時候再拿籠子本身無縫換掉複本
-  let back = null;
-  new MutationObserver(() => {
-    if (!zoomDialog.classList.contains("is-closing") || back) return;
-    back = root.cloneNode(true);
-    back.removeAttribute("data-hamster");
-    back.setAttribute("aria-hidden", "true");
-    back.inert = true;
-    back.classList.remove("is-zoomed", "is-leaving");
-    back.classList.add("is-returning");
-    // 跟空框一樣高：換來換去版面一點都不動，捲動位置才不會被瀏覽器調整
-    back.style.height = zoomSlot.style.height;
-    (ghost?.isConnected ? ghost : zoomSlot).replaceWith(back);
-    ghost = null;
-  }).observe(zoomDialog, { attributes: true, attributeFilter: ["class"] });
-  zoomDialog.addEventListener("close", () => {
-    // 複本已經長出來了就直接換掉；沒有複本（不播動畫時）才在這裡放回去並顯現
-    const holder = back?.isConnected ? back : ghost?.isConnected ? ghost : zoomSlot;
-    holder.replaceWith(root);
-    if (holder !== back) root.classList.add("is-returning");
-    back = ghost = null;
-    setZoomed(false);
-    zoomBtn.focus({ preventScroll: true });
-  });
-  zoomDialog.addEventListener("click", (event) => {
-    if (event.target === zoomDialog) zoomDialog.close();
+    // 複本只是畫面，不能被當成另一隻倉鼠接上
+    zoom.open(root, { button: zoomBtn, slot: zoomSlot, scrub: (copy) => copy.removeAttribute("data-hamster") });
   });
 
   // ═══ 開始 ═══
