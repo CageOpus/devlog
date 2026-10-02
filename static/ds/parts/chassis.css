@@ -17,23 +17,23 @@
 
 /* ── panel grain · panel faces are anodised: isotropic matte grain, no brush
    direction. Bars stay brushed. Paper stock gets the same grain, vellum tooth. ── */
-.cage-grain{background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
-.cage-grain-paper{background-image:linear-gradient(color-mix(in srgb,var(--well) var(--grain-mute),transparent),color-mix(in srgb,var(--well) var(--grain-mute),transparent)),url("../assets/textures/vellum.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+.cage-grain{background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.webp");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+.cage-grain-paper{background-image:linear-gradient(color-mix(in srgb,var(--well) var(--grain-mute),transparent),color-mix(in srgb,var(--well) var(--grain-mute),transparent)),url("../assets/textures/vellum.webp");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
 
 /* ── Unicode marks used as icons must render as TEXT, never as colour emoji. The chassis
    layer is achromatic; a single emoji glyph is the one thing that can break that. ── */
 .cage-glyph,.cage-rail__btn,.cage-btn--icon,.cage-stepper__btn,.cage-select__caret{font-variant-emoji:text}
 
 /* ── panel ── */
-.cage-panel{background:var(--chassis);border:1px solid var(--edge);box-shadow:var(--card-shadow);background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
-.cage-panel__bar{height:var(--bar-h);display:flex;align-items:center;gap:var(--space-6);padding:0 var(--space-8);border-bottom:1px solid var(--edge);background-color:var(--chassis);background-image:var(--face-bar),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat;box-shadow:var(--seam-h);text-shadow:var(--cut-text)}
+.cage-panel{background:var(--chassis);border:1px solid var(--edge);box-shadow:var(--card-shadow);background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.webp");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+.cage-panel__bar{height:var(--bar-h);display:flex;align-items:center;gap:var(--space-6);padding:0 var(--space-8);border-bottom:1px solid var(--edge);background-color:var(--chassis);background-image:var(--face-bar),url("../assets/textures/brushed-aluminium.webp");background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat;box-shadow:var(--seam-h);text-shadow:var(--cut-text)}
 .cage-panel__title{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-bar);font-size:var(--text-label-lg);color:var(--ink)}
 .cage-panel__note{font-family:var(--font-mono);font-size:var(--text-label);color:var(--label)}
 .cage-panel__body{padding:var(--space-8)}
 .cage-panel--flat{background-image:none}
 /* the striated casing ground the whole instrument sits on — brushed at 190px, the
    widest tile in the system, so the shell reads as one large milled plate */
-.cage-casing{background-color:var(--chassis);background-image:var(--face-casing),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile-wide) var(--metal-tile-wide);background-repeat:no-repeat,repeat;border:1px solid var(--edge);box-shadow:var(--card-shadow)}
+.cage-casing{background-color:var(--chassis);background-image:var(--face-casing),url("../assets/textures/brushed-aluminium.webp");background-size:auto,var(--metal-tile-wide) var(--metal-tile-wide);background-repeat:no-repeat,repeat;border:1px solid var(--edge);box-shadow:var(--card-shadow)}
 [data-chrome="flat"] .cage-casing{background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.035) 0 1px,rgba(255,255,255,.025) 1px 3px);background-size:auto}
 
 /* ── the one convex aluminium face, reused everywhere, in three depths.
@@ -43,7 +43,7 @@
    value drops. Never swap the face to a concave gradient; that reads as a dish, not a key.
    Travel is along Z by --press-recede (keep it under ~1%; the depth is in the shadow).
    `scale` is used rather than `transform` so the switch knob keeps its own rotate/skew. ── */
-.cage-face{background-color:var(--btn-face);background-image:var(--face-convex),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile) var(--metal-tile);background-repeat:no-repeat,repeat;border:1px solid var(--btn-edge);box-shadow:var(--btn-raised);color:var(--ink);text-shadow:var(--cut-text);scale:1;transition:box-shadow var(--press-out) var(--ease-settle),background-color var(--press-out) var(--ease-settle),border-color var(--press-out) var(--ease-settle),scale var(--press-out) var(--ease-settle)}
+.cage-face{background-color:var(--btn-face);background-image:var(--face-convex),url("../assets/textures/brushed-aluminium.webp");background-size:auto,var(--metal-tile) var(--metal-tile);background-repeat:no-repeat,repeat;border:1px solid var(--btn-edge);box-shadow:var(--btn-raised);color:var(--ink);text-shadow:var(--cut-text);scale:1;transition:box-shadow var(--press-out) var(--ease-settle),background-color var(--press-out) var(--ease-settle),border-color var(--press-out) var(--ease-settle),scale var(--press-out) var(--ease-settle)}
 .cage-face--sunk{background-color:var(--btn-face-sunk);border-color:var(--btn-edge-lit);box-shadow:var(--btn-sunk);text-shadow:var(--cut-text-sunk)}
 /* the throw down is instant — a key bottoms out; all the motion is in the release, which
    overshoots a fraction on the way back up. [data-pressing] is the latched equivalent of
@@ -115,7 +115,7 @@
 .cage-switch{position:relative;width:var(--switch-w);height:var(--switch-h);border:1px solid var(--edge);border-top-color:var(--btn-edge);border-radius:var(--radius-slot);background:var(--recess);box-shadow:0 1px 0 rgba(255,255,255,.55);cursor:pointer}
 [data-theme="dark"] .cage-switch{box-shadow:0 1px 0 rgba(255,255,255,.1)}
 .cage-switch__window{position:absolute;inset:0;overflow:hidden;border-radius:inherit;box-shadow:var(--inset-recess);z-index:0}
-.cage-switch__plate{position:absolute;top:0;bottom:0;left:calc(-1 * (var(--switch-travel) + var(--switch-overhang)) - 1px);width:calc(var(--switch-w) + var(--switch-travel) + 2 * var(--switch-overhang));background-color:var(--recess);background-image:linear-gradient(90deg,var(--slot-dyed) 0,var(--slot-dyed) calc(var(--switch-overhang) + var(--switch-travel) + var(--knob-w) / 2),var(--recess) calc(var(--switch-overhang) + var(--switch-travel) + var(--knob-w) / 2)),linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.08)),url("../assets/textures/anodised.png");background-size:auto,auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,no-repeat,repeat}
+.cage-switch__plate{position:absolute;top:0;bottom:0;left:calc(-1 * (var(--switch-travel) + var(--switch-overhang)) - 1px);width:calc(var(--switch-w) + var(--switch-travel) + 2 * var(--switch-overhang));background-color:var(--recess);background-image:linear-gradient(90deg,var(--slot-dyed) 0,var(--slot-dyed) calc(var(--switch-overhang) + var(--switch-travel) + var(--knob-w) / 2),var(--recess) calc(var(--switch-overhang) + var(--switch-travel) + var(--knob-w) / 2)),linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.08)),url("../assets/textures/anodised.webp");background-size:auto,auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,no-repeat,repeat}
 .cage-switch__knob{position:absolute;top:calc(-1 * var(--knob-proud) - 1px);bottom:calc(-1 * var(--knob-proud) - 1px);left:-1px;width:var(--knob-w);z-index:1;border-radius:var(--radius-slot);transform:rotate(-.5deg);transform-origin:50% 100%}
 /* ONE animation for the whole assembly: the throw is a registered custom property on the
    switch, inherited by both moving parts. They cannot drift because there is nothing to
@@ -145,7 +145,7 @@
    an instrument ink doing a chassis job. Drag is handled in Slider.jsx via pointer
    capture on the track. ── */
 .cage-slider{position:relative;height:var(--control-h-xs);border:1px solid var(--edge);background:var(--recess);box-shadow:var(--inset-recess);touch-action:none;cursor:ew-resize}
-.cage-slider__fill{position:absolute;left:0;top:0;bottom:0;border:none;border-right:1px solid var(--edge);box-shadow:inset 0 1px 1px rgba(0,0,0,.35);background-color:var(--slot-dyed);background-image:linear-gradient(rgba(0,0,0,.14),rgba(0,0,0,.14)),url("../assets/textures/anodised.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat;pointer-events:none}
+.cage-slider__fill{position:absolute;left:0;top:0;bottom:0;border:none;border-right:1px solid var(--edge);box-shadow:inset 0 1px 1px rgba(0,0,0,.35);background-color:var(--slot-dyed);background-image:linear-gradient(rgba(0,0,0,.14),rgba(0,0,0,.14)),url("../assets/textures/anodised.webp");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat;pointer-events:none}
 [data-chrome="flat"] .cage-slider__fill{background-color:var(--slot-dyed);background-image:none;box-shadow:none}
 /* the track is the hit area (the knob is pointer-events:none), so its rock comes from here */
 .cage-slider:active .cage-slider__knob{rotate:var(--knob-press-tilt)}
@@ -165,7 +165,7 @@
 .cage-select__caret{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--label)}
 
 /* ── tool rail ── */
-.cage-rail{width:var(--rail-w);display:flex;flex-direction:column;align-items:center;gap:var(--space-2);padding:var(--space-4) 0;border-right:1px solid var(--edge);background-color:var(--chassis);background-image:linear-gradient(90deg,var(--chassis-hi),var(--chassis)),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat;box-shadow:1px 0 0 rgba(255,255,255,.55)}
+.cage-rail{width:var(--rail-w);display:flex;flex-direction:column;align-items:center;gap:var(--space-2);padding:var(--space-4) 0;border-right:1px solid var(--edge);background-color:var(--chassis);background-image:linear-gradient(90deg,var(--chassis-hi),var(--chassis)),url("../assets/textures/brushed-aluminium.webp");background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat;box-shadow:1px 0 0 rgba(255,255,255,.55)}
 [data-theme="dark"] .cage-rail{box-shadow:1px 0 0 rgba(255,255,255,.1)}
 .cage-rail__group{font-family:var(--font-label);text-transform:uppercase;font-size:8px;letter-spacing:var(--track-rail);color:var(--label)}
 .cage-rail__btn{width:var(--rail-btn);height:var(--rail-btn);display:flex;align-items:center;justify-content:center;border-radius:var(--radius-control);font-family:var(--font-mono);font-size:14px;font-variant-emoji:text;cursor:pointer;user-select:none}
@@ -176,10 +176,10 @@
 .cage-titlecell{display:flex;flex-direction:column;gap:1px}
 .cage-titlecell__label{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-label);font-size:var(--text-label-sm);color:var(--label)}
 .cage-titlecell__value{font-family:var(--font-mono);font-size:var(--text-readout);font-weight:var(--weight-medium);color:var(--ink)}
-.cage-titleblock{display:flex;gap:var(--space-9);padding:6px var(--space-6);border:1px solid var(--edge-soft);background-image:var(--face-bar),url("../assets/textures/brushed-aluminium.png");background-color:var(--chassis);background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat;text-shadow:var(--cut-text)}
+.cage-titleblock{display:flex;gap:var(--space-9);padding:6px var(--space-6);border:1px solid var(--edge-soft);background-image:var(--face-bar),url("../assets/textures/brushed-aluminium.webp");background-color:var(--chassis);background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat;text-shadow:var(--cut-text)}
 
 /* ── status bar ── */
-.cage-status{height:var(--status-h);display:flex;align-items:center;gap:var(--space-9);padding:0 var(--space-7);border-top:1px solid var(--edge);background-color:var(--chassis);background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat;box-shadow:inset 0 1px 0 rgba(255,255,255,.6);font-family:var(--font-mono);font-size:var(--text-mono-xs);color:var(--label)}
+.cage-status{height:var(--status-h);display:flex;align-items:center;gap:var(--space-9);padding:0 var(--space-7);border-top:1px solid var(--edge);background-color:var(--chassis);background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.webp");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat;box-shadow:inset 0 1px 0 rgba(255,255,255,.6);font-family:var(--font-mono);font-size:var(--text-mono-xs);color:var(--label)}
 [data-theme="dark"] .cage-status{box-shadow:inset 0 1px 0 rgba(255,255,255,.11)}
 
 /* ── Bright / Dim ── */
@@ -202,22 +202,22 @@
    live in a real declaration: a url() passed through a custom property resolves
    against the PAGE, not this file, so it 404s at every depth but one. Never move
    these back into a --tex-* token. See CLAUDE.md. ── */
-[data-theme="dark"] .cage-face{background-image:var(--face-convex),url("../assets/textures/brushed-aluminium-dark.png")}
-[data-theme="dark"] .cage-panel__bar{background-image:var(--face-bar),url("../assets/textures/brushed-aluminium-dark.png")}
-[data-theme="dark"] .cage-titleblock{background-image:var(--face-bar),url("../assets/textures/brushed-aluminium-dark.png")}
-[data-theme="dark"] .cage-casing{background-image:var(--face-casing),url("../assets/textures/brushed-aluminium-dark.png")}
-[data-theme="dark"] .cage-rail{background-image:linear-gradient(90deg,var(--chassis-hi),var(--chassis)),url("../assets/textures/brushed-aluminium-dark.png")}
-[data-theme="dark"] .cage-mat-key{background-image:var(--face-convex),url("../assets/textures/brushed-aluminium-dark.png")}
-[data-theme="dark"] .cage-mat-sunk{background-image:var(--face-convex),url("../assets/textures/brushed-aluminium-dark.png")}
-[data-theme="dark"] .cage-mat-bar{background-image:var(--face-bar),url("../assets/textures/brushed-aluminium-dark.png")}
-[data-theme="dark"] .cage-mat-plate{background-image:var(--face-casing),url("../assets/textures/brushed-aluminium-dark.png")}
+[data-theme="dark"] .cage-face{background-image:var(--face-convex),url("../assets/textures/brushed-aluminium-dark.webp")}
+[data-theme="dark"] .cage-panel__bar{background-image:var(--face-bar),url("../assets/textures/brushed-aluminium-dark.webp")}
+[data-theme="dark"] .cage-titleblock{background-image:var(--face-bar),url("../assets/textures/brushed-aluminium-dark.webp")}
+[data-theme="dark"] .cage-casing{background-image:var(--face-casing),url("../assets/textures/brushed-aluminium-dark.webp")}
+[data-theme="dark"] .cage-rail{background-image:linear-gradient(90deg,var(--chassis-hi),var(--chassis)),url("../assets/textures/brushed-aluminium-dark.webp")}
+[data-theme="dark"] .cage-mat-key{background-image:var(--face-convex),url("../assets/textures/brushed-aluminium-dark.webp")}
+[data-theme="dark"] .cage-mat-sunk{background-image:var(--face-convex),url("../assets/textures/brushed-aluminium-dark.webp")}
+[data-theme="dark"] .cage-mat-bar{background-image:var(--face-bar),url("../assets/textures/brushed-aluminium-dark.webp")}
+[data-theme="dark"] .cage-mat-plate{background-image:var(--face-casing),url("../assets/textures/brushed-aluminium-dark.webp")}
 
 /* ── material utilities · the supported way to put a texture on an arbitrary surface.
    Use these instead of composing var(--tex-*) into an inline style. Each carries the
    full layer stack: ground colour, specular sweep, texture, tile size. ── */
-.cage-mat-key{background-color:var(--btn-face);background-image:var(--face-convex),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile) var(--metal-tile);background-repeat:no-repeat,repeat}
-.cage-mat-sunk{background-color:var(--btn-face-sunk);background-image:var(--face-convex),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile) var(--metal-tile);background-repeat:no-repeat,repeat}
-.cage-mat-bar{background-color:var(--chassis);background-image:var(--face-bar),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat}
-.cage-mat-plate{background-color:var(--chassis);background-image:var(--face-casing),url("../assets/textures/brushed-aluminium.png");background-size:auto,var(--metal-tile-wide) var(--metal-tile-wide);background-repeat:no-repeat,repeat}
-.cage-mat-panel{background-color:var(--chassis);background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
-.cage-mat-paper{background-color:var(--well);background-image:linear-gradient(color-mix(in srgb,var(--well) var(--grain-mute),transparent),color-mix(in srgb,var(--well) var(--grain-mute),transparent)),url("../assets/textures/vellum.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+.cage-mat-key{background-color:var(--btn-face);background-image:var(--face-convex),url("../assets/textures/brushed-aluminium.webp");background-size:auto,var(--metal-tile) var(--metal-tile);background-repeat:no-repeat,repeat}
+.cage-mat-sunk{background-color:var(--btn-face-sunk);background-image:var(--face-convex),url("../assets/textures/brushed-aluminium.webp");background-size:auto,var(--metal-tile) var(--metal-tile);background-repeat:no-repeat,repeat}
+.cage-mat-bar{background-color:var(--chassis);background-image:var(--face-bar),url("../assets/textures/brushed-aluminium.webp");background-size:auto,var(--metal-tile-bar) var(--metal-tile-bar);background-repeat:no-repeat,repeat}
+.cage-mat-plate{background-color:var(--chassis);background-image:var(--face-casing),url("../assets/textures/brushed-aluminium.webp");background-size:auto,var(--metal-tile-wide) var(--metal-tile-wide);background-repeat:no-repeat,repeat}
+.cage-mat-panel{background-color:var(--chassis);background-image:linear-gradient(color-mix(in srgb,var(--chassis) var(--grain-mute),transparent),color-mix(in srgb,var(--chassis) var(--grain-mute),transparent)),url("../assets/textures/anodised.webp");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+.cage-mat-paper{background-color:var(--well);background-image:linear-gradient(color-mix(in srgb,var(--well) var(--grain-mute),transparent),color-mix(in srgb,var(--well) var(--grain-mute),transparent)),url("../assets/textures/vellum.webp");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}

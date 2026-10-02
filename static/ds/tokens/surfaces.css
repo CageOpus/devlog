@@ -8,9 +8,9 @@
    class instead — those carry the path in a real declaration, where it resolves
    against the stylesheet and is reliable at any depth. See CLAUDE.md. */
 :root{
---tex-metal:url("../assets/textures/brushed-aluminium.png"); /* @kind other */
---tex-anod:url("../assets/textures/anodised.png"); /* @kind other */
---tex-vellum:url("../assets/textures/vellum.png"); /* @kind other */
+--tex-metal:url("../assets/textures/brushed-aluminium.webp"); /* @kind other */
+--tex-anod:url("../assets/textures/anodised.webp"); /* @kind other */
+--tex-vellum:url("../assets/textures/vellum.webp"); /* @kind other */
 
 /* locked grain settings: grainScale 5, grainStrength 7 */
 --grain-px:270px;--grain-mute:32%; /* @kind spacing */

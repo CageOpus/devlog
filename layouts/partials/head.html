@@ -101,9 +101,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{{ $fontsURL }}">
 
-{{- /* CAGE 設計系統：原封放在 static/ds/，材質圖以相對路徑引用，所以不能進 Hugo pipeline 合併 */}}
+{{- /* CAGE 設計系統：原封放在 static/ds/，材質圖以相對路徑引用，所以不能進 Hugo pipeline 合併。
+       也就沒有 fingerprint：網址後面加 ?v=內容的 md5（前 8 碼），檔案改了網址才變，
+       不然 GitHub Pages 的快取（10 分鐘）裡的舊版會繼續被用 */}}
 {{- range slice "tokens/colors" "tokens/typography" "tokens/spacing" "tokens/surfaces" "parts/base" "parts/chassis" "parts/sheet" "parts/prose" }}
-<link rel="stylesheet" href="{{ printf "ds/%s.css" . | relURL }}">
+{{- $v := substr (os.ReadFile (printf "static/ds/%s.css" .) | md5) 0 8 }}
+<link rel="stylesheet" href="{{ printf "ds/%s.css" . | relURL }}?v={{ $v }}">
 {{- end }}
 
 {{- $css := resources.Match "css/devlog/*.css" | resources.Concat "css/devlog.css" }}
@@ -112,7 +115,7 @@
 {{- end }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}">
 
-<script src="{{ "ds/assets/press-latch.js" | relURL }}" defer></script>
+<script src="{{ "ds/assets/press-latch.js" | relURL }}?v={{ substr (os.ReadFile "static/ds/assets/press-latch.js" | md5) 0 8 }}" defer></script>
 
 {{- if hugo.IsProduction }}
 {{- partial "templates/opengraph.html" . }}

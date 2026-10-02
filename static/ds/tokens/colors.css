@@ -91,5 +91,5 @@
 --link:#E0795E;--link-hover:#74B9C7;
 /* ⚠ unused — see the warning in tokens/surfaces.css. Dim's metal cut is applied by
    the [data-theme="dark"] rules in parts/chassis.css. */
---tex-metal:url("../assets/textures/brushed-aluminium-dark.png"); /* @kind other */
+--tex-metal:url("../assets/textures/brushed-aluminium-dark.webp"); /* @kind other */
 }

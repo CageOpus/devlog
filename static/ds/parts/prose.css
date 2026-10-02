@@ -5,7 +5,7 @@
 /* ── well · a panel mounted proud of the GROUND, lit from above, casting onto it.
       Paper stock, not metal — same grain, vellum tooth. Takes --well, never --desk:
       --desk is the literal desk, and in Dim it is the darkest thing in the room. ── */
-.cage-well{background:var(--well);border:1px solid var(--well-edge);box-shadow:var(--well-proud);background-image:linear-gradient(color-mix(in srgb,var(--well) var(--grain-mute),transparent),color-mix(in srgb,var(--well) var(--grain-mute),transparent)),url("../assets/textures/vellum.png");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
+.cage-well{background:var(--well);border:1px solid var(--well-edge);box-shadow:var(--well-proud);background-image:linear-gradient(color-mix(in srgb,var(--well) var(--grain-mute),transparent),color-mix(in srgb,var(--well) var(--grain-mute),transparent)),url("../assets/textures/vellum.webp");background-size:auto,var(--grain-px) var(--grain-px);background-repeat:no-repeat,repeat}
 .cage-well__label{font-family:var(--font-label);text-transform:uppercase;letter-spacing:var(--track-legend);font-size:var(--text-label-sm);color:var(--label)}
 
 .cage-prose{font-family:var(--font-cjk);font-size:var(--text-prose);line-height:var(--leading-prose);color:var(--ink);text-wrap:pretty}
