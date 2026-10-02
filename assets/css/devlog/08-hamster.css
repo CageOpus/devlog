@@ -266,6 +266,15 @@
 }
 
 /* 籠條烤好的拉絲紋（見 js/hamster.js 的 bakeGrain）。圖裡的強度是給暗色主題的；亮色主題的金屬色淺，同樣的明暗變化要的黑比較少、白比較多 */
+/* Firefox：放大面板開關的動畫期間（js/devlog.js 的 DevlogZoom：本尊 .is-zooming，複本 .is-leaving / .is-returning）收起金屬紋。
+   紋理是 SVG pattern 裡的圖，Firefox 的 WebRender 不支援 pattern，只能用 CPU 點陣化；籠子一縮放、一蓋濾鏡或遮罩，
+   每根籠條的紋理都要在 CPU 上重新縮放貼一遍，一格要上百毫秒（Firefox profile 量到的，2026-10-02）。紋理很淡，動畫一下就過 */
+@supports (-moz-appearance: none) {
+  .hamster:is(.is-zooming, .is-leaving, .is-returning) .ham-grain {
+    display: none;
+  }
+}
+
 .ham-grain--dark {
   opacity: var(--ham-grain-dark, .22);
 }

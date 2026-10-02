@@ -443,6 +443,7 @@
      跟面板收回去同時進行；close 事件發的時候再拿本尊無縫換掉複本。
    複本只是畫面：不能點、讀屏器不念，跟空框一樣高，換來換去版面一點都不動，捲動位置也不會被瀏覽器調整。
    兩個 class 的動畫由各自的 CSS 決定（.hamster 在 08-hamster.css，.cage-figure 在 02-chrome.css）。
+   開關的動畫期間本尊掛著 .is-zooming，播完才拿掉，讓內容在這段時間換成比較省的畫法（例如籠子在 Firefox 先收起金屬紋）。
    用法：const zoom = DevlogZoom(dialog); zoom.open(target, { button, slot, scrub })
      button 放大鍵，在面板裡換成縮回（target 掛 .is-zoomed、aria-label 換成 data-label-out），關掉後焦點回到它；
      slot   原位的空框，高度由這裡設；scrub(copy) 讓呼叫端從複本拿掉不該重複的東西（例如 data-* 掛鉤）。
@@ -462,15 +463,24 @@ window.DevlogZoom = (() => {
       cur.scrub?.(c);
       c.setAttribute("aria-hidden", "true");
       c.inert = true;
-      c.classList.remove("is-zoomed", "is-leaving", "is-returning");
+      c.classList.remove("is-zoomed", "is-leaving", "is-returning", "is-zooming");
       c.classList.add(cls);
       c.style.height = cur.slot.style.height;
       return c;
+    };
+    // 面板的開關動畫（dialog-* 那組）全部播完才拿掉 .is-zooming
+    const settle = (target) => {
+      requestAnimationFrame(() => {
+        const anims = dialog.getAnimations({ subtree: true }).filter((a) => a.animationName?.startsWith("dialog-"));
+        const done = () => { if (dialog.open && !dialog.classList.contains("is-closing")) target.classList.remove("is-zooming"); };
+        Promise.all(anims.map((a) => a.finished)).then(done, done);
+      });
     };
     const open = (target, { button, slot, scrub } = {}) => {
       if (dialog.open) return;
       cur = { target, button, slot, scrub, ghost: null, back: null };
       target.classList.remove("is-returning");
+      if (motion.matches) target.classList.add("is-zooming");
       slot.style.height = `${target.getBoundingClientRect().height}px`;
       if (motion.matches) {
         const ghost = (cur.ghost = copy("is-leaving"));
@@ -486,9 +496,11 @@ window.DevlogZoom = (() => {
       setZoomed(true);
       dialog.showModal();
       button?.focus();
+      if (motion.matches) settle(target);
     };
     new MutationObserver(() => {
       if (!cur || !dialog.classList.contains("is-closing") || cur.back) return;
+      cur.target.classList.add("is-zooming");
       cur.back = copy("is-returning");
       (cur.ghost?.isConnected ? cur.ghost : cur.slot).replaceWith(cur.back);
     }).observe(dialog, { attributes: true, attributeFilter: ["class"] });
@@ -498,6 +510,7 @@ window.DevlogZoom = (() => {
       // 複本已經長出來了就直接換掉；沒有複本（不播動畫時）才在這裡放回去並顯現
       const holder = back?.isConnected ? back : ghost?.isConnected ? ghost : slot;
       holder.replaceWith(target);
+      target.classList.remove("is-zooming");
       if (holder !== back) target.classList.add("is-returning");
       setZoomed(false);
       button?.focus({ preventScroll: true });
