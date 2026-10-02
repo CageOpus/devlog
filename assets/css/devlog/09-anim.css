@@ -95,6 +95,38 @@
   background: var(--anim-sheet);
 }
 
+/* 載入中：腳本還沒畫出動畫前，畫面正中一行淡字，後面三個點輪流亮。
+   高度由 shortcodes/anim.html 寫在畫面上的 aspect-ratio 撐住，畫出來時版面不跳 */
+.anim__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm, 10.5px);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--label);
+  pointer-events: none;
+}
+
+.anim__loading::after {
+  content: "...";
+  display: inline-block;
+  width: 3ch;
+  margin-left: .2em;
+  text-align: left;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: anim-loading-dots 1.2s steps(4, jump-none) infinite;
+}
+
+@keyframes anim-loading-dots {
+  from { width: 0; }
+  to { width: 3ch; }
+}
+
 .anim__svg {
   display: block;
   width: 100%;

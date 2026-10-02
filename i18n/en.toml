@@ -60,6 +60,7 @@ animTour = "Narrated"
 animTourNotice = "This browser's reading voice ({voice}) may not sound natural. Narrated playback is still in beta, and sounds best in Chrome."
 animTourNoVoice = "This browser can't read aloud, so only the animation will play. Narrated playback is still in beta."
 animTourGo = "Play anyway"
+animLoading = "Loading"
 animTourCancel = "Cancel"
 
 # 圖卡放大鍵（見 layouts/partials/figure-zoom.html）

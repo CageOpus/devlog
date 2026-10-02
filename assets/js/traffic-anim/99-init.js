@@ -92,6 +92,12 @@
     const scene = make(svg);
     const tl = scene.tl;
     svg.setAttribute("viewBox", `0 0 ${scene.w} ${scene.h}`);
+    // 畫好了：拿掉「載入中」，畫面比例改用場景自己的（shortcodes/anim.html 的表只是載入前先撐住高度用）
+    stage.querySelector(".anim__loading")?.remove();
+    const ratio = `${scene.w} / ${scene.h}`;
+    if (stage.style.aspectRatio.replace(/\s/g, "") !== ratio.replace(/\s/g, ""))
+      console.warn(`anim ${fig.dataset.anim}: shortcodes/anim.html 的寬高 ${stage.style.aspectRatio} 跟場景的 ${ratio} 不一樣，載入時版面會跳`);
+    stage.style.aspectRatio = ratio;
 
     const narr = fig.querySelector(".anim__narration");
     const btnPlay = fig.querySelector("[data-anim-play]");

@@ -61,6 +61,7 @@ animTour = "語音導覽"
 animTourNotice = "這個瀏覽器的朗讀聲音（{voice}）可能不太自然。語音導覽還在 beta，用 Chrome 效果最好。"
 animTourNoVoice = "這個瀏覽器不能朗讀，只會播放動畫。語音導覽還在 beta。"
 animTourGo = "仍要播放"
+animLoading = "載入中"
 animTourCancel = "取消"
 
 # 圖卡放大鍵（見 layouts/partials/figure-zoom.html）

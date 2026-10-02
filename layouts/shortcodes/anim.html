@@ -8,6 +8,10 @@
 {{- $zoomable := eq (printf "%v" (.Get "zoomable")) "true" }}
 {{- $title := .Get "title" | default $name }}
 {{- $n := add .Ordinal 1 }}
+{{- /* 各場景的畫布寬高（跟 assets/js/traffic-anim/ 裡場景的 W、H 一致）：腳本還沒載到時先用它撐住畫面高度，
+       不然載入後整頁往下跳。對不上時 99-init.js 會在主控台警告，並以場景的為準 */}}
+{{- $sizes := dict "request" "680 / 408" "junction" "680 / 372" "lanechange" "680 / 372" }}
+{{- $aspect := index $sizes $name | default "680 / 372" }}
 <figure class="anim" data-anim="{{ $name }}" data-l-play="{{ T "animPlay" }}" data-l-pause="{{ T "animPause" }}">
   <div class="anim__card cage-figure">
     <span class="anim__head cage-figure__head">
@@ -17,7 +21,9 @@
         {{- if $zoomable }}{{ partial "figure-zoom.html" . }}{{ end }}
       </span>
     </span>
-    <div class="anim__stage" role="img" aria-label="{{ $title }}"></div>
+    <div class="anim__stage" role="img" aria-label="{{ $title }}" style="{{ printf "aspect-ratio: %s" $aspect | safeCSS }}">
+      <span class="anim__loading" aria-hidden="true">{{ T "animLoading" }}</span>
+    </div>
     <p class="anim__narration" aria-live="polite"></p>
     <div class="anim__controls">
       <button type="button" class="cage-btn cage-face cage-btn--icon" data-anim-prev aria-label="{{ T "animPrev" }}">
