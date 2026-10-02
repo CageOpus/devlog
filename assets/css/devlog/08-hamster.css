@@ -258,7 +258,15 @@
   box-shadow: inset 0 0 0 1px var(--edge-soft);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
   user-select: none;
+}
+
+/* 場景裡的字（睡覺的 zzz、對話泡泡）是畫面的一部分，不能被拖選或全選反白。Safari 只認帶前綴的寫法，SVG 的 text 也要自己再寫一次 */
+.hamster__scene text {
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
 }
 
 .ham-room-hi { stop-color: var(--ham-room-hi); }
