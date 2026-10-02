@@ -44,22 +44,28 @@
     display: none;
   }
 
-  /* ── rail ── */
+  /* ── rail ──
+     上、下、右各往畫面外多鋪 --railnav-overscan，內距再補回來，鍵的位置不變。
+     iOS 的 Chrome 橫屏時回報的 safe area 是 0，layout viewport 只算中間那段，左右的不安全區雖然還在網頁畫布上，
+     貼右緣的 fixed 元素卻停在 viewport 邊上，露出一條頁面底色；往右多鋪一段才蓋得到。Safari 那段落在螢幕外，看不到。
+     上下是 iOS Safari 工具列收起來、home indicator 那一帶的同一個問題。
+     fixed 元素超出 viewport 不會撐出捲動範圍。面板的毛玻璃（02-chrome.css 的 ::backdrop）也是同樣的作法。 */
   .rail-nav {
+    --railnav-overscan: 80px;
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
+    top: calc(-1 * var(--railnav-overscan));
+    right: calc(-1 * var(--railnav-overscan));
+    bottom: calc(-1 * var(--railnav-overscan));
     z-index: 20;
-    width: var(--railnav-w);
+    width: calc(var(--railnav-w) + var(--railnav-overscan));
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 11px;
     padding:
-      calc(11px + env(safe-area-inset-top, 0px))
-      var(--railnav-extra)
-      calc(11px + env(safe-area-inset-bottom, 0px))
+      calc(11px + env(safe-area-inset-top, 0px) + var(--railnav-overscan))
+      calc(var(--railnav-extra) + var(--railnav-overscan))
+      calc(11px + env(safe-area-inset-bottom, 0px) + var(--railnav-overscan))
       0;
     border-left: 1px solid var(--edge);
     box-shadow: var(--seam-v);
@@ -209,6 +215,14 @@
   /* 示意動畫的橫屏版面（旁白與控制列移到圖的右邊）也用這個條件，但寫在 css/devlog/09-anim.css：
      那個檔案排在這裡後面，寫在這裡會被它的同名規則蓋掉 */
 
+  /* ── 狀態列：直立時底部導覽列會讓開 home indicator，橫屏沒有那條列，改由頁尾自己往下長一段 safe area。
+     底色（陽極處理的鋁）鋪進不安全區，字仍然在安全區裡 ── */
+  .site-footer {
+    box-sizing: border-box;
+    height: calc(var(--status-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
   /* ── 內容欄：左側 safe area 只推這一層；程式碼出血從這裡算回螢幕左緣（見 06-markdown.css） ── */
   .page {
     /* 另一側同樣的道理：頁面留白本身就能伸進不安全區，只要安全區的界線剛好切齊文章卡片（well）的左緣，
@@ -221,8 +235,8 @@
   @media (max-height: 379px) {
     .rail-nav {
       gap: 5px;
-      padding-top: calc(7px + env(safe-area-inset-top, 0px));
-      padding-bottom: calc(7px + env(safe-area-inset-bottom, 0px));
+      padding-top: calc(7px + env(safe-area-inset-top, 0px) + var(--railnav-overscan));
+      padding-bottom: calc(7px + env(safe-area-inset-bottom, 0px) + var(--railnav-overscan));
       overflow-y: auto;
       scrollbar-width: none;
     }

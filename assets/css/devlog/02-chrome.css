@@ -750,7 +750,9 @@
      冷色與燻黑 玻璃本身帶一點偏藍的冷灰、亮度略壓（Dim 是更深的冷煙燻色），像一片稍微燻過的玻璃；左上打一道斜光
    噪聲都是 SVG 的 feTurbulence，內嵌成 data URI，不用多抓圖檔；整張畫滿不平鋪（小塊平鋪在高解析度螢幕上會對不齊，顆粒的對比又高，接縫很明顯）；
    不支援 backdrop-filter 的瀏覽器退回原本的半透明黑 */
+/* 玻璃往畫面外多鋪一段：iOS Safari 的 ::backdrop 只鋪到 layout viewport，safe area 與收起來的工具列那一帶會露出沒蓋玻璃的頁面 */
 :is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog, .figure-dialog)::backdrop {
+  inset: -80px;
   background: rgb(0 0 0 / .45);
 }
 
