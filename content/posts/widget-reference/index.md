@@ -118,6 +118,18 @@ Keep the same habit in English so both versions stay parallel.
 | Map    | 10 × 10 km    |                |
 | Engine | Rust + wgpu   | Bevy ECS       |
 
+## Terms
+
+A word that needs a one-line explanation gets a plain HTML `<abbr>`, with the explanation in `title`.
+It shows a dotted underline; hover over it (tap on a phone) and the explanation floats above it.
+Keep the explanation to a sentence or two, and only mark a term the first time it appears.
+
+```html
+Every car re-asserts its <abbr title="The road a car already holds. It is re-bid at priority 255 every tick.">claim</abbr> each tick.
+```
+
+Every car re-asserts its <abbr title="The road a car already holds. It is re-bid at priority 255 every tick.">claim</abbr> each <abbr title="One step of the simulation: 1/15 of a second.">tick</abbr>.
+
 ---
 
 A horizontal rule is `---` with a blank line before and after. The one above is an example.

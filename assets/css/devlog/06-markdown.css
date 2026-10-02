@@ -283,3 +283,39 @@
 .chroma :is(.m, .mb, .mf, .mh, .mi, .il, .mo) {
   color: var(--code-num);
 }
+
+/* ── 名詞解釋：<abbr title="…">（js/devlog.js「名詞解釋」） ──
+   詞底下一條點線；滑過去（觸控是點）浮出一張小紙條。設計系統刻意沒有 Tooltip 元件，
+   這裡只拿現成的 token：亮面板的底、--edge 的邊、卡片陰影，不另加顏色 */
+.article__body abbr[data-tip] {
+  text-decoration: underline dotted var(--label);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
+.article__body abbr[data-tip]:focus-visible {
+  outline: 1px solid var(--ink-intensity);
+  outline-offset: 2px;
+}
+
+.abbr-tip {
+  position: fixed;
+  z-index: 60;
+  max-width: min(300px, calc(100vw - 16px));
+  padding: 6px 9px;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-control);
+  background: var(--chassis-hi);
+  box-shadow: var(--card-shadow);
+  color: var(--ink);
+  font-family: var(--font-cjk);
+  font-size: 13px;
+  line-height: 1.55;
+  text-wrap: pretty;
+  pointer-events: none;
+}
+
+.abbr-tip[hidden] {
+  display: none;
+}

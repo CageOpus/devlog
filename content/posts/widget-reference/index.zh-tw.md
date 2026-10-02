@@ -115,6 +115,18 @@ NOTE、TIP、IMPORTANT、WARNING、CAUTION 都可以用，外觀相同，只有�
 | Map    | 10 × 10 km    |                |
 | Engine | Rust + wgpu   | Bevy ECS       |
 
+## 名詞解釋
+
+需要一句話解釋的詞，直接寫 HTML 的 `<abbr>`，解釋放在 `title`。
+詞底下會有一條點線，滑鼠移過去（手機上用點的）解釋就浮在上面。
+解釋寫一兩句就好，同一個詞只在第一次出現時標。
+
+```html
+每台車每個 tick 都把自己的 <abbr title="車子已經握在手上的路，每個 tick 都用優先值 255 重新喊一次。">claim</abbr> 重新喊一次。
+```
+
+每台車每個 <abbr title="模擬前進一步，1/15 秒。">tick</abbr> 都把自己的 <abbr title="車子已經握在手上的路，每個 tick 都用優先值 255 重新喊一次。">claim</abbr> 重新喊一次。
+
 ---
 
 分隔線用 `---`，前後要空一行。上面那條就是。

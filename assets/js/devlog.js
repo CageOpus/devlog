@@ -7,6 +7,7 @@
 //   6. 瀏覽器語言跟這一頁不同、但有對應的譯本時，把語言切換鍵按三下提示
 //   7. 「加入主畫面」鍵與說明面板
 //   8. RSS 鍵與面板
+//   9. 文章裡 <abbr> 的名詞解釋小紙條
 
 (function initThemeSwitch() {
   const root = document.documentElement;
@@ -677,4 +678,70 @@ window.DevlogZoom = (() => {
   };
   const watch = new MutationObserver(sync);
   dialogs.forEach((d) => watch.observe(d, { attributes: true, attributeFilter: ["open", "class"] }));
+})();
+
+/* ── 名詞解釋：文章裡的 <abbr title="…">（css/devlog/06-markdown.css「名詞解釋」） ──
+   title 換成 data-tip，免得瀏覽器自己的提示也跳出來；全頁共用一張浮動小紙條。
+   滑鼠：停在詞上就出現；鍵盤：focus 到詞上；觸控：點一下開、點別處關。 */
+(function initAbbrTips() {
+  const terms = document.querySelectorAll(".article__body abbr[title]");
+  if (!terms.length) return;
+
+  const tip = document.createElement("div");
+  tip.className = "abbr-tip";
+  tip.id = "abbr-tip";
+  tip.setAttribute("role", "tooltip");
+  tip.hidden = true;
+  document.body.appendChild(tip);
+
+  const GAP = 6;
+  const EDGE = 8;
+  let current = null;
+
+  function show(el) {
+    current = el;
+    tip.textContent = el.dataset.tip;
+    tip.hidden = false;
+    el.setAttribute("aria-describedby", tip.id);
+    // 預設放在詞的上方、置中；上面放不下就放下方，左右夾在視窗內
+    const r = el.getBoundingClientRect();
+    const w = tip.offsetWidth;
+    const h = tip.offsetHeight;
+    const vw = document.documentElement.clientWidth;
+    const left = Math.min(Math.max(r.left + r.width / 2 - w / 2, EDGE), vw - w - EDGE);
+    const top = r.top - h - GAP >= EDGE ? r.top - h - GAP : r.bottom + GAP;
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+  }
+
+  function hide() {
+    if (!current) return;
+    current.removeAttribute("aria-describedby");
+    current = null;
+    tip.hidden = true;
+  }
+
+  let touch = false;
+  terms.forEach((el) => {
+    el.dataset.tip = el.title;
+    el.removeAttribute("title");
+    el.tabIndex = 0;
+    el.addEventListener("pointerdown", (e) => { touch = e.pointerType !== "mouse"; });
+    el.addEventListener("mouseenter", () => { if (!touch) show(el); });
+    el.addEventListener("mouseleave", () => { if (!touch) hide(); });
+    el.addEventListener("focus", () => show(el));
+    el.addEventListener("blur", hide);
+    el.addEventListener("click", () => {
+      if (!touch) return;
+      current === el ? hide() : show(el);
+    });
+  });
+
+  // 小紙條是 position: fixed，捲動或縮放後位置就不對了，直接收起來
+  window.addEventListener("scroll", hide, { passive: true });
+  window.addEventListener("resize", hide);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") hide(); });
+  document.addEventListener("pointerdown", (e) => {
+    if (current && !e.target.closest("abbr[data-tip]")) hide();
+  });
 })();
