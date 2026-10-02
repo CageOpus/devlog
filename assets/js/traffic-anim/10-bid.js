@@ -34,7 +34,7 @@
     const CAR_LEN = 4.5 * 20, CAR_W = 34; // 4.5 × 1.8 m 左右
     const color = { A: C.a, B: C.b, C: C.c };
     const hatch = { A: TA.hatch(svg, "bid-ha", C.a), B: TA.hatch(svg, "bid-hb", C.b), C: TA.hatch(svg, "bid-hc", C.c) };
-    const hex = (pri) => (pri === 255 ? "255" : pri.toString(16).toUpperCase());
+    const prio = (pri) => String(pri); // 圖上一律十進位，讀者不必會 hex
 
     // 三台車：tail、claim 終點、extension 終點、核准、cap 之後、這一 tick 開多遠
     const cars = {
@@ -115,7 +115,7 @@
     });
     // extension 的衰減優先值
     const gDecay = el("g", {}, svg);
-    const decayLbl = P.filter((p) => p.pri !== 255).map((p) => text(gDecay, { x: X((p.s + p.e) / 2), y: ROW[p.car] + BAR_H / 2 + 0.5, "text-anchor": "middle", "font-size": 10, fill: color[p.car], "font-weight": 600, "paint-order": "stroke", stroke: C.sheet, "stroke-width": 3, text: hex(p.pri) }));
+    const decayLbl = P.filter((p) => p.pri !== 255).map((p) => text(gDecay, { x: X((p.s + p.e) / 2), y: ROW[p.car] + BAR_H / 2 + 0.5, "text-anchor": "middle", "font-size": 10, fill: color[p.car], "font-weight": 600, "paint-order": "stroke", stroke: C.sheet, "stroke-width": 3, text: prio(p.pri) }));
 
     // 路面上的安全冗餘：車頭到 claim 終點，淡色加虛線框，畫在車子底下
     const gBuffer = el("g", {}, svg);
@@ -133,7 +133,7 @@
       const g = el("g", {}, gChips);
       p.g = g;
       p.box = el("rect", { rx: 2, "stroke-width": 1.2 }, g);
-      p.label = text(g, { "text-anchor": "middle", "font-size": 11.5, "font-weight": 600, text: `${p.car} · ${hex(p.pri)}` });
+      p.label = text(g, { "text-anchor": "middle", "font-size": 11.5, "font-weight": 600, text: `${p.car} · ${prio(p.pri)}` });
       p.slash = el("line", { stroke: C.red, "stroke-width": 1.6, opacity: 0 }, g);
       const solid = p.pri === 255;
       set(p.box, { fill: solid ? color[p.car] : C.sheet, stroke: color[p.car] });
@@ -179,7 +179,7 @@
       const solid = p.pri === 255;
       const g = el("g", {}, gZoom);
       text(g, { x: 34, y: y + 7, text: p.car, fill: color[p.car], "font-weight": 600, "font-size": 12 });
-      text(g, { x: 50, y: y + 7, text: hex(p.pri), fill: color[p.car], "font-size": 12 });
+      text(g, { x: 50, y: y + 7, text: prio(p.pri), fill: color[p.car], "font-size": 12 });
       el("rect", { x: ZX(p.s), y, width: ZX(p.e) - ZX(p.s), height: 14, fill: solid ? color[p.car] : hatch[p.car], stroke: color[p.car], "stroke-width": 1 }, g);
       const lost = el("rect", { y, height: 14, fill: C.lost, opacity: 0 }, g);
       const verdict = text(g, { x: ZX(20) + 12, y: y + 7, "font-size": 11.5, opacity: 0 });

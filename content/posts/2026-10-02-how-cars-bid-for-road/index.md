@@ -15,6 +15,8 @@ TODO: intro.
 
 ## Junctions
 
+{{< anim name="junction" title="At a junction: all or nothing" caption="A turn bids for its whole span at once" zoomable="true" >}}
+
 TODO
 
 ## Lane changes

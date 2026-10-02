@@ -136,20 +136,36 @@
     // 光束與燈口的光只在 Dim 出現（--anim-bloom）。
     const bloom = TA.bloomFilter(parent);
     const beam = TA.beamFill(parent);
+    // 光束與燈口的光放在同一組，TA.lights 可以把整組收小、調暗（例如輸了、在等的車）
+    const glow = el("g", { opacity: "var(--anim-bloom)" }, g);
+    g._glow = glow;
     for (const side of [-1, 1]) {
       const ly = side * wid * 0.3;
       // 錐形：燈口寬 4，往前 52。朝外的邊再往外 13；朝內的邊越過車頭中線 13，兩道光在車頭前方交疊成一片
       const outer = ly + side * 13, inner = -side * 13;
       const d = `M-3,${ly - 2} L52,${Math.min(outer, inner)} L52,${Math.max(outer, inner)} L-3,${ly + 2} Z`;
-      el("path", { d, fill: beam, filter: bloom, opacity: "var(--anim-bloom)" }, g);
-      el("circle", { cx: -4, cy: ly, r: 2.6, fill: C.headlight, filter: bloom, opacity: "var(--anim-bloom)" }, g);
+      el("path", { d, fill: beam, filter: bloom }, glow);
+      el("circle", { cx: -4, cy: ly, r: 2.6, fill: C.headlight, filter: bloom }, glow);
       el("rect", { x: -6, y: ly - 2.5, width: 2.5, height: 5, rx: 1, fill: C.headlight, "fill-opacity": 0.9 }, g);
     }
-    TA.text(g, { x: (cabX0 + cabX1) / 2 - len * 0.03, y: 0.5, text: label, "text-anchor": "middle", fill: C.onSolid, "font-weight": 600, "font-size": 12 });
+    const lx = (cabX0 + cabX1) / 2 - len * 0.03;
+    g._label = TA.text(g, { x: lx, y: 0.5, text: label, "text-anchor": "middle", fill: C.onSolid, "font-weight": 600, "font-size": 12 });
+    g._labelX = lx;
     return g;
   };
-  // 車的原點在車頭；transform 放在車頭位置，angle 為度
-  TA.place = (g, x, y, angle = 0, opacity = 1) => set(g, { transform: `translate(${x.toFixed(2)},${y.toFixed(2)}) rotate(${angle.toFixed(2)})`, opacity });
+  // 車燈的強度：1 = 照常，0 = 收到最小（光束縮短、變暗，燈口還留一點）。只在 Dim 看得到
+  TA.lights = (g, k = 1) => set(g._glow, {
+    transform: `translate(-4 0) scale(${(0.35 + 0.65 * k).toFixed(3)}) translate(4 0)`,
+    opacity: `calc(var(--anim-bloom) * ${(0.45 + 0.55 * k).toFixed(3)})`,
+  });
+  // 車的原點在車頭；transform 放在車頭位置，angle 為度。車頭朝左半邊時，車上的字原地轉半圈，不會倒著印
+  TA.place = (g, x, y, angle = 0, opacity = 1) => {
+    if (g._label) {
+      const flip = Math.cos((angle * Math.PI) / 180) < -0.01;
+      set(g._label, { transform: flip ? `rotate(180 ${g._labelX} 0)` : "" });
+    }
+    return set(g, { transform: `translate(${x.toFixed(2)},${y.toFixed(2)}) rotate(${angle.toFixed(2)})`, opacity });
+  };
 
   TA.lang = () => ((document.documentElement.lang || "en").toLowerCase().startsWith("zh") ? "zh" : "en");
 })();

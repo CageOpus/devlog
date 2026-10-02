@@ -32,6 +32,8 @@
   --anim-car-shade: 0%;
   /* 路面上車頭前的安全區：白天畫；夜裡不畫，車燈已經照出那一段 */
   --anim-buffer: 1;
+  /* 行進路線（虛線箭頭）往白混多少：Bright 用車色本身；Dim 提亮，壓在暗路面與出價條上才看得到 */
+  --anim-guide-lift: 0%;
   --anim-a: #3E6588;
   --anim-b: #5E7B3B;
   --anim-c: #7D5B8B;
@@ -62,6 +64,7 @@
   --anim-bloom: .85;
   --anim-car-shade: 38%;
   --anim-buffer: 0;
+  --anim-guide-lift: 55%;
   /* 夜裡的車窗：冷灰而不是紙白，跟壓暗的車身一起沉下去 */
   --anim-glass: #7E868C;
   --anim-a: #5A80A3;
