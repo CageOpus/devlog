@@ -124,6 +124,14 @@
 
       {{- /* 滾輪：支架不動，輪子整組轉。位置跟前排籠條一起排過：整組往左挪剛好一個籠條間距（18），停留點的構圖不變 */}}
       <g class="ham-wheel" data-ham-wheel-hit>
+        {{- /* 軸心發熱時輪輻的紅光：以軸心為圓心的放射漸層，輪子怎麼轉都是靠軸心那端最紅。顏色和擴散範圍跟著 --heat（js 設在這一組上） */}}
+        <defs>
+          <radialGradient id="hamSpokeHeat" gradientUnits="userSpaceOnUse" cx="160" cy="72" r="38">
+            <stop offset="0" class="ham-heat-stop ham-heat-stop--core"/>
+            <stop offset=".35" class="ham-heat-stop ham-heat-stop--mid"/>
+            <stop offset="1" class="ham-heat-stop ham-heat-stop--tip"/>
+          </radialGradient>
+        </defs>
         <path d="M160 72 L144 118 M160 72 L176 118" class="ham-wheel__edge ham-wheel__edge--stand"/>
         <path d="M160 72 L144 118 M160 72 L176 118" class="ham-wheel__stand"/>
         <circle cx="160" cy="72" r="46" class="ham-wheel__hit"/>
@@ -137,11 +145,17 @@
           {{- range seq 0 7 }}
           <line x1="160" y1="72" x2="160" y2="34" class="ham-wheel__spoke" transform="rotate({{ mul . 45 }} 160 72)"/>
           {{- end }}
+          <g class="ham-wheel__hot">
+            {{- range seq 0 7 }}
+            <line x1="160" y1="72" x2="160" y2="34" transform="rotate({{ mul . 45 }} 160 72)"/>
+            {{- end }}
+          </g>
           {{- range seq 0 23 }}
           <circle cx="160" cy="32" r=".9" class="ham-wheel__rung" transform="rotate({{ mul . 15 }} 160 72)"/>
           {{- end }}
         </g>
         <circle cx="160" cy="72" r="3" class="ham-wheel__hub"/>
+        <g class="ham-sparks" data-ham-sparks></g>
       </g>
 
       {{- /* 筆電：放在右下角的墊料上，螢幕朝外，在跑倉鼠自己訓練的模型。有電時螢幕亮、周圍一圈光暈，沒電就暗掉。

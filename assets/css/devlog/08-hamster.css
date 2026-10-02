@@ -46,6 +46,10 @@
   --ham-dial: #F2EEE2;
   --ham-dial-ink: #2E2C28;
   --ham-dial-red: #C24A3A;
+  /* 火花三段顏色（剛噴出、飛到一半、快熄）：亮色底上白黃色看不見，壓深成橘到深紅 */
+  --ham-spark-1: #F08A1C;
+  --ham-spark-2: #D9501A;
+  --ham-spark-3: #A8260F;
   container-type: inline-size;
   padding: 15px 17px 17px;
 }
@@ -53,6 +57,9 @@
 /* Dim：關了燈的房間。籠條換成黑色烤漆，高光收斂成一道灰；倉鼠比環境亮一點，才是畫面的主角 */
 [data-theme="dark"] .hamster {
   --ham-room-hi: #2B2B2A;
+  --ham-spark-1: #FFF2B0;
+  --ham-spark-2: #FFB347;
+  --ham-spark-3: #E2521D;
   --ham-room-lo: #151515;
   --ham-tray-hi: #3C3C3A;
   --ham-tray: #2A2A29;
@@ -440,10 +447,67 @@
   fill: var(--ham-metal-lo);
 }
 
+.ham-wheel {
+  --heat: 0;
+}
+
 .ham-wheel__hub {
   fill: var(--ham-metal-hi);
   stroke: var(--ham-metal-lo);
   stroke-width: .8;
+}
+
+/* 轉太快軸心燒紅（--heat 由 js 給）：先暗紅、再橘、最熱帶一點黃，外面一圈光暈。不熱的時候不掛濾鏡 */
+.ham-wheel.is-hot .ham-wheel__hub {
+  fill: color-mix(in oklab, var(--ham-metal-hi), color-mix(in oklab, #b3200e, #ffb347 calc(var(--heat) * var(--heat) * 100%)) calc(min(1, var(--heat) * 1.6) * 100%));
+  stroke: color-mix(in oklab, var(--ham-metal-lo), #6e1408 calc(var(--heat) * 100%));
+  filter: drop-shadow(0 0 calc(var(--heat) * 3px) rgb(255 80 20 / calc(var(--heat) * .9)));
+}
+
+/* 輪輻：一開始只有靠軸心那段泛紅，越熱紅得越往外 */
+.ham-wheel__hot {
+  display: none;
+  stroke: url(#hamSpokeHeat);
+  stroke-width: .8;
+  pointer-events: none;
+}
+
+.ham-wheel.is-hot .ham-wheel__hot {
+  display: inline;
+  opacity: min(1, calc(var(--heat) * 1.5));
+}
+
+.ham-heat-stop--core {
+  stop-color: color-mix(in oklab, #d4300f, #ffc35a calc(var(--heat) * var(--heat) * 100%));
+}
+
+.ham-heat-stop--mid {
+  stop-color: #d4300f;
+  stop-opacity: var(--heat);
+}
+
+.ham-heat-stop--tip {
+  stop-color: #8f1a0a;
+  stop-opacity: calc(var(--heat) * var(--heat) * .7);
+}
+
+/* 火花：js 每格畫成一小段沿著飛行方向的亮線 */
+.ham-sparks {
+  pointer-events: none;
+}
+
+.ham-sparks line {
+  stroke: var(--ham-spark-1);
+  stroke-width: .6;
+  stroke-linecap: round;
+}
+
+.ham-sparks .is-mid {
+  stroke: var(--ham-spark-2);
+}
+
+.ham-sparks .is-dim {
+  stroke: var(--ham-spark-3);
 }
 
 /* ── 發電：電線、充電樁、筆電 ── */

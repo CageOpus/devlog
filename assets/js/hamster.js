@@ -526,7 +526,11 @@
     flingT: -1,
     wakeUntil: 0,
   };
-  const wheel = { angle: 0, speed: 0 };
+  // heat：軸心的溫度 0～1。轉太快會發熱燒紅，慢下來再慢慢退
+  const wheel = { angle: 0, speed: 0, heat: 0 };
+  const WHEEL_MAX = 1800; // 一秒五圈，再點也不會更快
+  const HOT_FROM = 900; // 超過這個速度軸心開始發熱
+
   let watts = 0; // 滾輪現在的發電功率
   const pointer = { x: null, y: null, inScene: false, since: 0 };
 
@@ -702,15 +706,81 @@
     else wheel.speed = Math.max(target, wheel.speed - (running ? 260 : 160) * dt);
     // 倉鼠在輪子裡一律面向右跑，腳下的輪面往左走：輪子順時針轉（SVG 的 y 朝下，角度變大就是順時針）。
     // 被甩出去的路線（stepFling）也是順時針：從底部帶到左側再飛出去
+    wheel.speed = Math.min(WHEEL_MAX, wheel.speed);
     wheel.angle = (wheel.angle + wheel.speed * dt) % 360;
+    // 頂到上限大約 4 秒燒到全紅；冷卻比較慢，全紅要十幾秒才退
+    const over = (wheel.speed - HOT_FROM) / (WHEEL_MAX - HOT_FROM);
+    wheel.heat = over > 0 ? Math.min(1, wheel.heat + over * 0.25 * dt) : Math.max(0, wheel.heat - 0.07 * dt);
+    stepSparks(dt);
     if (ham.inWheel) {
       state.km += (wheel.speed * dt / 360) * KM_PER_REV;
       if (wheel.speed > 1150 && ham.flingT < 0) startFling();
     }
   }
 
+  // 火花：熱到一半以上從軸心噴出來，順著輪子轉的方向甩出去再被重力拉下。用一組固定的 <line> 輪流用，不一直建新的
+  const sparks = [];
+  const SPARK_MAX = 16;
+  let sparkDebt = 0;
+
+  function stepSparks(dt) {
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const p = sparks[i];
+      p.age += dt;
+      if (p.age >= p.life) {
+        sparks.splice(i, 1);
+        continue;
+      }
+      p.vy += 260 * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+    }
+    // 火花是磨出來的：輪子慢下來就不噴了，只剩軸心慢慢退紅
+    if (reducedMotion || wheel.heat < 0.45 || wheel.speed < 400) return (sparkDebt = 0);
+    // 最熱時一秒噴三十來顆
+    sparkDebt += (wheel.heat - 0.4) * 55 * dt;
+    while (sparkDebt >= 1 && sparks.length < SPARK_MAX) {
+      sparkDebt--;
+      // 順時針轉：軸心邊上某一點的切線方向往外甩
+      const a = Math.random() * Math.PI * 2;
+      const speed = 50 + Math.random() * 70 * wheel.heat;
+      sparks.push({
+        x: WHEEL_CX + Math.cos(a) * 2.5,
+        y: WHEEL_CY + Math.sin(a) * 2.5,
+        vx: -Math.sin(a) * speed + Math.cos(a) * 15,
+        vy: Math.cos(a) * speed + Math.sin(a) * 15 - 20,
+        age: 0,
+        life: 0.25 + Math.random() * 0.35,
+      });
+    }
+    sparkDebt = Math.min(sparkDebt, 1);
+  }
+
+  function drawSparks() {
+    const box = els.sparks;
+    while (box.childElementCount < sparks.length) box.append(document.createElementNS(SVGNS, "line"));
+    for (let i = 0; i < box.childElementCount; i++) {
+      const el = box.children[i];
+      const p = sparks[i];
+      if (!p) {
+        if (el.getAttribute("visibility") !== "hidden") el.setAttribute("visibility", "hidden");
+        continue;
+      }
+      const k = 1 - p.age / p.life;
+      // 拖一小段尾巴：長度跟速度成正比
+      el.setAttribute("x1", p.x.toFixed(1));
+      el.setAttribute("y1", p.y.toFixed(1));
+      el.setAttribute("x2", (p.x - p.vx * 0.025).toFixed(1));
+      el.setAttribute("y2", (p.y - p.vy * 0.025).toFixed(1));
+      const tone = k > 0.6 ? "" : k > 0.3 ? "is-mid" : "is-dim";
+      if (el.getAttribute("class") !== tone) el.setAttribute("class", tone);
+      el.setAttribute("opacity", Math.min(1, k * 1.6).toFixed(2));
+      el.setAttribute("visibility", "visible");
+    }
+  }
+
   function boostWheel() {
-    wheel.speed += 240;
+    wheel.speed = Math.min(WHEEL_MAX, wheel.speed + 240);
   }
 
   // ═══ 音效 ═══
@@ -1179,6 +1249,8 @@
     pupil: $("[data-ham-pupil]"),
     cheek: $("[data-ham-cheek]"),
     wheel: $("[data-ham-wheel]"),
+    wheelHit: $("[data-ham-wheel-hit]"),
+    sparks: $("[data-ham-sparks]"),
     water: $("[data-ham-water]"),
     odo: $("[data-ham-odo]"),
     bubble: $("[data-ham-bubble]"),
@@ -1197,6 +1269,13 @@
 
   function drawScene() {
     setAttr(els.wheel, "transform", `rotate(${wheel.angle.toFixed(2)} ${WHEEL_CX} ${WHEEL_CY})`);
+    const heat = wheel.heat.toFixed(2);
+    if (els.wheelHit.dataset.heat !== heat) {
+      els.wheelHit.dataset.heat = heat;
+      els.wheelHit.style.setProperty("--heat", heat);
+      els.wheelHit.classList.toggle("is-hot", wheel.heat > 0);
+    }
+    drawSparks();
     setAttr(els.ham, "transform", `translate(${ham.x.toFixed(2)} ${ham.y.toFixed(2)}) rotate(${ham.rot.toFixed(1)}) scale(${ham.dir} 1)`);
     if (els.ham.dataset.pose !== ham.pose) els.ham.dataset.pose = ham.pose;
     els.ham.classList.toggle("has-memo", ham.memo && ham.pose !== "sleep");
@@ -1431,6 +1510,7 @@
       ham.y = FLOOR;
       ham.flingT = -1;
       wheel.speed = 0;
+      wheel.heat = 0;
       ham.x = asleepNow(now) ? SPOT.nest : clearSpot(60 + Math.random() * 50, ham.dir, ["idle"]);
       ham.pose = asleepNow(now) ? "sleep" : "idle";
       plan([]);
