@@ -164,35 +164,26 @@
   overscroll-behavior: contain;
 }
 
-/* 籠子搬進 modal 時留在側欄原位的空框：同高，頁面不會變矮；看起來是一塊空著的 well */
-.hamster-slot {
-  opacity: .5;
-}
+/* 籠子搬進 modal 時留在側欄原位的空框：同高，頁面不會變矮；就是一塊空著的 well，外框與陰影照常 */
 
-/* 進出側欄：回來時跟面板打開同一組網點與顯影動畫（css/devlog/02-chrome.css），像是在側欄重新洗出來；離開時反過來 */
+/* 進出側欄：外框與陰影不動，只有裡面的內容（.hamster__body）用網點消失或長出來。
+   回來時跟面板打開同一組網點與顯影動畫（css/devlog/02-chrome.css），像是在側欄重新洗出來；離開時反過來，
+   消失後換成空框（js/devlog.js 的 DevlogZoom） */
 @media (prefers-reduced-motion: no-preference) {
-  .hamster.is-returning {
+  .hamster.is-returning .hamster__body {
     mask-size: 8px 8px;
     animation:
       dialog-dither-in .3s linear both,
-      dialog-fade-in .3s linear both;
-  }
-
-  /* 顯影的濾鏡只套在內容上，well 的底色不跟著褪色 */
-  .hamster.is-returning .hamster__body {
-    animation: dialog-tint-in .3s linear both;
-  }
-
-  /* 搬進 modal 時留在側欄的複本：跟面板關掉時同一組網點與褪色，消失後換成空框（js/hamster.js） */
-  .hamster.is-leaving {
-    mask-size: 8px 8px;
-    animation:
-      dialog-dither-out .2s linear both,
-      dialog-fade-out .2s linear both;
+      dialog-fade-in .3s linear both,
+      dialog-tint-in .3s linear both;
   }
 
   .hamster.is-leaving .hamster__body {
-    animation: dialog-tint-out .2s linear both;
+    mask-size: 8px 8px;
+    animation:
+      dialog-dither-out .2s linear both,
+      dialog-fade-out .2s linear both,
+      dialog-tint-out .2s linear both;
   }
 }
 

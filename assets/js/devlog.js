@@ -485,7 +485,8 @@ window.DevlogZoom = (() => {
       if (motion.matches) {
         const ghost = (cur.ghost = copy("is-leaving"));
         ghost.addEventListener("animationend", (event) => {
-          if (event.target !== ghost || !event.animationName.startsWith("dialog-dither-out")) return;
+          // 網點可能套在複本本身（圖卡），也可能只套在裡面的內容（籠子：外框不動）
+          if (!ghost.contains(event.target) || !event.animationName.startsWith("dialog-dither-out")) return;
           if (ghost.isConnected) ghost.replaceWith(slot);
         });
         target.before(ghost);
@@ -521,7 +522,9 @@ window.DevlogZoom = (() => {
     });
     // 顯現播完就拿掉 .is-returning（不播動畫時留著也無妨，下次放大會先清掉）
     dialog.ownerDocument.addEventListener("animationend", (event) => {
-      if (event.animationName.startsWith("dialog-dither-in") && event.target.classList?.contains("is-returning") && !event.target.inert) event.target.classList.remove("is-returning");
+      if (!event.animationName.startsWith("dialog-dither-in")) return;
+      const host = event.target.closest?.(".is-returning");
+      if (host && !host.inert) host.classList.remove("is-returning");
     });
     const api = { open };
     controllers.set(dialog, api);
