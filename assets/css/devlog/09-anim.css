@@ -124,6 +124,27 @@
   width: 34px;
 }
 
+/* 控制鍵的圖示（shortcodes/anim.html）：內嵌 SVG，跨平台同大小。播放鍵裡疊三個，看 data-state 露一個 */
+.anim__controls .anim-icon {
+  display: block;
+  width: 10px;
+  height: 10px;
+  fill: currentColor;
+}
+
+.anim-icon__stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.anim__play:not([data-state="play"]) .anim-icon--play,
+.anim__play:not([data-state="pause"]) .anim-icon--pause,
+.anim__play:not([data-state="replay"]) .anim-icon--replay {
+  display: none;
+}
+
 /* 進度條：一拍一格，格寬比例於拍長。格子跟籠子的量表同一種槽（css/devlog/08-hamster.css 的 .hamster__meter-track）：
    邊 --edge-soft、底 --recess、填 --ink-intensity，Bright / Dim 都由系統 token 自己切 */
 .anim__beats {

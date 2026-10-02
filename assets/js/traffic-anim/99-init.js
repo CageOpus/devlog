@@ -55,8 +55,8 @@
         const p = TA.clamp01((t - tl.starts[i]) / tl.beats[i].d);
         f.style.transform = `scaleX(${p})`;
       });
-      // \uFE0E：要文字樣式，不然 iOS 會把 ▶ 畫成彩色 emoji
-      btnPlay.textContent = playing ? "❚❚" : t >= tl.total - 1e-3 ? "↺" : "▶\uFE0E";
+      // 三個圖示都在鍵裡（shortcodes/anim.html），data-state 決定露哪個
+      btnPlay.dataset.state = playing ? "pause" : t >= tl.total - 1e-3 ? "replay" : "play";
       btnPlay.setAttribute("aria-label", playing ? fig.dataset.lPause : fig.dataset.lPlay);
     };
     const seek = (nt) => { t = Math.max(0, Math.min(tl.total, nt)); render(); };

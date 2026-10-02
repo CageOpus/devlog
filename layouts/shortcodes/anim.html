@@ -2,7 +2,7 @@
        {{< anim name="bid" title="Bid, sort, settle" caption="一個 tick 裡資料走過的路" zoomable="true" >}}
        name 對應 assets/js/traffic-anim/ 裡登記的場景；title 印在圖紙卡抬頭，caption 選填，印在下方。
        zoomable="true"：抬頭放一顆放大鍵（partials/figure-zoom.html），整張圖卡可以搬進放大面板，播放不中斷。
-       編號是 ANIM n，和圖片的 FIG n 各算各的。控制列在圖卡裡。
+       編號是 ANIM n，和圖片的 FIG n 各算各的。控制列在圖卡裡；鍵上的圖示是內嵌 SVG，不靠字型（⏮ ▶ 這類字元各平台 fallback 的字不同，大小對不齊）。
        腳本由 baseof.html 載入（.HasShortcode "anim"），每頁一次。 */ -}}
 {{- $name := .Get "name" }}
 {{- $zoomable := eq (printf "%v" (.Get "zoomable")) "true" }}
@@ -20,9 +20,14 @@
     <div class="anim__stage" role="img" aria-label="{{ $title }}"></div>
     <p class="anim__narration" aria-live="polite"></p>
     <div class="anim__controls">
-      <button type="button" class="cage-btn cage-face cage-btn--icon" data-anim-prev aria-label="{{ T "animPrev" }}">⏮&#xFE0E;</button>
-      <button type="button" class="cage-btn cage-face cage-btn--icon anim__play" data-anim-play aria-label="{{ T "animPlay" }}">▶&#xFE0E;</button>
-      <button type="button" class="cage-btn cage-face cage-btn--icon" data-anim-next aria-label="{{ T "animNext" }}">⏭&#xFE0E;</button>
+      <button type="button" class="cage-btn cage-face cage-btn--icon" data-anim-prev aria-label="{{ T "animPrev" }}">
+        <svg class="anim-icon" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2h1.6v8H2zM10 2v8L4.2 6z"/></svg></button>
+      <button type="button" class="cage-btn cage-face cage-btn--icon anim__play" data-anim-play data-state="play" aria-label="{{ T "animPlay" }}">
+        <svg class="anim-icon anim-icon--play" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10.2 6z"/></svg>
+        <svg class="anim-icon anim-icon--pause" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.8 2h2.3v8H2.8zM6.9 2h2.3v8H6.9z"/></svg>
+        <svg class="anim-icon anim-icon--replay" viewBox="0 0 12 12" aria-hidden="true"><path class="anim-icon__stroke" d="M6 2.4A3.8 3.8 0 1 1 2.2 6.2"/><path d="M6.6 0.6v3.6L3.5 2.4z"/></svg></button>
+      <button type="button" class="cage-btn cage-face cage-btn--icon" data-anim-next aria-label="{{ T "animNext" }}">
+        <svg class="anim-icon" viewBox="0 0 12 12" aria-hidden="true"><path d="M10 2H8.4v8H10zM2 2v8L7.8 6z"/></svg></button>
       <div class="anim__beats"></div>
     </div>
   </div>
