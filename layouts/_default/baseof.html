@@ -14,6 +14,7 @@
   {{- partial "install-dialog.html" . }}
   {{- partial "rss-dialog.html" . }}
   {{- partial "cheat-dialog.html" . }}
+  {{- partial "figure-dialog.html" . }}
   {{- partial "bottom-nav.html" . }}
   {{- partial "rail-nav.html" . }}
   {{- $js := resources.Get "js/devlog.js" }}
@@ -22,5 +23,11 @@
   {{- $hamster := resources.Get "js/hamster.js" }}
   {{- if hugo.IsProduction }}{{ $hamster = $hamster | minify | fingerprint }}{{ end }}
   <script src="{{ $hamster.RelPermalink }}"></script>
+  {{- /* 文章裡的示意動畫（layouts/shortcodes/anim.html）：有用到才載 */}}
+  {{- if and .IsPage (.HasShortcode "anim") }}
+  {{- $anim := resources.Match "js/traffic-anim/*.js" | resources.Concat "js/traffic-anim.js" }}
+  {{- if hugo.IsProduction }}{{ $anim = $anim | minify | fingerprint }}{{ end }}
+  <script src="{{ $anim.RelPermalink }}"></script>
+  {{- end }}
 </body>
 </html>

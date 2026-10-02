@@ -434,6 +434,51 @@
 })();
 
 
+/* ── 圖卡放大（partials/figure-zoom.html、partials/figure-dialog.html） ──
+   圖卡抬頭的放大鍵把整張 .cage-figure 搬進面板（top layer，不受內文欄寬限制），原位換成一塊同高的空框，
+   關掉時放回去；作法和籠子的放大一樣（js/hamster.js）。搬動的是同一批節點，裡面的東西（示意動畫的播放器）
+   不用重接。同一顆鍵在面板裡換成縮回圖示（.is-zoomed），就是關閉鍵；Esc、點外面也會放回 */
+(function initFigureZoom() {
+  const dialog = document.querySelector("[data-figure-dialog]");
+  if (!dialog) return;
+  let card = null;
+  let hole = null;
+  const setZoomed = (on) => {
+    card.classList.toggle("is-zoomed", on);
+    const btn = card.querySelector("[data-figure-zoom]");
+    btn?.setAttribute("aria-label", btn.dataset[on ? "labelOut" : "labelIn"]);
+  };
+  document.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-figure-zoom]");
+    if (!btn) return;
+    if (dialog.open) return dialog.close();
+    card = btn.closest(".cage-figure");
+    if (!card) return;
+    hole = document.createElement("div");
+    hole.className = "figure-zoom-hole";
+    hole.style.height = `${card.getBoundingClientRect().height}px`;
+    card.replaceWith(hole);
+    dialog.append(card);
+    // 面板的無障礙名稱跟著圖卡的標題
+    dialog.setAttribute("aria-label", card.querySelector(".cage-figure__title")?.textContent || "FIG");
+    setZoomed(true);
+    dialog.showModal();
+    btn.focus();
+  });
+  // close 事件在收回去的動畫播完才發（下面的 initDialogClose），這時才把圖卡放回原位
+  dialog.addEventListener("close", () => {
+    if (!card) return;
+    setZoomed(false);
+    hole.replaceWith(card);
+    // 焦點回到放回原位的那顆放大鍵，鍵盤使用者不會被丟回頁首
+    card.querySelector("[data-figure-zoom]")?.focus({ preventScroll: true });
+    card = hole = null;
+  });
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+})();
+
 /* ── 面板關掉時先播完動畫（css/devlog/02-chrome.css「開面板的動畫」） ──
    瀏覽器一關掉 dialog 就把它移出 top layer，Safari 還不支援延後移出（overlay），收回去的動畫來不及播。
    所以關閉都先經過這裡：掛上 .is-closing 播動畫，等面板與裡面的收回動畫都播完才真的關（每個面板長度不同，
@@ -501,7 +546,7 @@
   const LIFT = 1.04;
   const OPEN = { duration: 450, easing: "cubic-bezier(.25, .8, .25, 1)" };
   const CLOSE = { duration: 300, easing: "cubic-bezier(.4, 0, .2, 1)" };
-  const dialogs = [...document.querySelectorAll(".install-dialog, .rss-dialog, .hamster-dialog")];
+  const dialogs = [...document.querySelectorAll(".install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog")];
   let parts = [];
   let anims = [];
   let wasOpen = false;

@@ -1,0 +1,230 @@
+/* ── 示意動畫（layouts/shortcodes/anim.html）──
+   圖紙卡和圖片的 .md-figure 同一張紙；Dim 時是暗的製圖片，動畫的墨色因此分 Bright / Dim 兩組（下面的 --anim-*）。
+   控制列在圖卡裡，旁白下面；zoomable 時抬頭右邊有放大鍵，整張圖卡搬進 .figure-dialog（css/devlog/02-chrome.css）。 */
+.anim {
+  margin: var(--fig-margin);
+}
+
+/* 動畫的墨色（js/traffic-anim/00-core.js 的 TA.C 全部讀這裡）。掛在圖卡上，圖卡搬進放大面板也跟著走。
+   Bright 是紙：圖紙層的 token 原樣用；Dim 是暗的製圖片（devlog 的決定，和設計系統「圖紙在 Dim 不反轉」分開走，
+   見 css/devlog/06-markdown.css 的圖卡 Dim）：底色壓到近黑，墨色換成設計系統在 Dim 已經提亮過的那一組
+   （朱紅 = Dim 的連結色 #E0795E，青 = Dim 的連結 hover #74B9C7）。
+     intensity 青   給出去的路：核准、終點標記
+     revision  朱紅 被截掉、輸掉的（lost 是蓋在截掉那段上的半透明朱紅；暗底要濃一點才看得出來）
+     a / b / c      三台車；分區色票的公所藍、綠地綠、文教紫，彩度收斂到製圖墨的程度，另外印 A / B / C 辨識
+     on-solid       印在實心車色上的字
+     car-edge       車身外框：永遠比車身深，Dim 也是（淺色描邊在暗底上像發光） */
+.anim__card {
+  --anim-sheet: var(--paper-hi);
+  --anim-col: var(--paper-mid);
+  --anim-road: var(--road);
+  --anim-dash: var(--road-dash);
+  --anim-grid: var(--plot-line);
+  --anim-ink: var(--graphite);
+  --anim-soft: var(--massing-line);
+  --anim-intensity: var(--ink-intensity);
+  --anim-revision: var(--ink-revision);
+  --anim-lost: rgba(206, 58, 27, .4);
+  --anim-car-edge: rgba(36, 35, 31, .7);
+  /* 車燈：白天是淺色、不發光（bloom 0）；夜裡是暖黃燈加光暈 */
+  --anim-headlight: #FBFAF6;
+  --anim-bloom: 0;
+  --anim-car-shade: 0%;
+  /* 路面上車頭前的安全區：白天畫；夜裡不畫，車燈已經照出那一段 */
+  --anim-buffer: 1;
+  --anim-a: #3E6588;
+  --anim-b: #5E7B3B;
+  --anim-c: #7D5B8B;
+  --anim-on-solid: var(--paper-hi);
+  --anim-glass: #FBFAF6;
+  --anim-stage-edge: rgba(42, 41, 36, .3);
+  /* 剖切線：黑白兩條疊在一起，壓在任何底色上（車身、路面、紙）都看得到。
+     Bright 是白襯底、黑鏈線；Dim 對調（深襯底、淺鏈線），否則白襯底在暗紙上是一條刺眼的白帶 */
+  --anim-cut-light: #FBFAF6;
+  --anim-cut-dark: #24231F;
+  /* 間距是所有圖卡共用的一組（css/devlog/06-markdown.css 的 --fig-*） */
+  padding: var(--fig-pad);
+}
+
+[data-theme="dark"] .anim__card {
+  --anim-sheet: #181817;
+  --anim-col: #242423;
+  --anim-road: #2F2F2D;
+  --anim-dash: #4E4E4B;
+  --anim-grid: #3E3E3C;
+  --anim-ink: #E8E4D9;
+  --anim-soft: #A3A19B;
+  --anim-intensity: #74B9C7;
+  --anim-revision: #E0795E;
+  --anim-lost: rgba(224, 121, 94, .62);
+  --anim-car-edge: #0E0E0D;
+  --anim-headlight: #FFD27A;
+  --anim-bloom: .85;
+  --anim-car-shade: 38%;
+  --anim-buffer: 0;
+  /* 夜裡的車窗：冷灰而不是紙白，跟壓暗的車身一起沉下去 */
+  --anim-glass: #7E868C;
+  --anim-a: #5A80A3;
+  --anim-b: #718E4D;
+  --anim-c: #9373A1;
+  --anim-on-solid: #F2EFE6;
+  --anim-stage-edge: #464645;
+  --anim-cut-light: #151514;
+  --anim-cut-dark: #E8E4D9;
+}
+
+.anim__head {
+  margin-bottom: var(--fig-head-gap);
+}
+
+.anim__head-end {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.anim__stage {
+  position: relative;
+  border: 1px solid var(--anim-stage-edge);
+  background: var(--anim-sheet);
+}
+
+.anim__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 旁白：固定兩行高，換拍時版面不跳 */
+.anim__narration {
+  margin: 11px 0 0;
+  min-height: calc(2 * 1.7em);
+  font-family: var(--font-cjk);
+  font-size: var(--text-ui-lg);
+  line-height: 1.7;
+  color: var(--anim-ink);
+}
+
+.anim__controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.anim__play {
+  width: 34px;
+}
+
+/* 進度條：一拍一格，格寬比例於拍長。格子跟籠子的量表同一種槽（css/devlog/08-hamster.css 的 .hamster__meter-track）：
+   邊 --edge-soft、底 --recess、填 --ink-intensity，Bright / Dim 都由系統 token 自己切 */
+.anim__beats {
+  display: flex;
+  flex: 1;
+  gap: 3px;
+  height: var(--control-h);
+  align-items: center;
+  margin-left: 6px;
+}
+
+.anim__beat {
+  position: relative;
+  flex-basis: 0;
+  height: 6px;
+  padding: 0;
+  border: 1px solid var(--edge-soft);
+  border-radius: var(--radius-slot);
+  background: var(--recess);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* 點擊範圍比格子高 */
+.anim__beat::before {
+  content: "";
+  position: absolute;
+  inset: -8px 0;
+}
+
+.anim__beat-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--ink-intensity);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.anim .cage-figcaption {
+  margin-top: var(--fig-caption-gap);
+}
+
+/* 放大面板裡：圖要整張塞得進畫面高度。SVG 的寬高比由 viewBox 定，所以限制寬度就等於限制高度：
+   寬 ≤ (可用高度 − 抬頭、旁白與控制列) × 寬高比（--anim-aspect 由 js/traffic-anim/99-init.js 寫入） */
+.figure-dialog > .anim__card {
+  width: min(100%, calc((100dvh - 200px) * var(--anim-aspect, 1.7)));
+}
+
+@media (max-width: 767px) {
+  .anim__narration {
+    font-size: var(--text-ui-md);
+  }
+}
+
+/* ── 手機橫屏（rail 模式）：上下太擠，旁白與控制列移到圖的右邊 ──
+   條件和 css/devlog/07-rail.css 的 rail 模式一字不差（改的話兩處一起改）。寫在這裡而不是那邊，
+   因為這個檔案串接在 07 之後，上面同名的規則（旁白的 margin、放大面板的寬度……）會蓋掉寫在那邊的覆寫 */
+@media (pointer: coarse) and (orientation: landscape) and (max-width: 1023px) and (min-device-width: 380px) and (min-device-height: 380px) {
+  /* ── 示意動畫：旁白與控制列移到圖的右邊 ──
+     圖寬由畫面高度決定：(視窗高 − 圖卡的抬頭與上下內距 − 一點呼吸) × 寬高比，整張圖一定塞得進一個畫面；
+     在文章裡最多佔 64 %，右欄至少留給旁白讀得下的寬度。
+     放大面板撐到左右 safe area 為止（瀏海那側不放內容），圖可以大一點，右欄也更寬。
+     進度格換到按鍵下面自己一行，右欄窄也排得下十格 */
+  .anim__card {
+    --anim-stage-w: min(64%, calc((100dvh - 76px) * var(--anim-aspect, 1.7)));
+    display: grid;
+    grid-template-columns: var(--anim-stage-w) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "head head" "stage narr" "stage ctrl";
+    column-gap: 14px;
+  }
+
+  .figure-dialog:has(> .anim__card) {
+    width: calc(100% - max(16px, env(safe-area-inset-left, 0px)) - max(16px, env(safe-area-inset-right, 0px)));
+  }
+
+  .figure-dialog > .anim__card {
+    --anim-stage-w: min(66%, calc((100dvh - 108px) * var(--anim-aspect, 1.7)));
+    width: 100%;
+  }
+
+  .anim__head {
+    grid-area: head;
+  }
+
+  .anim__stage {
+    grid-area: stage;
+    align-self: start;
+  }
+
+  .anim__narration {
+    grid-area: narr;
+    min-height: 0;
+    margin: 0;
+    font-size: var(--text-ui-md);
+    line-height: 1.6;
+  }
+
+  .anim__controls {
+    grid-area: ctrl;
+    flex-wrap: wrap;
+    row-gap: 4px;
+    margin-top: 8px;
+  }
+
+  .anim__beats {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+}

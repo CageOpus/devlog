@@ -1,0 +1,6 @@
+{{- /* 圖卡的放大鍵：放在 .cage-figure 抬頭的右端。按下把整張圖卡搬進 partials/figure-dialog.html 的面板，
+       搬進去後同一顆鍵換成縮回圖示（.is-zoomed），再按一次放回（js/devlog.js「圖卡放大」）。 */ -}}
+<button type="button" class="cage-btn cage-face cage-btn--icon figure-zoom" data-figure-zoom
+  aria-label="{{ T "figureZoomIn" }}" data-label-in="{{ T "figureZoomIn" }}" data-label-out="{{ T "figureZoomOut" }}">
+  {{- partial "zoom-icons.html" . }}
+</button>

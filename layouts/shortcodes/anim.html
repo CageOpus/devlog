@@ -1,0 +1,32 @@
+{{- /* 示意動畫。用法：
+       {{< anim name="bid" title="Bid, sort, settle" caption="一個 tick 裡資料走過的路" zoomable="true" >}}
+       name 對應 assets/js/traffic-anim/ 裡登記的場景；title 印在圖紙卡抬頭，caption 選填，印在下方。
+       zoomable="true"：抬頭放一顆放大鍵（partials/figure-zoom.html），整張圖卡可以搬進放大面板，播放不中斷。
+       編號是 ANIM n，和圖片的 FIG n 各算各的。控制列在圖卡裡。
+       腳本由 baseof.html 載入（.HasShortcode "anim"），每頁一次。 */ -}}
+{{- $name := .Get "name" }}
+{{- $zoomable := eq (printf "%v" (.Get "zoomable")) "true" }}
+{{- $title := .Get "title" | default $name }}
+{{- $n := add .Ordinal 1 }}
+<figure class="anim" data-anim="{{ $name }}" data-l-play="{{ T "animPlay" }}" data-l-pause="{{ T "animPause" }}">
+  <div class="anim__card cage-figure">
+    <span class="anim__head cage-figure__head">
+      <span class="cage-figure__title">{{ $title }}</span>
+      <span class="anim__head-end">
+        <span class="cage-figure__no">ANIM {{ $n }}</span>
+        {{- if $zoomable }}{{ partial "figure-zoom.html" . }}{{ end }}
+      </span>
+    </span>
+    <div class="anim__stage" role="img" aria-label="{{ $title }}"></div>
+    <p class="anim__narration" aria-live="polite"></p>
+    <div class="anim__controls">
+      <button type="button" class="cage-btn cage-face cage-btn--icon" data-anim-prev aria-label="{{ T "animPrev" }}">⏮&#xFE0E;</button>
+      <button type="button" class="cage-btn cage-face cage-btn--icon anim__play" data-anim-play aria-label="{{ T "animPlay" }}">▶&#xFE0E;</button>
+      <button type="button" class="cage-btn cage-face cage-btn--icon" data-anim-next aria-label="{{ T "animNext" }}">⏭&#xFE0E;</button>
+      <div class="anim__beats"></div>
+    </div>
+  </div>
+  {{- with .Get "caption" }}
+  <figcaption class="cage-figcaption">ANIM {{ $n }} · {{ . }}</figcaption>
+  {{- end }}
+</figure>

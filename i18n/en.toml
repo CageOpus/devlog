@@ -50,6 +50,16 @@ cheatUnknown = "Nothing happens."
 cheatDebugOn = "Debug readout on."
 cheatDebugOff = "Debug readout off."
 
+# 文章裡的示意動畫（見 layouts/shortcodes/anim.html）
+animPlay = "Play"
+animPause = "Pause"
+animPrev = "Previous step"
+animNext = "Next step"
+
+# 圖卡放大鍵（見 layouts/partials/figure-zoom.html）
+figureZoomIn = "Enlarge"
+figureZoomOut = "Back to the post"
+
 # 篇數：TOML 的表格會吃掉後面所有的 key，所以放在檔案最後
 [postCount]
   one = '{{ printf "%02d" .Count }} post'

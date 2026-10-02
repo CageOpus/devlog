@@ -1,0 +1,5 @@
+{{- /* 圖卡放大用的面板：每頁一個。圖卡抬頭的放大鍵（partials/figure-zoom.html）把整張圖卡搬進來，
+       關掉再搬回原位（js/devlog.js「圖卡放大」），圖卡裡的東西（例如示意動畫的播放狀態）都不斷。
+       跟籠子一樣沒有另外的 ×：搬進來的圖卡上那顆鍵換成縮回圖示，就是關閉鍵；Esc、點外面也會放回。
+       毛玻璃與開關動畫和其他面板共用（css/devlog/02-chrome.css 的 .figure-dialog）。 */ -}}
+<dialog class="figure-dialog" aria-label="FIG" tabindex="-1" data-figure-dialog></dialog>

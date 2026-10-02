@@ -750,13 +750,13 @@
      冷色與燻黑 玻璃本身帶一點偏藍的冷灰、亮度略壓（Dim 是更深的冷煙燻色），像一片稍微燻過的玻璃；左上打一道斜光
    噪聲都是 SVG 的 feTurbulence，內嵌成 data URI，不用多抓圖檔；整張畫滿不平鋪（小塊平鋪在高解析度螢幕上會對不齊，顆粒的對比又高，接縫很明顯）；
    不支援 backdrop-filter 的瀏覽器退回原本的半透明黑 */
-:is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog)::backdrop {
+:is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog, .figure-dialog)::backdrop {
   background: rgb(0 0 0 / .45);
 }
 
 /* 密技面板例外：是連按 BUILD 二十下叫出來的，多按的幾下會落在面板外面，所以點外面不關，也就不用毛玻璃 */
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  :is(.install-dialog, .rss-dialog, .hamster-dialog)::backdrop {
+  :is(.install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog)::backdrop {
     background:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 9 -4 0 0 0 9 -4 0 0 0 9 -4 0 0 0 0 1'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='.1 .1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .08 0 0 0 -.03'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E"),
@@ -768,7 +768,7 @@
     backdrop-filter: blur(4px) saturate(1.15) brightness(.35);
   }
 
-  [data-theme="dark"] :is(.install-dialog, .rss-dialog, .hamster-dialog)::backdrop {
+  [data-theme="dark"] :is(.install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog)::backdrop {
     background:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 9 -4 0 0 0 9 -4 0 0 0 9 -4 0 0 0 0 1'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='.1 .1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .1 0 0 0 -.04'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E"),
@@ -790,7 +790,7 @@
    網點：4×4 Bayer 矩陣，第 n 階露出矩陣值小於 n 的格子，16 階由空到滿；每格 2px，看得出一顆一顆的像素。
    遮罩圖不能內插，所以 17 個關鍵影格各放一張，逐格切換 */
 @media (prefers-reduced-motion: no-preference) {
-  :is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog)[open] {
+  :is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog, .figure-dialog)[open] {
     mask-size: 8px 8px;
     animation:
       dialog-dither-in .3s linear both,
@@ -799,28 +799,28 @@
   }
 
   /* 顯影的濾鏡只套在內容上，卡片底色不跟著褪色；籠子的底色在 .hamster 本身，所以套在它裡面的 .hamster__body */
-  :is(.install-dialog, .rss-dialog, .cheat-dialog)[open] > *,
+  :is(.install-dialog, .rss-dialog, .cheat-dialog, .figure-dialog)[open] > *,
   .hamster-dialog[open] .hamster__body {
     animation: dialog-tint-in .3s linear both;
   }
 
-  :is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog)[open]::backdrop {
+  :is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog, .figure-dialog)[open]::backdrop {
     animation: dialog-glass .45s cubic-bezier(.25, .8, .25, 1) both;
   }
 
-  :is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog)[open].is-closing {
+  :is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog, .figure-dialog)[open].is-closing {
     animation:
       dialog-dither-out .2s linear both,
       dialog-shrink .3s cubic-bezier(.4, 0, .2, 1) both,
       dialog-fade-out .2s linear both;
   }
 
-  :is(.install-dialog, .rss-dialog, .cheat-dialog)[open].is-closing > *,
+  :is(.install-dialog, .rss-dialog, .cheat-dialog, .figure-dialog)[open].is-closing > *,
   .hamster-dialog[open].is-closing .hamster__body {
     animation: dialog-tint-out .2s linear both;
   }
 
-  :is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog)[open].is-closing::backdrop {
+  :is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog, .figure-dialog)[open].is-closing::backdrop {
     animation: dialog-glass-out .3s cubic-bezier(.4, 0, .2, 1) both;
   }
 
@@ -1067,4 +1067,54 @@
   font: 10px/1.4 var(--font-mono);
   white-space: pre;
   pointer-events: none;
+}
+
+/* ── 放大／縮回圖示（partials/zoom-icons.html）：籠子與示意動畫的放大鍵共用 ──
+   兩個圖示疊在同一顆鍵上，一次只露一個；外層掛 .is-zoomed（籠子的 .hamster、放大中的圖卡）就換成縮回。
+   選擇器要壓過按鍵本身對 svg 的設定 */
+.zoom-icon {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cage-btn .zoom-icon--out,
+.is-zoomed .cage-btn .zoom-icon--in {
+  display: none;
+}
+
+.is-zoomed .cage-btn .zoom-icon--out {
+  display: block;
+}
+
+/* ── 圖卡放大面板（partials/figure-dialog.html；js/devlog.js「圖卡放大」） ──
+   面板只是置中的透明框，搬進來的 .cage-figure 本身就是紙；寬度盡量撐滿，個別圖卡可以再收窄
+   （示意動畫要整張塞進畫面高度，見 css/devlog/09-anim.css）。毛玻璃與開關動畫和其他面板共用（上面的 :is 清單） */
+.figure-dialog {
+  width: min(1200px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100% - 32px);
+  margin: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.figure-dialog:focus {
+  outline: none;
+}
+
+.figure-dialog > .cage-figure {
+  margin: 0 auto;
+  box-shadow: var(--card-shadow, 0 14px 34px rgb(0 0 0 / .35));
+}
+
+/* 圖卡搬走後留在原位的空框，撐住原本的高度，頁面不跳 */
+.figure-zoom-hole {
+  display: block;
 }

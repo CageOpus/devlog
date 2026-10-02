@@ -50,3 +50,13 @@ cheatTitle = "密技"
 cheatUnknown = "什麼事也沒發生。"
 cheatDebugOn = "除錯讀數已開啟。"
 cheatDebugOff = "除錯讀數已關閉。"
+
+# 文章裡的示意動畫（見 layouts/shortcodes/anim.html）
+animPlay = "播放"
+animPause = "暫停"
+animPrev = "上一步"
+animNext = "下一步"
+
+# 圖卡放大鍵（見 layouts/partials/figure-zoom.html）
+figureZoomIn = "放大"
+figureZoomOut = "放回文章"

@@ -113,20 +113,79 @@
   color: var(--label);
 }
 
-/* ── 圖：燈箱上的圖紙卡，Dim 也維持紙色；點擊開原圖 ── */
+/* ── 圖卡在 Dim：暗的製圖片 ──
+   設計系統的規則是圖紙在 Dim 不反轉（parts/sheet.css：.cage-figure「Stays paper in Dim」）；devlog 刻意分開走
+   （作者決定，2026-10-02）：夜裡讀網誌時一張亮紙在黑頁面上太刺眼，圖卡改成近黑的製圖片，抬頭的字提亮。
+   示意動畫的墨色在 Dim 另有一組（css/devlog/09-anim.css 的 --anim-*）；圖片檔本身不會變，
+   印在暗卡上就像一張貼上去的印樣。 */
+[data-theme="dark"] .cage-figure {
+  background: #1F1F1E;
+  border-color: #464645;
+  color: #E8E4D9;
+}
+
+[data-theme="dark"] .cage-figure__title {
+  color: #E8E4D9;
+}
+
+[data-theme="dark"] .cage-figure__no {
+  color: rgba(232, 228, 217, .6);
+}
+
+[data-theme="dark"] .md-figure__card img {
+  border-color: #464645;
+}
+
+/* ── 圖卡的間距：圖片（.md-figure）與示意動畫（.anim，09-anim.css）共用一組 ──
+   以前各自寫內距、抬頭與圖說的間距，手機再各覆寫一次；現在都讀這幾個值，新的圖卡照用就好。
+   手機（≤ 767）、橫屏 rail（07-rail.css）與矮視窗換緊湊的一組：上下最擠的時候，留白收到最小。
+   矮視窗的界線 640：桌機版最高的圖卡（示意動畫，依欄寬約 520–580）加上一點上下呼吸，比這矮就整張放不進一個畫面。 */
+:root {
+  --fig-margin: 26px 0 22px;
+  --fig-pad: 19px 21px 16px;
+  --fig-head-gap: 15px;
+  --fig-caption-gap: 11px;
+}
+
+@media (max-width: 767px), (max-height: 640px) {
+  :root {
+    --fig-margin: 20px 0 16px;
+    --fig-pad: 10px 11px 10px;
+    --fig-head-gap: 8px;
+    --fig-caption-gap: 7px;
+  }
+}
+
+/* 抬頭永遠一行：標題太長就截掉，不把抬頭撐成兩行 */
+.cage-figure__head {
+  align-items: center;
+}
+
+.cage-figure__title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cage-figure__head > :last-child {
+  flex: none;
+}
+
+/* ── 圖：燈箱上的圖紙卡；點擊開原圖 ── */
 .md-figure {
-  margin: 26px 0 22px;
+  margin: var(--fig-margin);
 }
 
 .md-figure__card {
   display: block;
-  padding: 19px 21px 16px;
+  padding: var(--fig-pad);
   text-decoration: none;
   cursor: zoom-in;
 }
 
 .md-figure__head {
-  margin-bottom: 15px;
+  margin-bottom: var(--fig-head-gap);
 }
 
 .md-figure__card img {
@@ -136,21 +195,7 @@
 }
 
 .md-figure .cage-figcaption {
-  margin-top: 11px;
-}
-
-@media (max-width: 767px) {
-  .md-figure__card {
-    padding: 13px;
-  }
-
-  .md-figure__head {
-    margin-bottom: 11px;
-  }
-
-  .md-figure .cage-figcaption {
-    margin-top: 9px;
-  }
+  margin-top: var(--fig-caption-gap);
 }
 
 /* ── 程式碼區塊 ──

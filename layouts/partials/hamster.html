@@ -22,8 +22,7 @@
     {{- /* 放大鍵：把整塊籠子搬進下面的 modal 放大看，再按一次（或 Esc、點外面）放回側欄。兩個圖示疊在一起，放大時換另一個 */}}
     <button type="button" class="hamster__zoom cage-btn cage-face cage-btn--icon" data-ham-zoom
       aria-label="{{ T "hamsterZoomIn" }}" data-label-in="{{ T "hamsterZoomIn" }}" data-label-out="{{ T "hamsterZoomOut" }}">
-      <svg class="hamster__zoom-in" viewBox="0 0 12 12" aria-hidden="true"><path d="M7 1.5h3.5V5M10.5 1.5 7 5M5 10.5H1.5V7M1.5 10.5 5 7"/></svg>
-      <svg class="hamster__zoom-out" viewBox="0 0 12 12" aria-hidden="true"><path d="M10.5 5H7V1.5M7 5l3.5-3.5M1.5 7H5v3.5M5 7l-3.5 3.5"/></svg>
+      {{- partial "zoom-icons.html" . }}
     </button>
   </header>
 

@@ -13,7 +13,8 @@
    - 頁面讓出 rail 的寬；左側的 safe area 只推內容欄，頁首與標籤列照樣滿版。
    - 左右 safe area 都不疊加：右側讓安全區界線切齊 rail 的鍵、左側切齊文章卡片，差多少補多少。
 
-   media query 不能共用變數，這個條件只寫在這個檔案裡，rail 模式的覆寫全部集中在下面同一段。 */
+   media query 不能共用變數，這個條件只寫在這個檔案裡，rail 模式的覆寫全部集中在下面同一段。
+   唯一的例外是示意動畫的橫屏版面（css/devlog/09-anim.css），理由見下面那段的註解；改條件時兩處一起改。 */
 
 .rail-nav {
   display: none;
@@ -196,6 +197,17 @@
     color: var(--ink);
     text-shadow: var(--cut-text);
   }
+
+  /* ── 圖卡：橫屏上下最擠，間距換緊湊的一組（同手機，見 06-markdown.css 的 --fig-*） ── */
+  :root {
+    --fig-margin: 20px 0 16px;
+    --fig-pad: 10px 12px 10px;
+    --fig-head-gap: 8px;
+    --fig-caption-gap: 7px;
+  }
+
+  /* 示意動畫的橫屏版面（旁白與控制列移到圖的右邊）也用這個條件，但寫在 css/devlog/09-anim.css：
+     那個檔案排在這裡後面，寫在這裡會被它的同名規則蓋掉 */
 
   /* ── 內容欄：左側 safe area 只推這一層；程式碼出血從這裡算回螢幕左緣（見 06-markdown.css） ── */
   .page {
