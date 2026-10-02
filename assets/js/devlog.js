@@ -754,9 +754,10 @@ window.DevlogZoom = (() => {
     const el = termOf(e.target);
     if (el && el === current && !touch && !el.contains(e.relatedTarget)) hide();
   });
+  // focus 只管鍵盤：觸控點一下也會讓詞拿到 focus，要是這裡也打開，緊接著的 click 會把它切回關掉（得點兩下才開）
   document.addEventListener("focusin", (e) => {
     const el = termOf(e.target);
-    if (el) show(el);
+    if (el && !touch) show(el);
   });
   document.addEventListener("focusout", (e) => {
     if (termOf(e.target) === current) hide();
@@ -775,7 +776,10 @@ window.DevlogZoom = (() => {
     else place();
   }, { passive: true, capture: true });
   window.addEventListener("resize", hide);
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") hide(); });
+  document.addEventListener("keydown", (e) => {
+    touch = false; // 用鍵盤了（例如平板接鍵盤按 Tab）：之後的 focus 照常打開
+    if (e.key === "Escape") hide();
+  });
   // 旁白換拍時詞會被換掉：指著的詞不在頁面上了，就收起來
   const gone = new MutationObserver(() => { if (current && !current.isConnected) hide(); });
   document.querySelectorAll(".anim__narration").forEach((n) => gone.observe(n, { childList: true }));

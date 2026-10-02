@@ -288,10 +288,15 @@
    詞底下一條點線；滑過去（觸控是點）浮出一張小紙條。設計系統刻意沒有 Tooltip 元件，
    這裡只拿現成的 token：亮面板的底、--edge 的邊、卡片陰影，不另加顏色。
    選擇器不限 .article__body：示意動畫的旁白搬進放大面板後也要吃得到 */
+/* 點線自己畫（底部一條重複的漸層：1px 點、2px 空），不用 text-decoration: underline dotted：
+   iOS Safari 對細的點線底線畫不出來，手機上看不到（2026-10-03）。inline 的底色每一行各自畫，換行也跟著走 */
 abbr[data-tip] {
-  text-decoration: underline dotted var(--label);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+  text-decoration: none;
+  padding-bottom: 2px;
+  background-image: linear-gradient(to right, var(--label) 1px, transparent 1px);
+  background-size: 3px 1px;
+  background-repeat: repeat-x;
+  background-position: 0 100%;
   cursor: help;
 }
 
