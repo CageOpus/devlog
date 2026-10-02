@@ -642,7 +642,7 @@ window.DevlogZoom = (() => {
   const lift = () => {
     if (!html.classList.contains("is-lifted")) {
       html.style.setProperty("--lift-extent", `${html.scrollHeight}px`);
-      parts = [...document.querySelectorAll(".site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout)")];
+      parts = [...document.querySelectorAll(".site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout, .abbr-tip)")];
       parts.forEach((el) => (el.style.transformOrigin = ""));
       aim();
       html.classList.add("is-lifted");
@@ -680,31 +680,50 @@ window.DevlogZoom = (() => {
   dialogs.forEach((d) => watch.observe(d, { attributes: true, attributeFilter: ["open", "class"] }));
 })();
 
-/* ── 名詞解釋：文章裡的 <abbr title="…">（css/devlog/06-markdown.css「名詞解釋」） ──
-   title 換成 data-tip，免得瀏覽器自己的提示也跳出來；全頁共用一張浮動小紙條。
+/* ── 名詞解釋：<abbr>（css/devlog/06-markdown.css「名詞解釋」） ──
+   文章裡寫 <abbr title="…">：title 換成 data-tip，免得瀏覽器自己的提示也跳出來。
+   示意動畫的旁白（js/traffic-anim/99-init.js）直接產生 <abbr data-tip>，而且每拍都換，所以事件用委派，不綁在各個詞上。
+   全頁共用一張浮動小紙條，用 popover 放進 top layer，圖卡搬進放大面板（modal）後也蓋得過去。
    滑鼠：停在詞上就出現；鍵盤：focus 到詞上；觸控：點一下開、點別處關。 */
 (function initAbbrTips() {
-  const terms = document.querySelectorAll(".article__body abbr[title]");
-  if (!terms.length) return;
+  document.querySelectorAll(".article__body abbr[title]").forEach((el) => {
+    el.dataset.tip = el.title;
+    el.removeAttribute("title");
+    el.tabIndex = 0;
+  });
 
   const tip = document.createElement("div");
   tip.className = "abbr-tip";
   tip.id = "abbr-tip";
   tip.setAttribute("role", "tooltip");
-  tip.hidden = true;
+  const canPop = typeof tip.showPopover === "function";
+  if (canPop) tip.popover = "manual";
+  else tip.hidden = true;
   document.body.appendChild(tip);
 
   const GAP = 6;
   const EDGE = 8;
   let current = null;
+  const termOf = (target) => (target instanceof Element ? target.closest("abbr[data-tip]") : null);
 
   function show(el) {
+    if (current && current !== el) current.removeAttribute("aria-describedby");
     current = el;
     tip.textContent = el.dataset.tip;
-    tip.hidden = false;
+    // 每次重開：之後才打開的面板也在 top layer，重開才會疊在它上面
+    if (canPop) {
+      if (tip.matches(":popover-open")) tip.hidePopover();
+      tip.showPopover();
+    } else {
+      tip.hidden = false;
+    }
     el.setAttribute("aria-describedby", tip.id);
-    // 預設放在詞的上方、置中；上面放不下就放下方，左右夾在視窗內
-    const r = el.getBoundingClientRect();
+    place();
+  }
+
+  // 預設放在詞的上方、置中；上面放不下就放下方，左右夾在視窗內
+  function place() {
+    const r = current.getBoundingClientRect();
     const w = tip.offsetWidth;
     const h = tip.offsetHeight;
     const vw = document.documentElement.clientWidth;
@@ -718,30 +737,46 @@ window.DevlogZoom = (() => {
     if (!current) return;
     current.removeAttribute("aria-describedby");
     current = null;
-    tip.hidden = true;
+    if (canPop) tip.hidePopover();
+    else tip.hidden = true;
   }
 
   let touch = false;
-  terms.forEach((el) => {
-    el.dataset.tip = el.title;
-    el.removeAttribute("title");
-    el.tabIndex = 0;
-    el.addEventListener("pointerdown", (e) => { touch = e.pointerType !== "mouse"; });
-    el.addEventListener("mouseenter", () => { if (!touch) show(el); });
-    el.addEventListener("mouseleave", () => { if (!touch) hide(); });
-    el.addEventListener("focus", () => show(el));
-    el.addEventListener("blur", hide);
-    el.addEventListener("click", () => {
-      if (!touch) return;
-      current === el ? hide() : show(el);
-    });
+  document.addEventListener("pointerdown", (e) => {
+    touch = e.pointerType !== "mouse";
+    if (current && !termOf(e.target)) hide();
+  });
+  document.addEventListener("mouseover", (e) => {
+    const el = termOf(e.target);
+    if (el && el !== current && !touch) show(el);
+  });
+  document.addEventListener("mouseout", (e) => {
+    const el = termOf(e.target);
+    if (el && el === current && !touch && !el.contains(e.relatedTarget)) hide();
+  });
+  document.addEventListener("focusin", (e) => {
+    const el = termOf(e.target);
+    if (el) show(el);
+  });
+  document.addEventListener("focusout", (e) => {
+    if (termOf(e.target) === current) hide();
+  });
+  document.addEventListener("click", (e) => {
+    const el = termOf(e.target);
+    if (!el || !touch) return;
+    current === el ? hide() : show(el);
   });
 
-  // 小紙條是 position: fixed，捲動或縮放後位置就不對了，直接收起來
-  window.addEventListener("scroll", hide, { passive: true });
+  // 小紙條是 position: fixed：捲動時跟著詞走（focus 自己也會捲一下），詞捲出視窗才收起來
+  window.addEventListener("scroll", () => {
+    if (!current) return;
+    const r = current.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > window.innerHeight) hide();
+    else place();
+  }, { passive: true, capture: true });
   window.addEventListener("resize", hide);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") hide(); });
-  document.addEventListener("pointerdown", (e) => {
-    if (current && !e.target.closest("abbr[data-tip]")) hide();
-  });
+  // 旁白換拍時詞會被換掉：指著的詞不在頁面上了，就收起來
+  const gone = new MutationObserver(() => { if (current && !current.isConnected) hide(); });
+  document.querySelectorAll(".anim__narration").forEach((n) => gone.observe(n, { childList: true }));
 })();

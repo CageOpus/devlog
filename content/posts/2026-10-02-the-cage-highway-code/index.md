@@ -1,7 +1,7 @@
 +++
 date = '2026-10-02T12:00:00+08:00'
-draft = true
-title = 'How Cars Bid for the Road'
+draft = false
+title = 'The CAGE Highway Code — A Million in Parallel'
 description = 'TODO'
 milestone = 'M0'
 tags = ['devlog', 'simulation', 'gpu']
@@ -9,13 +9,13 @@ tags = ['devlog', 'simulation', 'gpu']
 
 TODO: intro.
 
-## Bids and arbitration
+## Requests and coordination
 
-{{< anim name="bid" title="One tick: bid, sort, coordinate" caption="Where a proposal goes in one tick" zoomable="true" >}}
+{{< anim name="request" title="One tick: request, sort, coordinate" caption="Where a proposal goes in one tick" zoomable="true" >}}
 
 ## Junctions
 
-{{< anim name="junction" title="At a junction: all or nothing" caption="A turn bids for its whole span at once" zoomable="true" >}}
+{{< anim name="junction" title="At a junction: all or nothing" caption="A turn requests its whole span at once" zoomable="true" >}}
 
 TODO
 

@@ -1,4 +1,4 @@
-/* ANIM：一個 tick 裡 proposal 走過的路——出價 → 依 lane 分組 → coordinate → integrate。
+/* ANIM：一個 tick 裡 proposal 走過的路——請求（request）→ 依 lane 分組 → coordinate → integrate。
    數字是真的照 kernel 規則算出來的（generate_proposals / coordinate / integrate_agents）：
    5 m micro-lane、claim 255、extension (tier<<4)+decay（CarNormal tier 2，decay 從 30 起每格減一）、
    輸家截在贏家起點、atomicMin 取 (ring<<16)|progress、60 % cap（body 4.5 m × 1.1 + 60 % 餘裕）。
@@ -9,19 +9,19 @@
   const TA = window.TrafficAnim;
   const { el, set, text, C, track, lerp } = TA;
 
-  TA.scenes.bid = (svg) => {
+  TA.scenes.request = (svg) => {
     const W = 680, H = 408;
     const tl = TA.timeline([
-      { d: 3.2, en: "Three cars on one lane, cut into 5 m micro-lanes. No car ever looks at another car: each one only bids for road.", zh: "一條車道切成 5 公尺一段的 micro-lane，上面三台車。車和車之間從不互看，每台車只對道路出價。" },
-      { d: 3.4, en: "First, every car re-asserts the road it already holds, its claim, at priority 255. Skip one tick and the claim is gone.", zh: "第一步：每台車把已經握著的路（claim）用優先值 255 重新喊一次。哪一個 tick 沒喊，那段路就不再是它的。" },
-      { d: 3.8, en: "Then it bids for the road ahead: an extension. Its priority drops one step per micro-lane, so the car behind always bids lower for the same road.", zh: "接著對前方的路出價（extension）。每往前一格優先值就降一階，所以後車對同一段路的出價永遠比較低。" },
-      { d: 3.2, en: "Every bid is cut at micro-lane borders. Each piece is one proposal: lane, range, priority, owner.", zh: "出價在 micro-lane 的邊界切開，每一段就是一筆 proposal：哪條 lane、哪一段、優先值、誰的。" },
-      { d: 4.0, en: "A counting sort groups the proposals by lane. Each column is one lane's block in memory.", zh: "Counting sort 把 proposal 依 lane 分組，每一欄就是那條 lane 在記憶體裡的一塊。" },
-      { d: 3.4, en: "Coordinate: one thread per proposal, all at once. Each one only reads the other proposals in its own lane's column, and five of them lose.", zh: "Coordinate：一筆 proposal 一個執行緒，全部同時做。每個執行緒只讀自己那條 lane 那一欄裡的其他 proposal。這一輪有五筆輸了。" },
-      { d: 6.8, en: "Inside L3, C's bid checks the others. Each that overlaps it and beats it cuts it where the overlap begins: 15, 17, 19. It keeps the smallest, 15. B's bid only meets A's claim: 19.", zh: "放大 L3，看 C 的出價那個執行緒：每一筆和它重疊、又贏過它的 proposal，都在重疊開始的地方截它一刀，分別是 15、17、19，它留下最小的 15。B 的出價只碰到 A 的 claim，截在 19。" },
-      { d: 6.0, en: "Losers write into their car's result with atomicMin. The ring index is in the high bits, so the nearest loss wins. A car that lost nothing keeps 0xFFFFFFFF: everything approved.", zh: "輸家用 atomicMin 寫進自己那台車的結果。ring 編號在高位，所以離車最近的那次失敗勝出。什麼都沒輸的車維持 0xFFFFFFFF：全部核准。" },
-      { d: 5.0, en: "Each car extends its claim to what was approved, then keeps only its body plus 60 % of the rest. The 40 % it hands back is a gap someone else can merge into.", zh: "每台車把 claim 延伸到核准的位置，再只保留車身加上其餘的 60 %。還回去的 40 % 就是別人可以切進來的空隙。" },
-      { d: 4.4, en: "Then it drives, never past the road it holds. That was one tick, 1/15 s. The queue came out of priorities alone.", zh: "然後往前開，絕不超出自己握著的路。這樣就是一個 tick，1/15 秒。整條隊伍只靠優先值排了出來。" },
+      { d: 3.2, en: "Three cars, one lane. We split the lane into 5 m sections called micro-lanes. The cars never look at each other—they just ask the road for space.", zh: "先看這三台車。我們把車道每 5 公尺切成一小段，叫做迷你車道。它們不靠觀察其他車來決定怎麼走，而是各自向道路申請空間。" },
+      { d: 3.4, en: "At the start of each tick, every car asks to keep the road space it already holds—its claim—at the highest priority, 255. Skip a tick, and that space is no longer reserved for it.", zh: "每個 tick 一開始，車子都會先送出最高優先序（255）的請求，繼續保留原本的路段（claim）。一旦不再送出請求，這段空間就不再替它保留。" },
+      { d: 3.8, en: "Next, each car asks for more road ahead—an extension. Priority drops by one for each micro-lane further ahead, so the front car always has priority over the car behind for the same stretch of road.", zh: "接著，車子會申請前方的空間，讓保留範圍繼續往前延伸（extension）。每往前一格迷你車道，請求的優先序就降一級。所以對同一段路，前車的請求總是比後車優先。" },
+      { d: 3.2, en: "A request can span several micro-lanes, so we split it at their boundaries into individual proposals. Each proposal records the requested range, its priority, and the car making the request.", zh: "一個請求可能橫跨好幾個迷你車道，我們會沿著每格的邊界，把它拆成數筆提案（proposals）。提案會記錄用到的區間、優先序，以及是哪台車提出的。" },
+      { d: 4.0, en: "Then we use a little magic to organise the proposals.", zh: "接著使用一些魔法，整理這些提案。", tip: { en: ["a little magic", "Counting sort orders the proposals by micro-lane ID, end position (progress), and priority. Packing these fields together (bit packing) makes it straightforward to identify which proposal takes precedence."], zh: ["一些魔法", "使用 counting sort，依迷你車道 ID、區間終點（progress）和優先序排列提案。將這些欄位打包在一起（bit packing），就能直接比較，找出最優先的提案。"] } },
+      { d: 3.4, en: "Next comes coordination: resolving conflicts between overlapping proposals. We can simply work through them in order. As shown here, five proposals cannot keep their full range and have to be clipped.", zh: "接下來進入協調階段，消除提案重疊造成的衝突。我們只需要簡單地依序排除衝突就可以了。如圖所示，有五筆提案沒能拿到完整的範圍，必須截短。", tip: { en: ["simply", "The previous step has already sorted the proposals by position and priority."], zh: ["簡單地", "經過剛剛的整理，提案已經按照位置與優先序排好了。"] } },
+      { d: 6.8, en: "Zoom in on L3. C’s request overlaps three higher-priority proposals. Those overlaps begin at 15, 17 and 19, so the smallest value, 15, becomes C’s cutoff. B only runs into A’s claim, so its cutoff is 19.", zh: "放大 L3，看看 C 的申請怎麼被截短。它和三筆優先序更高的提案重疊，重疊的起點分別是 15、17、19。取最小值 15，C 的申請範圍就到這裡為止。B 只碰到 A 已保留的路段（claim），所以截在 19。" },
+      { d: 6.0, en: "Then we update each car’s state.", zh: "然後回去更新車輛狀態。", tip: { en: ["update each car’s state", "Each clipped proposal uses atomicMin to update its car’s result. With the ring index packed into the high bits, the nearest cutoff is the one that remains. If nothing is clipped, the result stays at 0xFFFFFFFF: every request was approved."], zh: ["更新車輛狀態", "每筆被截短的提案，都會用 atomicMin 更新所屬車輛的結果。ring 索引放在高位元，因此最後留下的是離車最近的截止位置。如果所有申請都通過，結果就維持初始值 0xFFFFFFFF，表示全部核准。"] } },
+      { d: 5.0, en: "Each car keeps only the space it needs, leaving the rest free for other cars to change lanes.", zh: "車子只保留必要的空間，把其餘的讓出來，方便其他車變換車道。" },
+      { d: 4.4, en: "Now each car moves forward, never beyond the space it holds. That’s one tick—1/15 of a second of simulation time. The cars formed a queue using nothing but priorities.", zh: "最後，車子往前開，但不會超出自己保留的路段。一個 tick 就這樣完成了，模擬往前推進 1/15 秒。不用觀察其他車，光靠優先序，三台車就排好了隊。" },
     ]);
     const B = (i, f = 0) => tl.at(i, f);
     const BEAT = { intro: 0, claim: 1, ext: 2, cut: 3, sort: 4, coord: 5, zoom: 6, result: 7, integrate: 8, move: 9 };
@@ -33,7 +33,7 @@
     const BAR_H = 10;
     const CAR_LEN = 4.5 * 20, CAR_W = 34; // 4.5 × 1.8 m 左右
     const color = { A: C.a, B: C.b, C: C.c };
-    const hatch = { A: TA.hatch(svg, "bid-ha", C.a), B: TA.hatch(svg, "bid-hb", C.b), C: TA.hatch(svg, "bid-hc", C.c) };
+    const hatch = { A: TA.hatch(svg, "req-ha", C.a), B: TA.hatch(svg, "req-hb", C.b), C: TA.hatch(svg, "req-hc", C.c) };
     const prio = (pri) => String(pri); // 圖上一律十進位，讀者不必會 hex
 
     // 三台車：tail、claim 終點、extension 終點、核准、cap 之後、這一 tick 開多遠
@@ -354,6 +354,6 @@
       }
     };
 
-    return { w: W, h: H, tl, update };
+    return { w: W, h: H, tl, update, cars: ["A", "B", "C"] };
   };
 })();

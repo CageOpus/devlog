@@ -11,14 +11,14 @@
   TA.scenes.lanechange = (svg) => {
     const W = 680, H = 372;
     const tl = TA.timeline([
-      { d: 3.0, en: "Two lanes going the same way. M wants to move over to the left lane, but that lane is a slow queue: A, B and C.", zh: "同方向的兩條車道。M 想換到左邊那條，但那條是一列慢慢走的車：A、B、C。" },
-      { d: 3.8, en: "First M works out how much road the move takes: a short run-up, the slide across, and a bit of room at the end. It needs all of that in its own lane, and the same stretch of the left lane, minus the run-up.", zh: "M 先算好換過去要多少路：一小段直線助跑、斜切過去的那段，最後再留一點空間。自己車道上要這一整段；左邊車道上要同一段，但扣掉助跑。" },
-      { d: 3.8, en: "Mirrors, then signal. While M is probing, it bids for everything twice: once in its own lane as usual, and once for the same bit of the lane next door. One answer for each lane comes back.", zh: "看後照鏡、打方向燈。試探的時候，M 每一段路都出兩次價：一次照常在自己的車道，一次對隔壁車道的同一段。兩條車道各回一個答案。" },
-      { d: 3.6, en: "A probe only asks; it never bids 255. A and B are already there and outbid it, so the left lane says no. Its own lane says yes, so M just carries on where it is.", zh: "試探只是問問，出價不會到 255。A 和 B 本來就在那裡，出價比它高，所以左邊車道說不行。自己的車道說可以，M 就照常往前開。" },
-      { d: 4.4, en: "And it keeps going for as long as it takes. Every tick the probe moves up with M and asks again, so the cut-in point isn't picked in advance: it's wherever the first gap big enough turns up. Here, between B and C.", zh: "而且要開多遠都行。每個 tick 試探都跟著 M 往前、重新問一次，所以切入點不是事先挑好的，是第一個夠大的空檔出現的地方。這裡是 B 和 C 之間。" },
-      { d: 3.8, en: "Both lanes say yes in the same tick: that's the go-ahead. The state flips to TRANSITION, and both stretches become claims at 255. Up to now M hasn't moved sideways at all.", zh: "兩條車道在同一個 tick 都說可以，這就是放行。狀態切到 TRANSITION，兩段路都變成 claim，優先值 255。在這之前，M 完全沒有往旁邊偏。" },
-      { d: 4.0, en: "Manoeuvre: a straight run-up, then a steady slide across. The road is already held, and a claim never gives way, so nobody can cut in halfway.", zh: "然後才動：先直直助跑一小段，再穩穩地斜切過去。路已經握在手上，claim 不會讓，沒有人能在半路切進來。" },
-      { d: 4.0, en: "Once it's across, the state is DONE: the fallback rows are dropped and the old lane is handed back. A tick later M is back to NONE, just a car in its new lane.", zh: "切過去之後狀態是 DONE：fallback 那幾列不再出，舊車道還回去。再過一個 tick 回到 NONE，M 就只是新車道上的一台車。" },
+      { d: 3.0, en: "Here are two lanes heading the same way. M wants to move into the left lane, but A, B and C are already crawling along in a queue.", zh: "這裡有兩條同向車道。M 想切到左邊，但 A、B、C 正在那條車道上排隊，慢慢往前挪。" },
+      { d: 3.8, en: "First, M works out how much space the move needs: a short straight stretch, the move across, and a little room at the end. It needs the whole stretch in its current lane. In the left lane, it only needs the part from where it starts moving across.", zh: "M 先算好這次換車道需要多少空間：先直走一小段，再切過去，最後留一點餘裕。在原本的車道上，它需要這一整段；左邊車道則從開始切入的位置算起。" },
+      { d: 3.8, en: "Mirrors, then signal. M probes for room, requesting road ahead as usual while also asking for the space it needs in the left lane. Each lane returns its own result.", zh: "看後照鏡、打方向燈，試探看看能不能切過去（probe）。M 一邊照常申請前方的路，一邊也向左邊車道申請換道需要的空間。兩條車道會各自回覆結果。", tip: { en: ["Mirrors", "The car behind also requests space ahead. If those requests extend into the space M wants to enter, they are compared with M’s requests by priority. This accounts for traffic behind M without M ever having to inspect another car."], zh: ["看後照鏡", "後車也會向前申請空間。如果這些請求延伸到 M 想切入的地方，就會和 M 的請求一起比較優先序。因此 M 不用直接觀察後車，也能把後方來車考慮進去。"] } },
+      { d: 3.6, en: "Probe requests stay below priority 255, so they cannot take space already claimed by another car. A and B still have priority here, so the left lane says no. M’s current lane says yes, and M keeps going.", zh: "試探歸試探，不能搶走別人已經保留的路段，所以這類請求的優先序不會到 255。A、B 還在那裡，左邊車道暫時不讓 M 切入；但原本的車道沒問題，M 就繼續往前開。" },
+      { d: 4.4, en: "M keeps moving, and the probe moves with it, asking again every tick. There’s no fixed cut-in point: M takes the first gap big enough for the move. Here, that’s between B and C.", zh: "M 會繼續往前開，試探的範圍也跟著移動，每個 tick 都重新申請一次。切入點不用事先決定：哪裡先出現夠大的空檔，就從哪裡切過去。這裡是在 B 和 C 之間。" },
+      { d: 3.8, en: "Both lanes must approve in the same tick before M can start changing lanes. It enters TRANSITION, with the space it needs in both lanes now claimed at priority 255. Until this point, M hasn’t moved sideways at all.", zh: "兩條車道在同一個 tick 都核准，M 才會進入換道狀態（TRANSITION）。兩邊需要的路段都會先保留給它，優先序升到 255。在這之前，M 完全不會往旁邊偏。" },
+      { d: 4.0, en: "M drives straight for a short stretch, then moves smoothly into the left lane. All the space it needs is already reserved, so no other car can cut into it halfway through the manoeuvre.", zh: "接著，M 先直走一小段，再平順地切進左邊車道。沿途需要的空間都已經保留好了，其他車不能在它換到一半時插進來。" },
+      { d: 4.0, en: "Once M is fully in the new lane, it releases the space in its old lane. The lane change is complete. One tick later, it’s back to driving as usual, just another car in its new lane.", zh: "完全切進新車道後，M 就會釋放原本車道上的空間，這次換道也就完成了。再過一個 tick，它就和新車道上的其他車一樣，照常往前開。", tip: { en: ["The lane change is complete", "The state changes to DONE and the fallback rows are dropped. On the next tick, it returns to NONE."], zh: ["換道也就完成了", "換道完成後，狀態先切到 DONE，移除 fallback 資料列；下一個 tick 再回到 NONE。"] } },
     ]);
     const B = (i, f = 0) => tl.at(i, f);
     const BEAT = { intro: 0, plan: 1, ring: 2, lost: 3, drive: 4, accept: 5, move: 6, done: 7 };
@@ -372,6 +372,6 @@
       applyHL();
     };
 
-    return { w: W, h: H, tl, update };
+    return { w: W, h: H, tl, update, cars: ["M", "A", "B", "C"] };
   };
 })();

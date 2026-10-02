@@ -1,7 +1,7 @@
 +++
 date = '2026-10-02T12:00:00+08:00'
-draft = true
-title = '車子怎麼競標道路'
+draft = false
+title = 'CAGE 道路使用規則：一種基於道路空間協調之百萬實例級平行交通模擬系統'
 description = 'TODO'
 milestone = 'M0'
 tags = ['devlog', 'simulation', 'gpu']
@@ -9,13 +9,13 @@ tags = ['devlog', 'simulation', 'gpu']
 
 TODO：前言。
 
-## 出價與仲裁
+## 個人請求與中央協調
 
-{{< anim name="bid" title="One tick: bid, sort, coordinate" caption="一個 tick 裡，proposal 走過的路" zoomable="true" >}}
+{{< anim name="request" title="One tick: request, sort, coordinate" caption="一個 tick 裡，提案走過的路" zoomable="true" >}}
 
 ## 路口
 
-{{< anim name="junction" title="At a junction: all or nothing" caption="轉彎一次就要整段 span" zoomable="true" >}}
+{{< anim name="junction" title="At a junction: all or nothing" caption="轉彎一次就要整段淨空區" zoomable="true" >}}
 
 TODO
 

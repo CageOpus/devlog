@@ -286,15 +286,16 @@
 
 /* ── 名詞解釋：<abbr title="…">（js/devlog.js「名詞解釋」） ──
    詞底下一條點線；滑過去（觸控是點）浮出一張小紙條。設計系統刻意沒有 Tooltip 元件，
-   這裡只拿現成的 token：亮面板的底、--edge 的邊、卡片陰影，不另加顏色 */
-.article__body abbr[data-tip] {
+   這裡只拿現成的 token：亮面板的底、--edge 的邊、卡片陰影，不另加顏色。
+   選擇器不限 .article__body：示意動畫的旁白搬進放大面板後也要吃得到 */
+abbr[data-tip] {
   text-decoration: underline dotted var(--label);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
   cursor: help;
 }
 
-.article__body abbr[data-tip]:focus-visible {
+abbr[data-tip]:focus-visible {
   outline: 1px solid var(--ink-intensity);
   outline-offset: 2px;
 }
@@ -302,6 +303,9 @@
 .abbr-tip {
   position: fixed;
   z-index: 60;
+  inset: auto;
+  margin: 0;
+  overflow: visible;
   max-width: min(300px, calc(100vw - 16px));
   padding: 6px 9px;
   border: 1px solid var(--edge);

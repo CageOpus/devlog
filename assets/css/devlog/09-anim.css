@@ -113,6 +113,13 @@
   color: var(--anim-ink);
 }
 
+/* 中文旁白裡的車號（js/traffic-anim/99-init.js 包的；英文不包）：實線底線，和名詞解釋的點線分開 */
+.anim__car {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
 .anim__controls {
   display: flex;
   align-items: center;

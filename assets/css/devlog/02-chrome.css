@@ -796,11 +796,11 @@
     backdrop-filter: saturate(1.1) brightness(.8);
   }
 
-  :is(.site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout)) {
+  :is(.site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout, .abbr-tip)) {
     transition: filter .3s cubic-bezier(.4, 0, .2, 1);
   }
 
-  html:has(:is(.install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog)[open]:not(.is-closing)) :is(.site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout)) {
+  html:has(:is(.install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog)[open]:not(.is-closing)) :is(.site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout, .abbr-tip)) {
     filter: blur(4px);
     transition: filter .45s cubic-bezier(.25, .8, .25, 1);
   }

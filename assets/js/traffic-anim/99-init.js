@@ -44,12 +44,43 @@
     let stopAt = null;
     const beatEnd = (i) => tl.starts[i] + tl.beats[i].d - 1e-3;
 
+    // 中文旁白裡的車號（場景的 cars）加底線，跟「L3」「TRANSITION」這類字分開；英文不加。長的先比（S2 先於 S）
+    const cars = (scene.cars || []).slice().sort((a, b) => b.length - a.length);
+    const carRe = cars.length ? new RegExp(`(?<![A-Za-z0-9])(${cars.join("|")})(?![A-Za-z0-9])`) : null;
+    const addText = (into, s, l) => {
+      if (l !== "zh" || !carRe) { into.append(s); return; }
+      // split 帶捕捉群組：奇數位是車號
+      s.split(carRe).forEach((part, i) => {
+        if (!(i % 2)) { into.append(part); return; }
+        const u = document.createElement("span");
+        u.className = "anim__car";
+        u.textContent = part;
+        into.append(u);
+      });
+    };
+    // 拍子的 tip = { en: [錨點, 解釋], zh: [...] }：錨點包成 <abbr data-tip>，由 js/devlog.js「名詞解釋」浮出解釋
+    const showNarration = (beat) => {
+      const l = beat[lang] ? lang : "en";
+      const txt = beat[l];
+      const tip = beat.tip && beat.tip[l];
+      const at = tip ? txt.indexOf(tip[0]) : -1;
+      narr.replaceChildren();
+      if (at < 0) { addText(narr, txt, l); return; }
+      addText(narr, txt.slice(0, at), l);
+      const abbr = document.createElement("abbr");
+      abbr.dataset.tip = tip[1];
+      abbr.tabIndex = 0;
+      abbr.textContent = tip[0];
+      narr.append(abbr);
+      addText(narr, txt.slice(at + tip[0].length), l);
+    };
+
     const render = () => {
       scene.update(t);
       const k = tl.beatAt(t);
       if (k !== shownBeat) {
         shownBeat = k;
-        narr.textContent = tl.beats[k][lang] || tl.beats[k].en;
+        showNarration(tl.beats[k]);
       }
       cells.forEach((f, i) => {
         const p = TA.clamp01((t - tl.starts[i]) / tl.beats[i].d);

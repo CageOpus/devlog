@@ -11,14 +11,14 @@
   TA.scenes.junction = (svg) => {
     const W = 680, H = 372;
     const tl = TA.timeline([
-      { d: 3.0, en: "A T-junction. S is on the major road, going straight on. L is coming out of the side road and turning across it. Every path through the junction is a lane of its own.", zh: "一個 T 字路口。S 在幹道上直行，L 從支道出來，要橫過幹道左轉。穿過路口的每一條路徑，都是自己的一條 lane。" },
-      { d: 3.6, en: "L's turn is one span: it takes the whole turn or none of it. The span also marks a window on S's lane, the bit of road L will cut across.", zh: "L 的轉彎是一個 span：整個彎一起拿，不然就都不拿。span 還在 S 的車道上標出一段 window，就是 L 轉彎時會切過的那一截。" },
-      { d: 3.8, en: "So L asks for the turn and the window in one go. In its ring that is one run ending in a bundle row, B, with one entry for each cell of the window.", zh: "所以 L 一次就把彎道和 window 一起要。在它的 ring 裡這是同一段 run，最後一列是 bundle B，window 每一格各一筆 entry。" },
-      { d: 3.4, en: "Give way to traffic on the major road. S bids 59 and 58 here, L only 46. The major road ranks higher, so S wins even from further back.", zh: "支道讓幹道。S 在這裡出價 59、58，L 只有 46。幹道的等級比較高，所以 S 就算離得比較遠也會贏。" },
-      { d: 4.0, en: "Losing one cell refuses the whole run, so L can never end up stuck across S's lane. It's the yellow box rule: don't go in unless you can get all the way out. L waits at the stop line, and S goes through.", zh: "輸掉一格，整段 run 就不給，所以 L 不會卡在 S 的車道中間。這就是黃色網格線的規矩：出口沒空，就不要進去。L 在停止線等，S 先過。" },
-      { d: 3.6, en: "With S gone, the turn is clear and L's bundle wins whole. The span and the window become its claim, at 255, and L pulls out.", zh: "S 走了，彎道空了，L 的 bundle 整段贏下來。span 和 window 都變成它的 claim，優先值 255，L 開出去。" },
-      { d: 4.4, en: "S2 turns up while L is still in the middle of its turn. S2's bid runs into the window, but a claim never gives way, so S2 waits. On real roads you'd mostly see this at an all-way stop: under a give-way rule, L holds back until it can go without holding up the major road.", zh: "S2 到的時候，L 還在彎道中間。S2 的出價伸進 window，但 claim 不會讓，S2 只能等。實際上這大多只發生在 all-way stop（每個方向輪流停車再開）的路口：有讓路規則的話，L 會一直等到不會擋到幹道車流才出去。" },
-      { d: 4.4, en: "Once L's tail clears the span, the window is handed back and S2 carries on. Nobody looked at anybody: every car only bid for road.", zh: "L 的車尾一離開 span，window 就還回去，S2 繼續往前。誰也沒看誰，每台車都只對道路出價。" },
+      { d: 3.0, en: "Look at this T-junction: S is going straight along the major road. L is turning left out of the side road, crossing S’s path. In the simulation, each path through the junction is treated as a separate lane.", zh: "注意到這個 T 字路口：S 沿著幹道直行，L 則從支道出來左轉，途中會穿過 S 的行進路線。在系統裡，每一條穿越路口的路徑，都當成一條獨立的車道處理。" },
+      { d: 3.6, en: "L can’t stop halfway through the turn, so we treat the entire turn as one span: all of it must be approved before L enters. The span also marks a window on S’s lane—the stretch L will cross while turning.", zh: "轉彎不能停在半路，所以我們把 L 的整段轉彎路徑設成一個「淨空區」（span）：整段都核准，才能進去。這個淨空區也會在 S 的車道上標出一段行駛路徑，就是轉彎時會穿過的那段路。" },
+      { d: 3.8, en: "L requests both the span and the window on S’s lane in one go. At the final decision stage, these requests are treated as a single group: either all are approved, or none are.", zh: "所以 L 會一起申請淨空區和 S 車道上那段行駛路徑，這些請求在最終判斷時也會捆綁成一組，不能只核准其中一部分。", tip: { en: ["a single group", "In the ring, these requests form one run, ending with bundle row B, which contains one entry for each cell of the window."], zh: ["捆綁成一組", "在 ring 裡，這些請求組成同一段 run；最後一列 bundle B 收錄那段行駛路徑裡每一格的請求。"] } },
+      { d: 3.4, en: "Giving way to the major road is handled through priorities too. S’s requests have priorities of 59 and 58; L’s have only 46. So even though S is further from the junction, it gets the space first.", zh: "支道讓幹道，在這裡也是靠優先序處理。S 的請求是 59、58，L 只有 46，所以即使 S 離路口比較遠，也會先取得通行空間。" },
+      { d: 4.0, en: "If even one cell is refused, the whole group is rejected. L waits at the stop line and lets S through, rather than getting stuck halfway across. Think of a yellow box: make sure you can get out before you go in.", zh: "只要有一格沒通過，整組請求就不核准。L 會留在停止線前，讓 S 先過，不會開到一半才發現沒路可走。這就像路口的黃色網格：先確定能出去，再開進去。" },
+      { d: 3.6, en: "Once S is through, the space L needs is clear. This time, the whole request is approved. Both the span and the window become L’s claim at priority 255, and L starts turning.", zh: "等 S 通過，L 需要的空間就空出來了。這次的申請全部通過，淨空區和行駛路徑都成為 L 的保留範圍，優先序升到 255。L 現在可以轉彎了。" },
+      { d: 4.4, en: "S2 arrives before L has finished turning. But the space it needs is still claimed by L. Being on the major road doesn’t let S2 take over an existing claim, so it has to wait.", zh: "L 還沒轉完，S2 就來了。但它要用的路段還保留給 L，不能因為自己在幹道上就搶過來，只能先等 L 通過。", tip: { en: ["it has to wait", "On real roads, you’d mostly see this at an all-way stop. Under a give-way rule, L waits until it can turn without holding up traffic on the major road."], zh: ["只能先等", "實際上，這種情況大多出現在 all-way stop（各方向都要先停車再通行）的路口。若是支道讓幹道，L 會等到不會妨礙幹道車流時，才開始轉彎。"] } },
+      { d: 4.4, en: "Once L’s tail clears the span, it releases the window on S’s lane and S2 carries on. The same idea holds throughout: no car needs to watch another car. Each one just asks the road for space.", zh: "等 L 的車尾離開淨空區，就會釋放 S 車道上那段行駛路徑，讓 S2 繼續往前。整個過程還是一樣：車子不必觀察彼此，只要各自向道路申請空間。" },
     ]);
     const B = (i, f = 0) => tl.at(i, f);
     const BEAT = { intro: 0, span: 1, bundle: 2, lose: 3, refuse: 4, win: 5, meet: 6, go: 7 };
@@ -340,6 +340,6 @@
       applyHL();
     };
 
-    return { w: W, h: H, tl, update };
+    return { w: W, h: H, tl, update, cars: ["S", "L", "S2"] };
   };
 })();
