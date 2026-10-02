@@ -235,8 +235,13 @@
   let state = load();
   const isNew = !state;
   if (isNew) state = fresh(now0);
-  // 舊存檔沒有後來加的欄位（例如發電）：補上預設值
-  for (const [k, v] of Object.entries(fresh(now0))) if (!(k in state)) state[k] = v;
+  // 舊存檔沒有後來加的欄位（例如發電）、或欄位壞掉（NaN、型別不對）：換成預設值。NaN 一進來會被 clamp 原樣傳下去、存回去，永遠好不了
+  for (const [k, v] of Object.entries(fresh(now0))) {
+    const bad = typeof v === "number" ? !Number.isFinite(state[k]) : v !== null && (typeof state[k] !== typeof v || Array.isArray(state[k]) !== Array.isArray(v) || state[k] === null);
+    if (!(k in state) || bad) state[k] = v;
+  }
+  // 時鐘被調回去過：出生時間不能在未來
+  if (state.born > now0) state.born = now0;
 
   // ═══ 作息 ═══
   // 晚上醒著；清晨與傍晚一半一半；白天大多在睡，偶爾會短暫醒來。用時段算雜湊，同一時段的結果固定，兩個分頁看到的一樣
@@ -423,11 +428,12 @@
     const today = dateKey(now);
     if (isNew) {
       log("adopt", [state.name]);
-    } else if (state.claims.daily !== today) {
+    } else if (!(state.claims.daily >= today)) {
+      // 用大於而不是不等於：把時鐘調回昨天再調回來不能多領一次
       grantSeeds(3);
       log("daily");
     }
-    state.claims.daily = today;
+    if (!(state.claims.daily >= today)) state.claims.daily = today;
 
     const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
     if (standalone && !state.claims.install) {
@@ -439,7 +445,7 @@
     // RSS 的文章連結帶 ?via=rss（見 layouts/_default/rss.xml）：每天第一次從閱讀器點回來給一包，然後把參數從網址拿掉
     const url = new URL(location.href);
     if (url.searchParams.get("via") === "rss") {
-      if (state.claims.rss !== today) {
+      if (!(state.claims.rss >= today)) {
         state.claims.rss = today;
         grantSeeds(5);
         log("rss");
@@ -1215,7 +1221,7 @@
   // 數值、按鍵、碗、水瓶、囤糧：一秒畫幾次就夠
   function renderPanel() {
     setText(nameBtn, state.name);
-    setText($("[data-ham-age]"), STR.day(Math.floor((Date.now() - state.born) / 86400000) + 1));
+    setText($("[data-ham-age]"), STR.day(Math.max(0, Math.floor((Date.now() - state.born) / 86400000)) + 1));
     const meters = { full: state.full, water: state.bottle, energy: state.energy, mood: state.mood };
     for (const [k, v] of Object.entries(meters)) {
       setText($(`[data-ham-meter-label="${k}"]`), STR.meters[k]);
@@ -1379,6 +1385,12 @@
     const dt = Math.min(0.1, (nowPerf - last) / 1000);
     last = nowPerf;
     const t = Date.now();
+    // 分頁一直開著、電腦卻睡著了（闔上筆電不一定會觸發 visibilitychange）：醒來的第一格補算中間那段
+    if (t - state.t > 60000) {
+      rejoin(t, false);
+      prevTick = 0;
+      ticks.length = 0;
+    }
 
     stepBrain(dt, nowPerf, t);
     stepWheel(dt);
@@ -1407,11 +1419,9 @@
     schedule();
   }
 
-  // quiet：從省電睡眠叫醒、或籠子捲回畫面裡。訪客一直都在頁面上，補算照做，但不貼「你不在的期間」
-  function resume(quiet = false) {
-    if (running || powerNap || !onscreen || document.hidden) return;
-    const now = Date.now();
-    // 離開超過一分鐘就當成離線，用步進補算；剛剛才在的話直接接上
+  // 離開超過一分鐘就當成離線，用步進補算；剛剛才在的話直接接上。
+  // 時鐘被往回調（now 比 state.t 早）就不補算，直接從現在接著走
+  function rejoin(now, quiet) {
     if (now - state.t > 60000) {
       const report = catchUp(now);
       if (!quiet) showAway(report);
@@ -1419,11 +1429,19 @@
       ham.inWheel = false;
       ham.rot = 0;
       ham.y = FLOOR;
+      ham.flingT = -1;
+      wheel.speed = 0;
       ham.x = asleepNow(now) ? SPOT.nest : clearSpot(60 + Math.random() * 50, ham.dir, ["idle"]);
       ham.pose = asleepNow(now) ? "sleep" : "idle";
       plan([]);
     }
     state.t = now;
+  }
+
+  // quiet：從省電睡眠叫醒、或籠子捲回畫面裡。訪客一直都在頁面上，補算照做，但不貼「你不在的期間」
+  function resume(quiet = false) {
+    if (running || powerNap || !onscreen || document.hidden) return;
+    rejoin(Date.now(), quiet);
     running = true;
     last = performance.now();
     // 停下來的那段空檔不算進更新率
