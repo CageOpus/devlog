@@ -55,7 +55,14 @@ the left of the header, a VIDEO number is assigned automatically on the right, a
 `ratio` is the aspect ratio of the picture and defaults to `16 / 9`. There is no zoom button, because moving an
 iframe reloads it; the player's own fullscreen button does the job.
 
-{{< embed src="https://www.youtube.com/embed/vPZxVOn6smY" title="acceleration lane merge test" caption="An agent merging from an acceleration lane" ratio="7 / 3" >}}
+{{< embed src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Never Gonna Give You Up" caption="The caption goes in the caption parameter" >}}
+
+With `reveal="true"`, the picture area shows the same Loading mark as the animations until the player has loaded, then
+the player fades in and becomes clickable. Without it the iframe is simply there from the start. Use it for a player
+that is slow to load or sits near the top of the page, so there is no blank frame while it waits. `ratio` below is
+set to `4 / 3` for an archive clip shot in 4:3:
+
+{{< embed src="https://www.youtube.com/embed/IO9XlQrEt2Y" title="Never Gonna Give You Up (Live, The Roxy 1987)" caption="reveal and ratio together" ratio="4 / 3" reveal="true" >}}
 
 ## Code
 

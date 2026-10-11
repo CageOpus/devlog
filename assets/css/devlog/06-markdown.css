@@ -227,6 +227,38 @@
   border: 0;
 }
 
+/* reveal="true"：載入前是紙色底加「載入中」（.anim__loading，css/devlog/09-anim.css），iframe 透明且點不到；
+   onload 時 shortcode 上的 inline 腳本加 .is-loaded，iframe 淡入、可操作，載入中的字同時淡出；
+   舞台的紙色底全程不變（以前載入後換黑底，淡入時黑底會先透出來，像一個黑框） */
+.embed-figure__stage--reveal {
+  position: relative;
+  background: var(--paper-hi);
+}
+
+[data-theme="dark"] .embed-figure__stage--reveal {
+  background: #181817;
+}
+
+.embed-figure__stage--reveal iframe {
+  position: relative;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+
+.embed-figure__stage--reveal .anim__loading {
+  transition: opacity 1s ease;
+}
+
+.embed-figure__stage--reveal.is-loaded .anim__loading {
+  opacity: 0;
+}
+
+.embed-figure__stage--reveal.is-loaded iframe {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .embed-figure .cage-figcaption {
   margin-top: var(--fig-caption-gap);
 }

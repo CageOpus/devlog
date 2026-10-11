@@ -2,6 +2,8 @@
        {{< embed src="https://www.youtube.com/embed/vPZxVOn6smY" title="acceleration lane merge test" caption="加速車道併入的測試" >}}
        src 是 iframe 的網址；title 印在抬頭，也是 iframe 的 title；caption 選填，印在下方；
        ratio 選填，畫面寬高比，預設 "16 / 9"。
+       reveal="true" 選填：影片載入前，畫面正中顯示和 anim 一樣的「載入中⋯」，iframe 先全透明、點不到，
+       onload 之後才淡入、可操作。
        樣式和圖片的 .md-figure 同一張紙（css/devlog/06-markdown.css 的 .embed-figure）。
        編號是 VIDEO n，和 FIG、ANIM 各算各的。
        不放放大鍵：搬動 iframe 會讓它重新載入，影片會斷；YouTube 自己的全螢幕鍵就夠用。 */ -}}
@@ -9,14 +11,19 @@
 {{- $n := .Page.Scratch.Get "embedN" }}
 {{- $title := .Get "title" }}
 {{- $ratio := .Get "ratio" | default "16 / 9" }}
+{{- $reveal := eq (printf "%v" (.Get "reveal")) "true" }}
 <figure class="embed-figure">
   <div class="embed-figure__card cage-figure">
     <span class="embed-figure__head cage-figure__head">
       <span class="cage-figure__title">{{ $title }}</span>
       <span class="cage-figure__no">VIDEO {{ $n }}</span>
     </span>
-    <div class="embed-figure__stage" style="{{ printf "aspect-ratio: %s" $ratio | safeCSS }}">
-      <iframe src="{{ .Get "src" }}" title="{{ $title }}" loading="lazy" frameborder="0"
+    <div class="embed-figure__stage{{ if $reveal }} embed-figure__stage--reveal{{ end }}" style="{{ printf "aspect-ratio: %s" $ratio | safeCSS }}">
+      {{- if $reveal }}
+      <span class="anim__loading" aria-hidden="true">{{ T "animLoading" }}</span>
+      <noscript><style>.embed-figure__stage--reveal iframe { opacity: 1; pointer-events: auto; } .embed-figure__stage--reveal .anim__loading { display: none; }</style></noscript>
+      {{- end }}
+      <iframe{{ if $reveal }} onload="this.parentNode.classList.add('is-loaded')"{{ end }} src="{{ .Get "src" }}" title="{{ $title }}" loading="lazy" frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </div>

@@ -52,7 +52,13 @@ eyebrow = '1980-07 W2'
 `caption` 會變成下方的圖說。`ratio` 是畫面的寬高比，沒設就是 `16 / 9`。沒有放大鍵，因為搬動 iframe 會讓它
 重新載入；用播放器自己的全螢幕鍵就好。
 
-{{< embed src="https://www.youtube.com/embed/vPZxVOn6smY" title="acceleration lane merge test" caption="加速車道併入的測試" ratio="7 / 3" >}}
+{{< embed src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Never Gonna Give You Up" caption="圖說寫在 caption 參數裡" >}}
+
+加上 `reveal="true"`，播放器載入完以前，畫面區會顯示和動畫一樣的「載入中」，載入完才淡入、變得可以點。
+沒加的話，iframe 一開始就在那裡。播放器載得慢、或在頁面很前面的時候用它，等待時就不會是一塊空白。
+下面同時設了 `ratio` 為 `4 / 3`，給 4:3 拍的存檔片段用：
+
+{{< embed src="https://www.youtube.com/embed/IO9XlQrEt2Y" title="Never Gonna Give You Up (Live, The Roxy 1987)" caption="reveal 和 ratio 一起用" ratio="4 / 3" reveal="true" >}}
 
 ## 程式碼
 
