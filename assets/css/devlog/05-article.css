@@ -46,6 +46,16 @@
   max-width: var(--body-max);
 }
 
+/* 內文段落左右對齊。只算直屬的 p：圖說、旁白、註記、清單、表格不動。
+   英文版欄寬窄的時候字距會被撐開，所以順便開斷字 */
+.article__body > p {
+  text-align: justify;
+}
+
+.article__body:lang(en) > p {
+  hyphens: auto;
+}
+
 .article__footer {
   margin-top: 40px;
   padding-top: 22px;
