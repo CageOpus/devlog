@@ -46,6 +46,14 @@ eyebrow = '1980-07 W2'
 
 ![Setback line](section-a-a.svg)
 
+## 內嵌影片
+
+`embed` shortcode 把 iframe（YouTube 之類）放進同一張圖紙卡：抬頭左邊印 title，右邊自動編 VIDEO 號碼，
+`caption` 會變成下方的圖說。`ratio` 是畫面的寬高比，沒設就是 `16 / 9`。沒有放大鍵，因為搬動 iframe 會讓它
+重新載入；用播放器自己的全螢幕鍵就好。
+
+{{< embed src="https://www.youtube.com/embed/vPZxVOn6smY" title="acceleration lane merge test" caption="加速車道併入的測試" ratio="7 / 3" >}}
+
 ## 程式碼
 
 程式碼區塊會畫成讀數框。語言寫在反引號後面，抬頭右邊會印出來；

@@ -198,6 +198,39 @@
   margin-top: var(--fig-caption-gap);
 }
 
+/* ── 內嵌影片（layouts/shortcodes/embed.html）：同一張圖紙卡，畫面是 iframe ── */
+.embed-figure {
+  margin: var(--fig-margin);
+}
+
+.embed-figure__card {
+  padding: var(--fig-pad);
+}
+
+.embed-figure__head {
+  margin-bottom: var(--fig-head-gap);
+}
+
+.embed-figure__stage {
+  border: 1px solid rgba(42, 41, 36, .3);
+  background: #000;
+}
+
+[data-theme="dark"] .embed-figure__stage {
+  border-color: #464645;
+}
+
+.embed-figure__stage iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.embed-figure .cage-figcaption {
+  margin-top: var(--fig-caption-gap);
+}
+
 /* ── 程式碼區塊 ──
    只有程式碼可以撐出 well，兩種撐法：
      ≥ 1100  有側欄：不出血，框線不動，只有內容在框內橫向捲動

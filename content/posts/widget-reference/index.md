@@ -48,6 +48,15 @@ Without a title there is no caption, only the header:
 
 ![Setback line](section-a-a.svg)
 
+## Embedded video
+
+The `embed` shortcode puts an iframe (YouTube and the like) on the same drawing card: the title is printed on
+the left of the header, a VIDEO number is assigned automatically on the right, and `caption` becomes the line below.
+`ratio` is the aspect ratio of the picture and defaults to `16 / 9`. There is no zoom button, because moving an
+iframe reloads it; the player's own fullscreen button does the job.
+
+{{< embed src="https://www.youtube.com/embed/vPZxVOn6smY" title="acceleration lane merge test" caption="An agent merging from an acceleration lane" ratio="7 / 3" >}}
+
 ## Code
 
 Code blocks are drawn as readout panels. The language goes after the backticks and is printed on the right of the header;
