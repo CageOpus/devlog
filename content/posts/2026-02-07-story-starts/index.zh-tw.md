@@ -23,6 +23,10 @@ tags = ['devlog', 'simulation', 'gpu', 'rust']
 
 {{< embed src="https://www.youtube.com/embed/vPZxVOn6smY" title="概念驗證：高速公路合流" caption="早期開發畫面: 加速車道匯入測試" ratio="7 / 3" reveal="true" >}}
 
+技術棧的部分，我們選用 [Bevy](https://bevy.org/), 一個年輕的 Rust ECS 遊戲框架。交通部分
+則在 GPU 上使用 computer shader 全量模擬。也就是說無論你看不看得到，該計算的都會忠實計算。
+這將會是一個 software engineer 視角所開發的模擬遊戲，我想模擬的真實度以及效能是值得期待的。
+
 簡單講一下開發方向：
 - Micro Simulation
 - 1M moving agents -- 沒錯，就是一百萬在移動的市民。遠比 65535 來得多。目前測試下來 MacBook Air M2 (16G) 可以順跑 30 FPS, 而 3080ti 則可以跑 100+ FPS (模擬固定 15 ticks per second)

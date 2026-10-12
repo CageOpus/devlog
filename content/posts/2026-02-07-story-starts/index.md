@@ -35,6 +35,15 @@ So I sketched out a simple algorithm, and it just works.
 
 {{< embed src="https://www.youtube.com/embed/vPZxVOn6smY" title="Proof of Concept: Highway Merge Simulation" caption="Captured during early prototyping." ratio="7 / 3" reveal="true" >}}
 
+For the tech stack, we chose [Bevy](https://bevy.org/), a young Rust ECS game
+engine. For traffic, everything is fully simulated on the GPU using compute
+shaders. That means whether you can see it on screen or not, everything that
+needs to be calculated is actually calculated.
+
+This is a simulation game developed from a software engineer's perspective, and
+I think the realism and performance of the simulation will be something worth
+looking forward to.
+
 A quick look at the development roadmap:
 
 - Micro Simulation
