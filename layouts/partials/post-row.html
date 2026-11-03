@@ -3,7 +3,8 @@
        沒有這個語言譯本、列出原文的文章（見 post-pages.html），標籤前面多印一個語言標記。 */ -}}
 {{- with .page }}
 {{- $fallback := ne .Language.Lang site.Language.Lang }}
-<a class="post-row" href="{{ .RelPermalink }}"{{ if $fallback }} lang="{{ .Language.Locale }}" hreflang="{{ .Language.Lang }}"{{ end }}>
+{{- $cover := partial "cover-resources.html" . }}
+<a class="post-row{{ if $cover.light }} post-row--cover{{ end }}" href="{{ .RelPermalink }}"{{ if $fallback }} lang="{{ .Language.Locale }}" hreflang="{{ .Language.Lang }}"{{ end }}>
   <span class="post-row__number">#{{ printf "%03d" $.number }}</span>
   <h2 class="post-row__title">{{ .Title }}</h2>
   <time class="post-row__date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006-01-02" }}</time>
@@ -14,6 +15,19 @@
     <span class="post-row__tag"><span class="post-row__sep">·</span>{{ . | upper }}</span>
     {{- end -}}
   </span>
+  {{- if not $cover.light }}
   <span class="post-row__time">{{ partial "reading-time.html" . }} MIN</span>
+  {{- end }}
+  {{- with $cover.light }}
+  {{- /* 縮圖只是裝飾（標題就在旁邊），alt 留空；封面的比例是 3:2，這裡產生小圖，不用載入整張 */}}
+  <span class="post-row__thumb">
+    {{- $thumb := .Fill "360x240 webp q70" }}
+    <img class="post-row__thumb-light" src="{{ $thumb.RelPermalink }}" alt="" width="{{ $thumb.Width }}" height="{{ $thumb.Height }}" loading="lazy">
+    {{- with $cover.dark }}
+    {{- $thumbDark := .Fill "360x240 webp q70" }}
+    <img class="post-row__thumb-dark" src="{{ $thumbDark.RelPermalink }}" alt="" width="{{ $thumbDark.Width }}" height="{{ $thumbDark.Height }}" loading="lazy">
+    {{- end }}
+  </span>
+  {{- end }}
 </a>
 {{- end }}

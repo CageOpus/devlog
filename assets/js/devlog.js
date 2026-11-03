@@ -1,4 +1,4 @@
-// CAGE devlog 的頁面互動。六件事，彼此獨立：
+// CAGE devlog 的頁面互動。這些事彼此獨立：
 //   1. Bright / Dim 開關
 //   2. 頁首跟著捲動變化：收合成捲動條，或（PWA 直拿）自動藏起
 //   3. 文章頁的閱讀進度
@@ -8,6 +8,7 @@
 //   7. 「加入主畫面」鍵與說明面板
 //   8. RSS 鍵與面板
 //   9. 文章裡 <abbr> 的名詞解釋小紙條
+//  10. 有封面的文章列：標籤放不下時移到圖下方；手機上標題 1 行時摘要可以 2 行
 
 (function initThemeSwitch() {
   const root = document.documentElement;
@@ -783,4 +784,30 @@ window.DevlogZoom = (() => {
   // 旁白換拍時詞會被換掉：指著的詞不在頁面上了，就收起來
   const gone = new MutationObserver(() => { if (current && !current.isConnected) hide(); });
   document.querySelectorAll(".anim__narration").forEach((n) => gone.observe(n, { childList: true }));
+})();
+
+// 有封面的文章列（css/devlog/04-post-list.css）：
+// - 標籤在文字欄放不下時，加上 --tags-wide 移到圖下方。判斷時要先拿掉這個 class，量的才是文字欄的寬度。
+// - 手機上標題加摘要最多 3 行：CSS 的摘要固定 1 行，標題只有 1 行時這裡放寬成 2 行。桌機的行數是固定的，不用管。
+(function initCoverRows() {
+  const rows = document.querySelectorAll(".post-row--cover");
+  if (!rows.length) return;
+  const phone = window.matchMedia("(max-width: 767px)");
+  const fit = (row) => {
+    const tags = row.querySelector(".post-row__tags");
+    row.classList.remove("post-row--tags-wide");
+    row.classList.toggle("post-row--tags-wide", tags.scrollHeight > tags.clientHeight + 1);
+    const title = row.querySelector(".post-row__title");
+    const summary = row.querySelector(".post-row__summary");
+    const oneLine = title.offsetHeight < parseFloat(getComputedStyle(title).lineHeight) * 1.5;
+    if (phone.matches && oneLine) summary.style.setProperty("-webkit-line-clamp", "2");
+    else summary.style.removeProperty("-webkit-line-clamp");
+  };
+  const fitAll = () => rows.forEach(fit);
+  // 視窗變寬會改變標題的尺寸，所以看標題；字體載入可能只改變標籤的寬度，另外補一次
+  const watch = new ResizeObserver(fitAll);
+  rows.forEach((row) => watch.observe(row.querySelector(".post-row__title")));
+  phone.addEventListener("change", fitAll);
+  document.fonts.ready.then(fitAll);
+  fitAll();
 })();
