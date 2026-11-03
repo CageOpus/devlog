@@ -325,7 +325,7 @@
 })();
 
 (function initCheats() {
-  // 連按 BUILD 讀數二十下（每下間隔不到一秒）跳出密技面板；目前只有 /debug（見 partials/cheat-dialog.html）
+  // 連按狀態列的版號或版權（[data-cheat-tap]）二十下（每下間隔不到一秒）跳出密技面板；目前只有 /debug（見 partials/cheat-dialog.html）
   const dialog = document.querySelector("[data-cheat-dialog]");
   if (!dialog) return;
   const form = dialog.querySelector("[data-cheat-form]");
@@ -343,7 +343,7 @@
 
   let taps = 0;
   let lastTap = 0;
-  document.querySelectorAll("[data-build]").forEach((el) =>
+  document.querySelectorAll("[data-cheat-tap]").forEach((el) =>
     el.addEventListener("click", () => {
       const now = Date.now();
       taps = now - lastTap < GAP_MS ? taps + 1 : 1;

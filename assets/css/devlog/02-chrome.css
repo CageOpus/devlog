@@ -756,7 +756,7 @@
   background: rgb(0 0 0 / .45);
 }
 
-/* 密技面板例外：是連按 BUILD 二十下叫出來的，多按的幾下會落在面板外面，所以點外面不關，也就不用毛玻璃 */
+/* 密技面板例外：是連按狀態列的版號或版權二十下叫出來的，多按的幾下會落在面板外面，所以點外面不關，也就不用毛玻璃 */
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   :is(.install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog)::backdrop {
     background:
@@ -1057,8 +1057,8 @@
   visibility: visible;
 }
 
-/* BUILD 讀數可以連按（密技面板的入口）：連點時不要選到字、不要被當成雙擊放大 */
-[data-build] {
+/* 狀態列的版號與版權可以連按（密技面板的入口）：連點時不要選到字、不要被當成雙擊放大 */
+[data-cheat-tap] {
   -webkit-user-select: none;
   user-select: none;
   touch-action: manipulation;
