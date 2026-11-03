@@ -393,3 +393,19 @@ abbr[data-tip]:focus-visible {
 .abbr-tip[hidden] {
   display: none;
 }
+
+/* ── 內嵌的 SVG 圖（_markup/render-image.html）：外觀比照上面的 .md-figure__card img ── */
+.md-figure__svg {
+  display: block;
+  border: 1px solid rgba(42, 41, 36, .3);
+}
+
+.md-figure__svg svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+[data-theme="dark"] .md-figure__svg {
+  border-color: #464645;
+}

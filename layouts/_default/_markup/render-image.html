@@ -1,14 +1,20 @@
 {{- /* 圖片。
        獨立成段的圖（block）→ 燈箱上的圖紙卡：抬頭印 alt 與 FIG 編號，title 當圖說；點擊開原圖。
        行內圖 → 一般 <img>。
+       用色票變數（var(--map-…)）的 SVG 內嵌進頁面而不是 <img>：<img> 裡的 SVG 讀不到 <html data-theme>，
+       內嵌才切得了 Bright / Dim。色票寫在 SVG 自己的 <style>，單獨打開檔案時就是 Bright。
        路徑解析沿用 PaperMod：先找 page bundle，再找 assets/。
        相對路徑兩邊都找不到時在建置階段警告，免得上線後才發現圖 404。
        常見原因：bundle 只有中文版。沒標語言的圖檔屬於預設語言（英文），沒有英文版 index.md 就不會輸出。 */ -}}
 {{- $u := urls.Parse .Destination }}
 {{- $src := $u.String }}
+{{- $inline := "" }}
 {{- if not $u.IsAbs }}
   {{- with or (.PageInner.Resources.Get (strings.TrimPrefix "./" $u.Path)) (resources.Get $u.Path) }}
     {{- $src = .RelPermalink }}
+    {{- if and (eq .MediaType.SubType "svg") (strings.Contains .Content "var(--map-") }}
+      {{- $inline = .Content }}
+    {{- end }}
   {{- else }}
     {{- if not (hasPrefix $u.Path "/") }}
       {{- warnf "%s: 找不到圖片 %q（這個 bundle 有英文版 index.md 嗎？）" .PageInner.File.Path $u.Path }}
@@ -24,7 +30,11 @@
       <span class="cage-figure__title">{{ .PlainText }}</span>
       <span class="cage-figure__no">FIG {{ $number }}</span>
     </span>
+    {{- if $inline }}
+    <span class="md-figure__svg" role="img" aria-label="{{ .PlainText }}">{{ $inline | safeHTML }}</span>
+    {{- else }}
     <img src="{{ $src }}" alt="{{ .PlainText }}" loading="lazy">
+    {{- end }}
   </a>
   {{- with .Title }}
   <figcaption class="cage-figcaption">FIG {{ $number }} · {{ . }}</figcaption>
