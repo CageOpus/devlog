@@ -475,6 +475,8 @@
     unknown: dialog.dataset.cheatUnknown,
     on: dialog.dataset.cheatDebugOn,
     off: dialog.dataset.cheatDebugOff,
+    wcoOn: dialog.dataset.cheatWcoOn,
+    wcoOff: dialog.dataset.cheatWcoOff,
   };
 
   let taps = 0;
@@ -500,11 +502,71 @@
       const on = !readout;
       setDebug(on);
       result.textContent = on ? STR.on : STR.off;
+    } else if (code === "/wco") {
+      const on = !wcoSim;
+      setWcoSim(on);
+      result.textContent = on ? STR.wcoOn : STR.wcoOff;
     } else {
       result.textContent = STR.unknown;
     }
     input.select();
   });
+
+  // ── 標題列模擬（/wco）：把 css/devlog/10-wco.css 的條件換成永遠成立，再畫一份假的 Chrome 按鈕。
+  //    數值照 macOS 的 Chrome 量到的。只模擬版面與觸控；真正的視窗拖曳與 Chrome 按鈕都不在這裡。
+  //    手機橫拿會進 rail 模式（css/devlog/07-rail.css），桌機碰不到，所以模擬時關掉那個條件。開關記在 localStorage ──
+  const WCO_KEY = "cage-wco-sim";
+  let wcoSim = null;
+
+  function setWcoSim(on) {
+    try {
+      if (on) localStorage.setItem(WCO_KEY, "1");
+      else localStorage.removeItem(WCO_KEY);
+    } catch (e) {
+      // 存不了只影響下次載入
+    }
+    wcoSim?.forEach((el) => el.remove());
+    wcoSim = null;
+    if (on) {
+      wcoSim = [];
+      startWcoSim(wcoSim);
+    } else {
+      window.dispatchEvent(new Event("resize"));
+    }
+  }
+
+  async function startWcoSim(nodes) {
+    const sheet = document.querySelector('link[rel="stylesheet"][href*="devlog"]');
+    if (!sheet) return;
+    const source = await (await fetch(sheet.href)).text();
+    if (nodes !== wcoSim) return; // 下載途中又關掉了
+    const style = document.createElement("style");
+    style.textContent = source
+      .replace(/\(display-mode:\s*window-controls-overlay\)/g, "all")
+      .replace(/\(pointer:\s*coarse\)\s*and\s*\(orientation:\s*landscape\)[^{]*\{/g, "not all {")
+      + ":root{--tb-h:38px;--tb-left:86px;--tb-right:114px}";
+    const blocks = document.createElement("div");
+    blocks.setAttribute("aria-hidden", "true");
+    const block = "position:fixed;top:0;height:38px;z-index:9999;pointer-events:none;background:var(--wco-bar);display:flex;align-items:center;";
+    const light = (color) => `<i style="width:12px;height:12px;margin-right:8px;border-radius:50%;background:${color}"></i>`;
+    const icon = (glyph) => `<i style="flex:1;text-align:center;font-style:normal;font-size:14px;color:var(--ink)">${glyph}</i>`;
+    blocks.innerHTML =
+      `<div style="${block}left:0;width:86px;padding-left:13px;box-sizing:border-box">${light("#ff5f57")}${light("#febc2e")}${light("#28c840")}</div>` +
+      `<div style="${block}right:0;width:117px">${icon("⌄")}${icon("▣")}${icon("⋮")}</div>`;
+    document.head.append(style);
+    document.body.append(blocks);
+    nodes.push(style, blocks);
+    delete document.documentElement.dataset.wcoLeft;
+    window.dispatchEvent(new Event("resize"));
+  }
+
+  let storedWco = null;
+  try {
+    storedWco = localStorage.getItem(WCO_KEY);
+  } catch (e) {
+    // 讀不到就當沒開
+  }
+  if (storedWco) setWcoSim(true);
 
   // ── 除錯讀數：右上角，每半秒更新。開關記在 localStorage，重新整理後還在 ──
   let readout = null;

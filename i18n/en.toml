@@ -53,6 +53,8 @@ cheatTitle = "Cheat code"
 cheatUnknown = "Nothing happens."
 cheatDebugOn = "Debug readout on."
 cheatDebugOff = "Debug readout off."
+cheatWcoOn = "Title bar simulation on."
+cheatWcoOff = "Title bar simulation off."
 
 # 文章裡的示意動畫（見 layouts/shortcodes/anim.html）
 animPlay = "Play"

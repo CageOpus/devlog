@@ -1,8 +1,11 @@
 {{- /* 密技面板：連按狀態列的版號或版權（[data-cheat-tap]）二十下才會跳出來，輸入密技按 Enter（js/devlog.js）。
        輸入欄請求沒有選字的英數鍵盤（inputmode="url"，順便有 / 鍵）；網頁沒辦法強制關掉輸入法，桌機的輸入法要自己切。
-       目前只有 /debug：開關右上角的除錯讀數（更新率、夯姆的狀態、電量）。樣式與 RSS 面板共用（css/devlog/02-chrome.css）。 */ -}}
+       /debug：開關右上角的除錯讀數（更新率、夯姆的狀態、電量）。
+       /wco：開關 Window Controls Overlay 的模擬，沒有 Chromium 的 app 視窗時（例如手機）用來看版面與觸控。
+       樣式與 RSS 面板共用（css/devlog/02-chrome.css）。 */ -}}
 <dialog class="cheat-dialog cage-panel" aria-labelledby="cheat-dialog-title" tabindex="-1" data-cheat-dialog
-  data-cheat-unknown="{{ T "cheatUnknown" }}" data-cheat-debug-on="{{ T "cheatDebugOn" }}" data-cheat-debug-off="{{ T "cheatDebugOff" }}">
+  data-cheat-unknown="{{ T "cheatUnknown" }}" data-cheat-debug-on="{{ T "cheatDebugOn" }}" data-cheat-debug-off="{{ T "cheatDebugOff" }}"
+  data-cheat-wco-on="{{ T "cheatWcoOn" }}" data-cheat-wco-off="{{ T "cheatWcoOff" }}">
   <div class="cage-panel__bar">
     <span class="cage-panel__title" id="cheat-dialog-title">{{ T "cheatTitle" }}</span>
     <form method="dialog" class="install-dialog__close">
