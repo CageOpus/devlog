@@ -27,15 +27,15 @@
 }
 
 /* 桌機：主欄 + 側欄整組限寬、置中。視窗再寬，多出來的變成兩側的空白，而不是卡片裡內文右邊的一大片空白 */
-@media (min-width: 1280px) {
+@media (min-width: 1200px) {
   .page {
     max-width: calc(var(--page-pad-x) + var(--main-w) + var(--page-gap) + var(--aside-w) + var(--page-pad-x));
     margin-inline: auto;
   }
 }
 
-/* 窄雙欄（1100–1279）：側欄照樣在右邊，主欄隨視窗縮，欄距收到 34 */
-@media (min-width: 1100px) and (max-width: 1279px) {
+/* 窄雙欄（1100–1199）：側欄照樣在右邊，主欄隨視窗縮，欄距收到 34 */
+@media (min-width: 1100px) and (max-width: 1199px) {
   .page {
     --page-gap: 34px;
   }
@@ -127,7 +127,7 @@
   color: var(--label);
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 1199px) {
   .section-head {
     gap: 11px;
     margin-bottom: 15px;
@@ -219,8 +219,8 @@
 }
 
 /* ── 作者卡 ──
-   側欄裡（≥ 1280）：標籤在上，鍵帽在左，名字與身分疊在右。
-   主欄下方（< 1280）：鍵帽｜標籤 + 名字｜身分靠右，一列排完。 */
+   側欄裡（≥ 1200）：標籤在上，鍵帽在左，名字與身分疊在右。
+   主欄下方（< 1200）：鍵帽｜標籤 + 名字｜身分靠右，一列排完。 */
 .author-card {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr);
@@ -315,7 +315,7 @@
   text-shadow: var(--cut-text);
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 1199px) {
   .pager {
     margin-top: 19px;
   }
