@@ -45,9 +45,10 @@
     background: var(--wco-bar);
     pointer-events: none;
     mask-composite: intersect;
-    /* 不參與拖曳區：色片排在控制項之後，若沿用頁首的 drag，會把底下控制項的 no-drag 又蓋回去，鍵就按不到了 */
-    -webkit-app-region: none;
-    app-region: none;
+    /* 不參與拖曳區：色片排在控制項之後，若沿用頁首的 drag，會把底下控制項的 no-drag 又蓋回去，鍵就按不到了。
+       要用 initial，不能寫 none：Chromium 把明寫的 none 當成 no-drag，色片底下就拖不動視窗 */
+    -webkit-app-region: initial;
+    app-region: initial;
   }
 
   .site-header::before {
