@@ -1,0 +1,24 @@
+{{- /* 找出一篇文章的封面圖。傳入 page，回傳 dict "light" "dark"；沒有封面時兩個都是 nil。
+       front matter：
+         images = ['cover.webp']        Hugo 的標準欄位，檔案放在文章的 page bundle，比例 3:2（主體留在中間，社群預覽會再裁成約 1.91:1）；
+                                        og:image 與 twitter:image 由主題的模板讀同一個欄位，網址 Hugo 會算對
+         coverDark = 'cover.dark.webp'  選填，Dim 用的另一張；沒有就兩個 theme 都用 light
+         coverAlt = '…'                 選填，文章頁封面的 alt，預設是文章標題
+       不要用 cover 當 key：主題的 opengraph 模板會把它當成 PaperMod 的 [cover] 表格讀。
+       文章頁見 post-cover.html，列表縮圖見 post-row.html。 */ -}}
+{{- $light := "" }}
+{{- $dark := "" }}
+{{- with .Params.images }}
+  {{- $name := index . 0 }}
+  {{- $light = $.Resources.Get $name }}
+  {{- if not $light }}
+    {{- errorf "%s: 找不到封面 %q" $.File.Path $name }}
+  {{- end }}
+{{- end }}
+{{- with .Params.coverDark }}
+  {{- $dark = $.Resources.Get . }}
+  {{- if not $dark }}
+    {{- errorf "%s: 找不到封面 %q" $.File.Path . }}
+  {{- end }}
+{{- end }}
+{{- return (dict "light" $light "dark" $dark) }}

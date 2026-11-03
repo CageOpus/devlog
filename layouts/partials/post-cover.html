@@ -1,0 +1,14 @@
+{{- /* 文章頁的封面（選填，front matter 見 cover-resources.html）。
+       兩張都是 lazy，隱藏的那張（display: none）在切到它之前不會下載。
+       顯示哪張由 <html data-theme> 決定（css/devlog/05-article.css）；head.html 在畫面出來前就設好，不會閃。 */ -}}
+{{- $cover := partial "cover-resources.html" . }}
+{{- with $cover.light }}
+  {{- $alt := $.Params.coverAlt | default $.Title }}
+  {{- $size := printf "aspect-ratio: %d / %d" .Width .Height | safeCSS }}
+<div class="post-cover" style="{{ $size }}">
+  <img class="post-cover__light" src="{{ .RelPermalink }}" alt="{{ $alt }}" loading="lazy">
+  {{- with $cover.dark }}
+  <img class="post-cover__dark" src="{{ .RelPermalink }}" alt="{{ $alt }}" loading="lazy">
+  {{- end }}
+</div>
+{{- end }}

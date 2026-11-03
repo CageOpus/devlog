@@ -163,3 +163,32 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ── 文章封面（partials/post-cover.html）：Bright / Dim 各一張時，只顯示目前 theme 那張 ── */
+/* 封面本身就把標題和內文隔開了，不用再一道刻線；留著的話它會貼在圖的下緣，像只框了底邊 */
+.post-cover {
+  margin: 22px 0 26px;
+}
+
+.post-cover + .article__rule {
+  display: none;
+}
+
+.post-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-cover .post-cover__dark {
+  display: none;
+}
+
+[data-theme="dark"] .post-cover:has(.post-cover__dark) .post-cover__light {
+  display: none;
+}
+
+[data-theme="dark"] .post-cover .post-cover__dark {
+  display: block;
+}
