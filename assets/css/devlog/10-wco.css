@@ -427,10 +427,14 @@
     position: absolute;
     top: calc(var(--tb-h) + 5.5px);
     left: 13px;
-    width: 60px;
+    /* 畫出來是寬 60、9px 的字。Chrome 的最小字型設定（常見 12px）會撐大直接寫的 9px，字就疊到標誌上；
+       所以照 12px 排版再整塊縮小，縮放不受最小字型限制 */
+    width: 80px;
+    scale: .75;
+    transform-origin: left top;
     font-family: var(--font-mono);
-    font-size: 9px;
-    line-height: 11px;
+    font-size: 12px;
+    line-height: calc(11px / .75);
     letter-spacing: .01em;
     color: var(--label);
     text-transform: uppercase;
@@ -440,11 +444,9 @@
   }
 
   :root[data-wco-left="none"] :is(.site-header__progress, .site-header__bay) {
-    top: 0;
-    bottom: 0;
-    /* 進度是一般區塊、BUILD 是直向 flex，各自用自己的屬性置中 */
-    align-content: center;
-    justify-content: center;
+    top: 50%;
+    translate: 0 -50%;
+    transform-origin: left center;
   }
 
   .site-header__progress-label {
@@ -467,7 +469,7 @@
   }
 
   .site-header__progress-sep {
-    word-spacing: -2.2px;
+    word-spacing: calc(-2.2px / .75);
   }
 
   /* 展開時才有 BUILD；收合時由上面的閱讀進度接手 */
