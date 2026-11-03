@@ -1,4 +1,4 @@
-/* ══ 單篇文章 / 單頁 ══ 整篇住在一塊 well 裡：眉標、標題、meta、導言、刻線、內文、標籤、上下篇。
+/* ══ 單篇文章 / 單頁 ══ 整篇住在一塊 well 裡：封面（選填）、眉標、標題、meta、刻線、內文、標籤、上下篇。單頁（about.html）另有導言。
    --article-pad-x 是 well 的左右內距（定義在 01-base.css）；程式碼區塊出血時要用它算回螢幕邊（見 06-markdown.css）。 */
 
 .article {
@@ -165,13 +165,47 @@
 }
 
 /* ── 文章封面（partials/post-cover.html）：Bright / Dim 各一張時，只顯示目前 theme 那張 ── */
-/* 封面本身就把標題和內文隔開了，不用再一道刻線；留著的話它會貼在圖的下緣，像只框了底邊 */
+/* well 上切開的窗：光從左上來 */
 .post-cover {
-  margin: 22px 0 26px;
+  --cover-lit: rgba(255, 255, 255, .18);
+  --cover-ao-near: rgba(70, 62, 48, .008), rgba(70, 62, 48, .005) 6px, rgba(70, 62, 48, .002) 12px, rgba(70, 62, 48, .001) 18px, transparent 24px;
+  --cover-ao-far: rgba(70, 62, 48, .015), rgba(70, 62, 48, .011) 6px, rgba(70, 62, 48, .003) 12px, rgba(70, 62, 48, .002) 18px, transparent 24px;
+  position: relative;
+  margin-bottom: 26px;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: 1px 1px 2px var(--cover-lit);
 }
 
-.post-cover + .article__rule {
-  display: none;
+[data-theme="dark"] .post-cover {
+  --cover-lit: rgba(255, 255, 255, .1);
+}
+
+.post-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  mix-blend-mode: multiply;
+  box-shadow: inset 1px 2px 2px rgba(30, 28, 22, .26);
+  background:
+    linear-gradient(to bottom, var(--cover-ao-near)),
+    linear-gradient(to right, var(--cover-ao-near)),
+    linear-gradient(to top, var(--cover-ao-far)),
+    linear-gradient(to left, var(--cover-ao-far));
+}
+
+[data-theme="dark"] .post-cover::after {
+  mix-blend-mode: normal;
+  background: none;
+  box-shadow: inset 1px 2px 2px rgba(0, 0, 0, .55);
+}
+
+@media (max-width: 767px) {
+  .post-cover {
+    box-shadow: none;
+  }
 }
 
 .post-cover img {
