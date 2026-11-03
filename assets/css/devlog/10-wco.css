@@ -94,6 +94,32 @@
     app-region: no-drag;
   }
 
+  /* 面板開著時，標題列與四周細框是同一圈機殼，毛玻璃嵌在裡面。Chrome 的色塊只能是純色，機殼用同一個顏色（--wco-bar）才融得進去。
+     ::backdrop 沒有子元素，機殼就是它往外擴散的陰影：外緣被視窗切成直角，內緣跟著玻璃的圓角 */
+  :is(.install-dialog, .rss-dialog, .cheat-dialog, .hamster-dialog, .figure-dialog)::backdrop {
+    inset: var(--strip-h) 6px 6px;
+    /* 連續曲率的圓角（G2）；不支援 corner-shape 的瀏覽器退回一般圓弧（G1）。
+       半徑跟 macOS 視窗的圓角同心：從截圖量視窗圓角往內平移 6px（框寬），squircle 取 20 最貼合 */
+    border-radius: 20px;
+    corner-shape: squircle;
+    box-shadow:
+      inset 0 1px 3px rgb(0 0 0 / .35),
+      0 0 0 100vmax var(--wco-bar);
+  }
+
+  /* 機殼的上緣仍然拖得動視窗。拖曳區後畫的蓋先畫的，所以要排在頁首與其中的 no-drag 控制項之上 */
+  html:has(dialog[open]) body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    height: var(--strip-h);
+    -webkit-app-region: drag;
+    app-region: drag;
+  }
+
   /* 面板右上角的關閉鍵不能掉到 Chrome 的按鈕底下：上下各多讓出一段標題列（至少維持原本的 16px） */
   .figure-dialog,
   .hamster-dialog {
