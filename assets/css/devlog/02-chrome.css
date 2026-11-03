@@ -107,7 +107,7 @@
   align-items: flex-end;
 }
 
-/* readout 外層是單格 grid：收合時把軌道從 1fr 過渡到 0fr，高度與寬度就能平滑收到 0。
+/* readout 外層是單格 grid：收合時高度從 1fr 過渡到 0fr，就能平滑收到 0。
    內層必須 overflow: hidden，否則格子不會小於內容。 */
 .site-header__status {
   display: grid;
@@ -294,10 +294,21 @@
     visibility: visible;
   }
 
+  /* readout 不佔寬度，字靠右溢出：收放時只淡入淡出，不會逐字露出，旁邊的 context 也不會被推動 */
+  .site-header__status {
+    grid-template-columns: 0fr;
+  }
+
+  .site-header__status-inner {
+    justify-content: flex-end;
+    overflow-x: visible;
+    overflow-y: clip;
+  }
+
   .is-compact .site-header__status {
     grid-template-rows: 0fr;
-    grid-template-columns: 0fr;
     opacity: 0;
+    visibility: hidden;
   }
 }
 
@@ -337,7 +348,7 @@
   }
 
   .site-header__status {
-    transition: grid-template-rows var(--morph), grid-template-columns var(--morph), opacity var(--morph);
+    transition: grid-template-rows var(--morph), opacity var(--morph), visibility var(--morph);
   }
 }
 
