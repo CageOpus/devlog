@@ -107,14 +107,14 @@
       0 0 0 100vmax var(--wco-bar);
   }
 
-  /* 機殼的上緣仍然拖得動視窗。拖曳區後畫的蓋先畫的，所以要排在頁首與其中的 no-drag 控制項之上 */
-  html:has(dialog[open]) body::before {
+  /* 機殼的上緣仍然拖得動視窗。Chromium 依版面樹的順序收集拖曳區、後面的蓋前面的，跟 z-index 無關，
+     所以用 body::after 排在頁首之後，才蓋得過上面那條 no-drag；頁面放大時頁首的範圍也跟著變，不能靠它讓開 */
+  html:has(dialog[open]) body::after {
     content: "";
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1001;
     height: var(--strip-h);
     -webkit-app-region: drag;
     app-region: drag;
