@@ -89,6 +89,8 @@ body {
    html 一定要寫，否則 body 的 overflow 會被拿去當成視窗的，整頁就不能捲了 */
 html {
   overflow: auto;
+  /* 捲軸佔寬度的平台（Windows / Linux）才看得到軌道；顏色跟著主題，不然深色主題也是瀏覽器預設的淺色捲軸 */
+  scrollbar-color: var(--rule) var(--ground);
 }
 
 body {
