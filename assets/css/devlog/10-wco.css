@@ -79,8 +79,6 @@
     app-region: drag;
     -webkit-user-select: none;
     user-select: none;
-    /* 拖得動的地方顯示手掌 */
-    cursor: grab;
   }
 
   .site-header :is(a, button, input, select, textarea, label, [role="switch"], [role="button"]),
@@ -91,15 +89,10 @@
     app-region: no-drag;
   }
 
-  .site-header__controls {
-    cursor: default;
-  }
-
   /* 面板開著時，點背景要能關掉面板；頁首若還是拖曳區，點下去會變成拖視窗 */
   html:has(dialog[open]) :is(.site-header, .site-titlebar) {
     -webkit-app-region: no-drag;
     app-region: no-drag;
-    cursor: default;
   }
 
   /* 面板右上角的關閉鍵不能掉到 Chrome 的按鈕底下：上下各多讓出一段標題列（至少維持原本的 16px） */
@@ -441,7 +434,6 @@
   .site-header .site-header__brand {
     -webkit-app-region: drag;
     app-region: drag;
-    cursor: grab;
   }
 
   /* 收合：標誌放大，刊名跟著放大維持比例，往下移讓副標的基線與標誌底緣切齊 */
