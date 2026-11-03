@@ -1217,3 +1217,78 @@
     animation: dialog-tint-out .2s linear both;
   }
 }
+
+/* ── 標題列提示（layouts/partials/wco-hint.html）──
+   貼著視窗上緣的圖紙卡（.cage-figure），尖角往上指 Chrome 標題列右邊的箭頭。箭頭在頁面外面量不到，
+   中心距右緣約 98px（macOS 量到的值，右邊還有擴充功能與選單兩顆鍵） */
+.wco-hint {
+  position: fixed;
+  top: 10px;
+  right: 12px;
+  z-index: 30;
+  width: min(280px, calc(100vw - 24px));
+  padding: var(--space-8);
+}
+
+.wco-hint[hidden] {
+  display: none;
+}
+
+/* 底色與框線跟著卡片走，Dim 不用另外寫 */
+.wco-hint::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 80px;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  border-style: solid;
+  border-width: 1px 0 0 1px;
+  border-color: inherit;
+  rotate: 45deg;
+}
+
+.wco-hint__title {
+  margin: 0 0 6px;
+  font-family: var(--font-cjk);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* 標題列那顆鍵的樣子：引線對不準時，照這個圖示也找得到 */
+.wco-hint__key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--edge-soft);
+  border-radius: var(--radius-control);
+  color: var(--ink);
+  /* 對齊中文字的視覺重心（基線上方約 .38em）。inline-flex 的基線取自裡面的 svg 下緣，不是框的下緣 */
+  vertical-align: -1px;
+}
+
+.wco-hint__key svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wco-hint {
+    animation: wco-hint-in .3s cubic-bezier(.25, .8, .25, 1) both;
+  }
+
+  @keyframes wco-hint-in {
+    from {
+      opacity: 0;
+      translate: 0 -6px;
+    }
+  }
+}

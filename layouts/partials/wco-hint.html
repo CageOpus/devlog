@@ -1,0 +1,8 @@
+{{- /* 首次使用提示：桌機 Chromium 的 app 視窗還沒開 Window Controls Overlay 時，指出標題列上的箭頭（js/devlog.js）。
+       箭頭在視窗的標題列上，頁面碰不到也量不到，尖角可能對不準，所以內文也畫出它的樣子（字串裡的 %s）。平常 hidden。 */ -}}
+{{- $key := `<span class="wco-hint__key"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5 6 4l3.5 3.5"/></svg></span>` }}
+<aside class="wco-hint cage-figure" aria-labelledby="wco-hint-title" data-wco-hint hidden>
+  <p class="wco-hint__title" id="wco-hint-title">{{ T "wcoHintTitle" }}</p>
+  <p class="install-dialog__intro">{{ replace (T "wcoHintBody") "%s" $key | safeHTML }}</p>
+  <button type="button" class="cage-btn cage-face" data-wco-hint-close>{{ T "wcoHintClose" }}</button>
+</aside>

@@ -57,6 +57,10 @@ cheatDebugOff = "除錯讀數已關閉。"
 cheatWcoOn = "標題列模擬已開啟。"
 cheatWcoOff = "標題列模擬已關閉。"
 
+wcoHintTitle = "更沉浸的閱讀體驗"
+wcoHintBody = "點擊右上角（或左上角）的 %s 切換沉浸介面，讓閱讀視野更純粹。"
+wcoHintClose = "知道了"
+
 # 文章裡的示意動畫（見 layouts/shortcodes/anim.html）
 animPlay = "播放"
 animPause = "暫停"

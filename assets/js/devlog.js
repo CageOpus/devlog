@@ -9,6 +9,7 @@
 //   8. RSS 鍵與面板
 //   9. 文章裡 <abbr> 的名詞解釋小紙條
 //  10. 有封面的文章列：標籤放不下時移到圖下方；手機上標題 1 行時摘要可以 2 行
+//  11. app 視窗第一次打開時，提示標題列的箭頭可以開啟 Window Controls Overlay
 
 (function initThemeSwitch() {
   const root = document.documentElement;
@@ -1226,4 +1227,38 @@ window.DevlogZoom = (() => {
   phone.addEventListener("change", fitAll);
   document.fonts.ready.then(fitAll);
   fitAll();
+})();
+
+// 標題列提示（layouts/partials/wco-hint.html）：只在桌機 Chromium 的 app 視窗、還沒開 Window Controls Overlay 時出現一次。
+// 已經開過就是知道了，直接記下來；存取不了 localStorage 時不顯示，免得每次打開都跳出來。
+(function initWcoHint() {
+  const hint = document.querySelector("[data-wco-hint]");
+  if (!hint || !navigator.windowControlsOverlay) return;
+  const KEY = "cage-wco-hint-seen";
+  const overlay = matchMedia("(display-mode: window-controls-overlay)");
+
+  const dismiss = () => {
+    hint.hidden = true;
+    overlay.removeEventListener("change", dismiss);
+    try {
+      localStorage.setItem(KEY, "1");
+    } catch (e) {
+      // 存不了只影響下次載入
+    }
+  };
+
+  try {
+    if (localStorage.getItem(KEY)) return;
+  } catch (e) {
+    return;
+  }
+  if (overlay.matches) {
+    dismiss();
+    return;
+  }
+  if (!matchMedia("(display-mode: standalone)").matches) return;
+
+  hint.hidden = false;
+  hint.querySelector("[data-wco-hint-close]").addEventListener("click", dismiss);
+  overlay.addEventListener("change", dismiss);
 })();

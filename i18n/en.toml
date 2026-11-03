@@ -56,6 +56,10 @@ cheatDebugOff = "Debug readout off."
 cheatWcoOn = "Title bar simulation on."
 cheatWcoOff = "Title bar simulation off."
 
+wcoHintTitle = "A more immersive read"
+wcoHintBody = "Click the %s at the top right (or top left) to switch to the immersive layout for a cleaner reading view."
+wcoHintClose = "Got it"
+
 # 文章裡的示意動畫（見 layouts/shortcodes/anim.html）
 animPlay = "Play"
 animPause = "Pause"
