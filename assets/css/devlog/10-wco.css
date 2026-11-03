@@ -225,11 +225,11 @@
 }
 
 @media (display-mode: window-controls-overlay) and (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
-  .site-header:has([data-read-progress]):not(.is-compact) .site-header__title {
+  .site-header.is-morphing:has([data-read-progress]):not(.is-compact) .site-header__title {
     animation: wco-title-expanded .2s .18s backwards;
   }
 
-  .site-header.is-compact:has([data-read-progress]) .site-header__title {
+  .site-header.is-morphing.is-compact:has([data-read-progress]) :is(.site-header__title, .site-header__context .vrule) {
     /* 刊名縮完才出現，時間同下面 context 的淡入 */
     animation: wco-title-compact .09s .27s backwards;
   }

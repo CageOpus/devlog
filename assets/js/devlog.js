@@ -80,11 +80,11 @@
   // 按完就放掉焦點：回到 bfcache 還原的頁面時，鍵上不會留著焦點框
   back.addEventListener("click", () => {
     back.blur();
-    history.back();
+    window.devlogTraverse(-1);
   });
   forward.addEventListener("click", () => {
     forward.blur();
-    history.forward();
+    window.devlogTraverse(1);
   });
   // 從上一頁回來時頁面可能是 bfcache 還原的，狀態要重算
   window.addEventListener("pageshow", sync);
@@ -187,6 +187,8 @@
 
   // 點連結後到換頁前，慣性捲動不能把頁首又收回去
   let expandingForLink = false;
+  // 上下頁回到收合的頁面（不是 bfcache）：捲動位置可能晚一點才還原
+  let awaitingRestore = false;
   // 連結停用與等展開的上限，要比最長的直拿版 translate（.4s）長。
   // 瀏覽器按停止載入時頁面收不到通知，所以不能等到換頁才解除
   const LINK_PENDING_MS = 500;
@@ -201,6 +203,7 @@
   const isWordmarkText = (el) => el.matches(".wordmark__title, .wordmark__subtitle");
   let morphs = [];
   let morphGhosts = [];
+  let morphingTimer = 0;
 
   // 字本身的寬度：副標的盒子被撐到跟主標一樣寬，用盒子算的話新舊兩份字對不起來
   function textWidth(el) {
@@ -252,11 +255,17 @@
     morphs.forEach((a) => a.cancel());
     morphGhosts.forEach((ghost) => ghost.remove());
     morphGhosts = [];
+    clearTimeout(morphingTimer);
+    header.classList.remove("is-morphing");
     header.classList.toggle("is-compact", on);
+    rememberCompact(on);
 
     const timing = getComputedStyle(title);
     const duration = parseFloat(timing.transitionDuration) * 1000;
     if (!duration) return (morphs = []);
+    // 只有真的在收放時才播 CSS 的淡入（css/devlog/10-wco.css），載入時不播。它比 morph 長，所以另外算時間
+    header.classList.add("is-morphing");
+    morphingTimer = setTimeout(() => header.classList.remove("is-morphing"), LINK_PENDING_MS);
     const delay = parseFloat(timing.transitionDelay) * 1000;
     const options = { duration, delay, easing: timing.transitionTimingFunction, fill: "backwards" };
     const wordmark = title.parentElement;
@@ -281,14 +290,32 @@
     });
 
     // 展開時刊名的版面一下子變寬，會把還在淡出的頁面標題推走：淡出的這段讓它留在原位
-    if (!on) {
-      context.style.marginLeft = `${contextLeft - context.getBoundingClientRect().left}px`;
-      morphs[0].onfinish = () => (context.style.marginLeft = "");
-    }
+    if (!on) context.style.marginLeft = `${contextLeft - context.getBoundingClientRect().left}px`;
+    morphs[0].onfinish = () => (context.style.marginLeft = "");
   }
 
   function updateCompact(y) {
     setCompact(y > COMPACT_AFTER);
+  }
+
+  // 直接變成某個狀態，不跑動畫
+  function snapCompact(on) {
+    morphs.forEach((a) => a.cancel());
+    morphGhosts.forEach((ghost) => ghost.remove());
+    morphs = [];
+    morphGhosts = [];
+    context.style.marginLeft = "";
+    clearTimeout(morphingTimer);
+    header.classList.remove("is-morphing");
+    header.classList.toggle("is-compact", on);
+    header.getAnimations({ subtree: true }).forEach((a) => a.finish());
+  }
+
+  // 收合與否記在這筆歷史上：按 nav 的上下頁時，出發前就知道目標頁的頁首是什麼樣子，不用管它捲到哪。
+  // 為了換頁才變的不算，那不是這一頁自己的狀態
+  function rememberCompact(on) {
+    if (expandingForLink || !window.navigation?.currentEntry) return;
+    navigation.updateCurrentEntry({ state: { ...navigation.currentEntry.getState(), headerCompact: on } });
   }
 
   function updateAutohide(y) {
@@ -311,6 +338,8 @@
   function update() {
     if (expandingForLink) return;
     const y = window.scrollY;
+    if (awaitingRestore && y <= COMPACT_AFTER) return;
+    awaitingRestore = false;
     if (behavior === "compact") updateCompact(y);
     if (behavior === "autohide") updateAutohide(y);
   }
@@ -350,8 +379,13 @@
     if (!header.matches(".is-compact, .is-hidden")) return;
 
     event.preventDefault();
+    morphThenGo(false, () => location.assign(url));
+  });
+
+  // 頁首先變成目標頁的樣子，動畫跑完才換頁
+  async function morphThenGo(compact, go) {
     expandingForLink = true;
-    setCompact(false);
+    setCompact(compact);
     header.classList.remove("is-hidden");
     // 減少動態效果時沒有 transition，這裡就是空的，會直接換頁
     const transitions = header.getAnimations({ subtree: true }).filter((a) => a instanceof CSSTransition);
@@ -361,20 +395,46 @@
     ]);
     // 等的時候已經離開這頁（例如上一頁）：從快取回來時不能再跳走
     if (!expandingForLink) return;
-    location.assign(url);
+    go();
     // 新頁出來前也不收回去；按了停止載入的話時間到就恢復
     setTimeout(() => (expandingForLink = false), LINK_PENDING_MS);
-  });
+  }
+
+  // nav 的上下頁（瀏覽器自己的上下頁鍵攔不到）。沒記過的歷史就是從沒收合過
+  window.devlogTraverse = (delta) => {
+    if (expandingForLink) return;
+    const go = () => history.go(delta);
+    const target = window.navigation?.entries()[navigation.currentEntry.index + delta];
+    const compact = !!target?.getState()?.headerCompact;
+    if (!target || behavior !== "compact" || compact === header.classList.contains("is-compact")) return go();
+    morphThenGo(compact, go);
+  };
+
+  // partials/header.html 已經先收合了：捲動位置還原前不要當成在頂端
+  if (header.classList.contains("is-compact")) {
+    awaitingRestore = true;
+    window.addEventListener("load", () => setTimeout(() => {
+      awaitingRestore = false;
+      update();
+    }, 100));
+  }
 
   measure();
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", measure);
   window.addEventListener("pagehide", () => (expandingForLink = false));
+  // 離開前為目標頁變的樣子不能留在 bfcache 裡，回來時會從那個樣子再動一次。
+  // pagehide 時舊頁還在畫面上，改了會閃；pageshow 又晚過還原後的第一幀。freeze 是頁面已經隱藏、正要存起來的時候（只有 Chromium，其他瀏覽器靠 pageshow）
+  const restoreOwnState = () => snapCompact(window.scrollY > COMPACT_AFTER);
+  document.addEventListener("freeze", () => {
+    if (behavior === "compact") restoreOwnState();
+  });
   // 從上一頁快取回來時畫面還留著點連結時展開的樣子
   window.addEventListener("pageshow", (event) => {
     if (!event.persisted) return;
     document.querySelectorAll('a[aria-disabled="true"]').forEach((a) => a.removeAttribute("aria-disabled"));
-    update();
+    if (behavior === "compact") restoreOwnState();
+    else update();
   });
 })();
 

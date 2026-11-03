@@ -80,4 +80,13 @@
       </div>
     </div>
   </header>
+  {{- /* 上下頁或重新整理回到收合的頁面：第一次繪製就要是收合的。js/devlog.js 在 body 最後才跑，來不及 */}}
+  <script>
+    (() => {
+      const nav = window.navigation;
+      if (!nav?.currentEntry?.getState()?.headerCompact) return;
+      if (!["traverse", "reload"].includes(nav.activation?.navigationType)) return;
+      document.querySelector("[data-site-header]").classList.add("is-compact");
+    })();
+  </script>
 </div>
