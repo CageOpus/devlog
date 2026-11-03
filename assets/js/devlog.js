@@ -185,6 +185,12 @@
   const AUTOHIDE_DELTA = 8;
   let anchorY = window.scrollY;
 
+  // 點連結後到換頁前，慣性捲動不能把頁首又收回去
+  let expandingForLink = false;
+  // 連結停用與等展開的上限，要比最長的直拿版 translate（.4s）長。
+  // 瀏覽器按停止載入時頁面收不到通知，所以不能等到換頁才解除
+  const LINK_PENDING_MS = 500;
+
   function updateCompact(y) {
     header.classList.toggle("is-compact", y > COMPACT_AFTER);
   }
@@ -207,6 +213,7 @@
   }
 
   function update() {
+    if (expandingForLink) return;
     const y = window.scrollY;
     if (behavior === "compact") updateCompact(y);
     if (behavior === "autohide") updateAutohide(y);
@@ -220,9 +227,58 @@
     update();
   }
 
+  // 等著換頁時不接別的連結，否則會被等著的換頁蓋掉。要趕在連結自己的 listener 前面（語言鍵會記下選的語言）
+  document.addEventListener("click", (event) => {
+    if (!expandingForLink || !(event.target instanceof Element) || !event.target.closest("a[href]")) return;
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
+
+  // 站內連結點下去，新頁一定在頂端、頁首是展開的：先展開完再換頁，新頁出來時才接得上
+  document.addEventListener("click", async (event) => {
+    if (event.defaultPrevented || event.button !== 0) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
+    if (!link || link.hasAttribute("download") || (link.target && link.target !== "_self")) return;
+    // 已停用的鍵 pointer-events 擋不住鍵盤
+    if (link.getAttribute("aria-disabled") === "true") {
+      event.preventDefault();
+      return;
+    }
+    const url = new URL(link.href, location.href);
+    // 帶錨點的不會停在頂端
+    if (url.origin !== location.origin || url.hash) return;
+
+    link.setAttribute("aria-disabled", "true");
+    setTimeout(() => link.removeAttribute("aria-disabled"), LINK_PENDING_MS);
+    if (!header.matches(".is-compact, .is-hidden")) return;
+
+    event.preventDefault();
+    expandingForLink = true;
+    header.classList.remove("is-compact", "is-hidden");
+    // 減少動態效果時沒有 transition，這裡就是空的，會直接換頁
+    const transitions = header.getAnimations({ subtree: true }).filter((a) => a instanceof CSSTransition);
+    await Promise.race([
+      Promise.allSettled(transitions.map((a) => a.finished)),
+      new Promise((resolve) => setTimeout(resolve, LINK_PENDING_MS)),
+    ]);
+    // 等的時候已經離開這頁（例如上一頁）：從快取回來時不能再跳走
+    if (!expandingForLink) return;
+    location.assign(url);
+    // 新頁出來前也不收回去；按了停止載入的話時間到就恢復
+    setTimeout(() => (expandingForLink = false), LINK_PENDING_MS);
+  });
+
   measure();
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", measure);
+  window.addEventListener("pagehide", () => (expandingForLink = false));
+  // 從上一頁快取回來時畫面還留著點連結時展開的樣子
+  window.addEventListener("pageshow", (event) => {
+    if (!event.persisted) return;
+    document.querySelectorAll('a[aria-disabled="true"]').forEach((a) => a.removeAttribute("aria-disabled"));
+    update();
+  });
 })();
 
 (function initReadProgress() {

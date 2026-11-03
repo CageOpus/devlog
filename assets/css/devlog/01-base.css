@@ -103,6 +103,13 @@ body {
 }
 
 /* 設計系統的全域 a {} 是給內文連結用的；機殼上的鍵與標籤不吃底線和連結色 */
+/* 點下站內連結到換頁前（js/devlog.js），跟設計系統停用的鍵同一個樣子 */
+a[aria-disabled="true"] {
+  opacity: .42;
+  cursor: default;
+  pointer-events: none;
+}
+
 a.cage-face,
 a.cage-face:hover {
   color: var(--ink);
