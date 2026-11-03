@@ -12,7 +12,7 @@
     --tb-h: env(titlebar-area-height, 38px);
     --tb-left: env(titlebar-area-x, 72px);
     --tb-right: calc(100vw - env(titlebar-area-x, 72px) - env(titlebar-area-width, calc(100vw - 139px)));
-    /* 左邊的 bay：紅綠燈在上、字在下，標誌從 bay 右緣開始；左邊沒有按鈕時（Windows / Linux、全螢幕）一樣留給那些字 */
+    /* 左邊的 bay：紅綠燈在上、字在下，標誌從 bay 右緣開始；左邊沒有按鈕時（Windows / Linux、全螢幕）紅綠燈的位置換成 nav */
     --bay: max(84px, calc(var(--tb-left) + 12px));
 
     /* 頁首三種高度 = 標題列 + 原本的高度減掉標題列那一段（下限就是原本的高度） */
@@ -322,7 +322,7 @@
    常駐在同一個位置，每個版型都不動。外觀比照上面 Chrome 的按鈕：沒有鍵帽的線條圖示，大小、粗細相近，刻在鋁板上（--cut-icon），
    三顆的中心各自對齊 Chrome 的三顆（間距約 39，macOS 量到的值），滑過才有底色。
    紅綠燈底下只放字（收合時是閱讀進度，展開時是 BUILD），左右切齊紅綠燈（左緣 13、寬約 60，macOS 固定值）。
-   Chrome 的色塊不透明，所以都排在它下面；左邊沒有按鈕時（Windows / Linux、全螢幕）字改成在頁首高度裡置中。 */
+   Chrome 的色塊不透明，所以都排在它下面；左邊沒有按鈕時的排法在後面「左邊沒有視窗按鈕」。 */
 @media (display-mode: window-controls-overlay) and (min-width: 768px) {
   .site-header__keys {
     position: absolute;
@@ -443,12 +443,6 @@
     text-align-last: justify;
   }
 
-  :root[data-wco-left="none"] :is(.site-header__progress, .site-header__bay) {
-    top: 50%;
-    translate: 0 -50%;
-    transform-origin: left center;
-  }
-
   .site-header__progress-label {
     display: none;
   }
@@ -544,6 +538,65 @@
 
   .site-header__bay-extra {
     display: block;
+  }
+}
+
+/* ══ 左邊沒有視窗按鈕（Windows / Linux、全螢幕）══
+   Chrome 的按鈕數量與間距都跟 macOS 不同，nav 對不齊，右邊也佔得更寬。所以 nav 搬到左邊空出來的 bay，
+   上下切齊標誌，字留在 nav 底下；控制項改排在 Chrome 的按鈕底下，右邊不再讓出一整段，中間都留給標題 */
+@media (display-mode: window-controls-overlay) and (min-width: 768px) {
+  :root[data-wco-left="none"] {
+    --bay: 116px;
+  }
+
+  :root[data-wco-left="none"] .site-header {
+    padding-right: 16px;
+  }
+
+  :root[data-wco-left="none"] .site-header__keys {
+    top: 12px;
+    right: auto;
+    left: 8px;
+    width: 96px;
+    transform-origin: top left;
+  }
+
+  /* 放大時往右長；位移在 js/devlog.js 也用來算手指選到哪顆 */
+  :root[data-wco-left="none"] .site-header__keys.is-touching {
+    transform: translate(6px, 3px) scale(1.4);
+  }
+
+  /* 底緣切齊標誌，寬度在 nav 底下置中 */
+  :root[data-wco-left="none"] :is(.site-header__progress, .site-header__bay) {
+    top: 40px;
+    left: 26px;
+  }
+
+  :root[data-wco-left="none"] .site-header.is-compact .site-header__panel {
+    margin-bottom: calc((var(--h-collapsed) - var(--tb-h)) / 2 - 13px);
+  }
+}
+
+@media (display-mode: window-controls-overlay) and (min-width: 768px) and (max-width: 1199px) {
+  :root[data-wco-left="none"] .site-header__panel {
+    margin-bottom: calc((var(--h-plate) - var(--tb-h)) / 2 - 13px);
+  }
+}
+
+/* banner 展開：標誌高 70，nav 的上緣與字的底緣都切齊它 */
+@media (display-mode: window-controls-overlay) and (min-width: 1200px) {
+  :root[data-wco-left="none"] .site-header:not(.is-compact) .site-header__keys {
+    top: calc(var(--h-banner) / 2 - 35px);
+  }
+
+  :root[data-wco-left="none"] .site-header__bay {
+    top: calc(var(--h-banner) / 2 + 35px - 33px);
+  }
+}
+
+@media (display-mode: window-controls-overlay) and (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
+  :root[data-wco-left="none"] .site-header__keys {
+    transition: top var(--morph), transform .12s ease-out, box-shadow .12s ease-out, background-color .12s ease-out, height .12s ease-out, padding .12s ease-out;
   }
 }
 

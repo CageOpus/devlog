@@ -134,8 +134,9 @@
     const pressed = keys.findIndex((key) => key.contains(event.target));
     const box = nav.getBoundingClientRect();
     const width = box.width * SCALE;
-    const right = box.right - SHIFT_X;
-    const left = right - width;
+    // 左邊沒有視窗按鈕時 nav 排在左邊，放大時往右長
+    const left = document.documentElement.dataset.wcoLeft === "none" ? box.left + SHIFT_X : box.right - SHIFT_X - width;
+    const right = left + width;
     const top = box.top + SHIFT_Y;
     pill = { left, right, top, bottom: top + TOUCH_HEIGHT * SCALE, keyWidth: width / keys.length };
     const index = pressed >= 0 ? pressed : Math.min(keys.length - 1, Math.floor(((event.clientX - box.left) / box.width) * keys.length));
