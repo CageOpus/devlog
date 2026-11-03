@@ -725,6 +725,16 @@
       const on = !wcoSim;
       setWcoSim(on);
       result.textContent = on ? STR.wcoOn : STR.wcoOff;
+    } else if (code === "/reset") {
+      // 倉鼠的存檔留著（js/hamster.js 的 KEY）
+      try {
+        Object.keys(localStorage).forEach((key) => {
+          if (key !== "cage-hamster-v1") localStorage.removeItem(key);
+        });
+      } catch (e) {
+        // 清不了就跟沒按一樣
+      }
+      location.reload();
     } else {
       result.textContent = STR.unknown;
     }
