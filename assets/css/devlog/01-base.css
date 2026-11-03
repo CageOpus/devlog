@@ -103,6 +103,24 @@ body {
 }
 
 /* 設計系統的全域 a {} 是給內文連結用的；機殼上的鍵與標籤不吃底線和連結色 */
+/* 不是要動畫：上下頁時讓瀏覽器留著舊頁，等新頁畫好才切過去。
+   從 bfcache 回來時 Chrome 會先秀離開前最後一張畫面，頁首那時若正在為換頁變形，就會閃一下（只有支援的瀏覽器有效）。
+   點連結不需要，js/devlog.js 會跳過。
+   沒有淡入淡出時不能留著預設的 plus-lighter：新舊兩張都是全亮，疊起來會過曝，所以只留新的 */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(*),
+::view-transition-new(*) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(*) {
+  display: none;
+}
+
 /* 點下站內連結到換頁前（js/devlog.js），跟設計系統停用的鍵同一個樣子 */
 a[aria-disabled="true"] {
   opacity: .42;

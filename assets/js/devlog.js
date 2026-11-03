@@ -423,6 +423,10 @@
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", measure);
   window.addEventListener("pagehide", () => (expandingForLink = false));
+  // View Transition 只給上下頁用（css/devlog/01-base.css）
+  window.addEventListener("pageswap", (event) => {
+    if (event.activation?.navigationType !== "traverse") event.viewTransition?.skipTransition();
+  });
   // 離開前為目標頁變的樣子不能留在 bfcache 裡，回來時會從那個樣子再動一次。
   // pagehide 時舊頁還在畫面上，改了會閃；pageshow 又晚過還原後的第一幀。freeze 是頁面已經隱藏、正要存起來的時候（只有 Chromium，其他瀏覽器靠 pageshow）
   const restoreOwnState = () => snapCompact(window.scrollY > COMPACT_AFTER);
