@@ -27,8 +27,6 @@
   display: flex;
   align-items: center;
   gap: 26px;
-  color: inherit;
-  text-decoration: none;
 }
 
 /* 完整標誌與簡化標誌疊在同一格，靠透明度切換，寬度跟著過渡 */
@@ -36,6 +34,11 @@
   flex: none;
   display: grid;
   width: 146px;
+}
+
+/* 蓋掉設計系統 a {} 的連結色 */
+.site-header__mark,
+.site-header__mark:hover {
   color: var(--ink);
 }
 

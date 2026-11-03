@@ -72,7 +72,7 @@
 
   /* ── 拖曳視窗 ──
      頁首與窄版標題列是標題列的延伸，空白處拖得動視窗；可點的東西要 no-drag，否則點不到。
-     頁面標題不是控制項，保持可拖。這裡的字也不能反白，跟視窗的標題列一樣。 */
+     刊名和頁面標題不是控制項，保持可拖。這裡的字也不能反白，跟視窗的標題列一樣。 */
   .site-header,
   .site-titlebar {
     -webkit-app-region: drag;
@@ -82,7 +82,6 @@
   }
 
   .site-header :is(a, button, input, select, textarea, label, [role="switch"], [role="button"]),
-  .site-header__brand,
   .site-header__controls,
   .site-header__controls * {
     -webkit-app-region: no-drag;
@@ -292,7 +291,7 @@
 }
 
 /* ── nav 與 bay ──
-   Chrome 右邊那排按鈕底下：上一頁、下一頁、回首頁。app 視窗沒有瀏覽器的工具列，又因為標誌改成拖曳區，都靠這三個鍵。
+   Chrome 右邊那排按鈕底下：上一頁、下一頁、回首頁。app 視窗沒有瀏覽器的工具列，都靠這三個鍵。
    常駐在同一個位置，每個版型都不動。外觀比照上面 Chrome 的按鈕：沒有鍵帽的線條圖示，大小、粗細相近，刻在鋁板上（--cut-icon），
    三顆的中心各自對齊 Chrome 的三顆（間距約 39，macOS 量到的值），滑過才有底色。
    紅綠燈底下只放字（收合時是閱讀進度，展開時是 BUILD），左右切齊紅綠燈（左緣 13、寬約 60，macOS 固定值）。
@@ -453,12 +452,6 @@
   .site-header.is-compact .site-header__bay {
     opacity: 0;
     visibility: hidden;
-  }
-
-  /* 標誌與刊名不再是回首頁的連結（回首頁改用上面的鍵），變成拖曳區；鍵盤照樣可以聚焦、按 Enter 回首頁 */
-  .site-header .site-header__brand {
-    -webkit-app-region: drag;
-    app-region: drag;
   }
 
   /* 收合：標誌放大，刊名跟著放大維持比例，往下移讓副標的基線與標誌底緣切齊 */

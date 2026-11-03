@@ -33,17 +33,18 @@
       <span>BUILD {{ site.Params.build }}</span>
       <span class="site-header__bay-extra">{{ site.Params.stack }}</span>
     </div>
-    <a class="site-header__brand" href="{{ "" | relLangURL }}" aria-label="{{ site.Title }}">
-      <span class="site-header__mark" aria-hidden="true">
-        <svg class="site-header__mark-full" viewBox="0 34 800 384"><use href="#mkEng"></use></svg>
-        <svg class="site-header__mark-simple" viewBox="0 34 800 384"><use href="#mkSEng"></use></svg>
-      </span>
+    {{- /* 只有標誌是回首頁的連結；刊名在 Window Controls Overlay 下是拖曳視窗的地方 */}}
+    <div class="site-header__brand">
+      <a class="site-header__mark" href="{{ "" | relLangURL }}" title="{{ T "goHome" }}" aria-label="{{ T "goHome" }}">
+        <svg class="site-header__mark-full" viewBox="0 34 800 384" aria-hidden="true"><use href="#mkEng"></use></svg>
+        <svg class="site-header__mark-simple" viewBox="0 34 800 384" aria-hidden="true"><use href="#mkSEng"></use></svg>
+      </a>
       <span class="vrule"></span>
       <span class="wordmark">
         <span class="wordmark__title">{{ $brand.title }}</span>
         <span class="wordmark__subtitle">{{ $brand.subtitle }}</span>
       </span>
-    </a>
+    </div>
 
     {{- /* 收合後才看得到：頁面標題 + 閱讀進度（文章頁）或 build（其他頁） */}}
     <div class="site-header__context" aria-hidden="true">
