@@ -29,10 +29,146 @@
       // 私密模式等情況下存不了，只影響下次載入
     }
     syncAria();
+    // Window Controls Overlay 的 theme-color 跟著金屬面換色（函式在 partials/head.html）
+    if (window.devlogThemeColor) window.devlogThemeColor();
   }
 
   switches.forEach((el) => el.addEventListener("click", toggle));
   syncAria();
+})();
+
+(function initWindowControls() {
+  // Window Controls Overlay：左邊有沒有 Chrome 的按鈕會隨視窗狀態變（進出全螢幕時覆蓋層收起或出現），
+  // 初值由 partials/head.html 在第一次繪製前設好，這裡只負責之後的變化
+  const wco = navigator.windowControlsOverlay;
+  if (!wco) return;
+  const root = document.documentElement;
+
+  // 視窗有沒有焦點。焦點移進文章裡的 iframe 時 window 也會收到 blur，但視窗其實還在前面，
+  // 所以等一拍再問 document.hasFocus()，它會把 iframe 算進去
+  function syncFocus() {
+    setTimeout(() => {
+      root.classList.toggle("is-window-blurred", !document.hasFocus());
+    });
+  }
+
+  window.addEventListener("focus", syncFocus);
+  window.addEventListener("blur", syncFocus);
+  syncFocus();
+
+  function sync() {
+    if (!wco.visible || wco.getTitlebarAreaRect().x < 2) root.dataset.wcoLeft = "none";
+    else delete root.dataset.wcoLeft;
+  }
+
+  wco.addEventListener("geometrychange", sync);
+})();
+
+(function initWindowNav() {
+  // Window Controls Overlay 的上一頁、下一頁（partials/header.html）。到底了就停用，
+  // 能不能再往前後由 Navigation API 告訴我們；這些鍵只在 Chromium 的 app 視窗才看得到，都有這個 API
+  const back = document.querySelector("[data-nav-back]");
+  const forward = document.querySelector("[data-nav-forward]");
+  if (!back || !forward) return;
+
+  function sync() {
+    if (!window.navigation) return;
+    back.setAttribute("aria-disabled", String(!navigation.canGoBack));
+    forward.setAttribute("aria-disabled", String(!navigation.canGoForward));
+  }
+
+  // 按完就放掉焦點：回到 bfcache 還原的頁面時，鍵上不會留著焦點框
+  back.addEventListener("click", () => {
+    back.blur();
+    history.back();
+  });
+  forward.addEventListener("click", () => {
+    forward.blur();
+    history.forward();
+  });
+  // 從上一頁回來時頁面可能是 bfcache 還原的，狀態要重算
+  window.addEventListener("pageshow", sync);
+  sync();
+
+  // 觸控：比照 macOS 的視窗按鈕，手指按上去整組放大浮起來。手指滑到哪顆就選哪顆，放開後縮回去才執行，滑出去再放開是取消。
+  // 放大後貼著視窗右緣，各鍵會離開原本的位置，所以不看手指底下是哪顆，而是從按下去的那顆算起，看手指滑了多遠：
+  // 手指沒動就一定是按下去的那顆。放大的幾何同 css/devlog/10-wco.css。
+  // 手指的 pointer 事件會一直送到按下去的元素，所以聽 nav 就收得到整段滑動
+  const nav = back.closest(".site-header__keys");
+  const keys = [...nav.querySelectorAll(".site-header__key")];
+  const SCALE = 1.4;
+  const SHIFT_X = 6;
+  const SHIFT_Y = 3;
+  const TOUCH_HEIGHT = 32;
+  const SHRINK_MS = 130;
+  const SLOP_Y = 16;
+  let touch = null;
+  let target = null;
+  let touchEnd = 0;
+  let pill = null;
+  let offsetX = 0;
+
+  function mark(key) {
+    if (key === target) return;
+    target?.classList.remove("is-touch-target");
+    key?.classList.add("is-touch-target");
+    target = key;
+  }
+
+  function select(event) {
+    const x = event.clientX + offsetX;
+    const inside = x >= pill.left && x < pill.right && event.clientY >= pill.top - SLOP_Y && event.clientY <= pill.bottom + SLOP_Y;
+    const key = inside ? keys[Math.floor((x - pill.left) / pill.keyWidth)] : null;
+    mark(key?.getAttribute("aria-disabled") === "true" ? null : key);
+  }
+
+  function release() {
+    touch = null;
+    nav.classList.remove("is-touching");
+  }
+
+  nav.addEventListener("pointerdown", (event) => {
+    if (event.pointerType !== "touch" || touch !== null) return;
+    const pressed = keys.findIndex((key) => key.contains(event.target));
+    const box = nav.getBoundingClientRect();
+    const width = box.width * SCALE;
+    const right = box.right - SHIFT_X;
+    const left = right - width;
+    const top = box.top + SHIFT_Y;
+    pill = { left, right, top, bottom: top + TOUCH_HEIGHT * SCALE, keyWidth: width / keys.length };
+    const index = pressed >= 0 ? pressed : Math.min(keys.length - 1, Math.floor(((event.clientX - box.left) / box.width) * keys.length));
+    offsetX = left + pill.keyWidth * (index + .5) - event.clientX;
+    touch = event.pointerId;
+    nav.classList.add("is-touching");
+    select(event);
+  });
+  nav.addEventListener("pointermove", (event) => {
+    if (event.pointerId === touch) select(event);
+  });
+  nav.addEventListener("pointerup", (event) => {
+    if (event.pointerId !== touch) return;
+    const chosen = target;
+    release();
+    touchEnd = Date.now();
+    if (!chosen) return;
+    // 等這一片縮回去（css/devlog/10-wco.css 的 .12s）才執行，選中的底色留到那時候
+    const delay = matchMedia("(prefers-reduced-motion: no-preference)").matches ? SHRINK_MS : 0;
+    setTimeout(() => {
+      if (target === chosen) mark(null);
+      chosen.click();
+    }, delay);
+  });
+  nav.addEventListener("pointercancel", (event) => {
+    if (event.pointerId !== touch) return;
+    mark(null);
+    release();
+  });
+  // 手指放開後瀏覽器還會補一次點擊，上面已經處理過了（自己呼叫的 click() 不是 isTrusted）
+  nav.addEventListener("click", (event) => {
+    if (!event.isTrusted || Date.now() - touchEnd > 500) return;
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
 })();
 
 (function initHeaderScroll() {
@@ -231,7 +367,7 @@
   if (!button || !dialog) return;
 
   // 已經是從主畫面開啟的就不必再提示
-  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const standalone = matchMedia("(display-mode: standalone), (display-mode: window-controls-overlay)").matches || navigator.standalone === true;
   if (standalone) return;
 
   const platform = detectPlatform();

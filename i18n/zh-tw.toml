@@ -1,6 +1,10 @@
 # 介面字串（繁體中文）。key 與 en.toml 一一對應。
 
 mainMenu = "主選單"
+windowNav = "視窗導覽"
+goHome = "回首頁"
+goBack = "上一頁"
+goForward = "下一頁"
 back = "返回"
 switchLanguage = "切換語言"
 noTranslation = "這一頁沒有翻譯"

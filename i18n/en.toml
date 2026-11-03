@@ -1,6 +1,10 @@
 # 介面字串（英文）。key 與 zh-tw.toml 一一對應；儀表式的英文標籤不在這裡，模板裡直接寫。
 
 mainMenu = "Main menu"
+windowNav = "Window navigation"
+goHome = "Home"
+goBack = "Back"
+goForward = "Forward"
 back = "Back"
 switchLanguage = "Switch language"
 noTranslation = "No translation for this page"

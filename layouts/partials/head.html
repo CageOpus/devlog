@@ -15,7 +15,7 @@
     var homes = {{ $homes | jsonify | safeJS }};
     var here = {{ .Language.Lang }};
     if (document.referrer.indexOf(location.origin + "/") === 0) return;
-    if (matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) return;
+    if (matchMedia("(display-mode: standalone), (display-mode: window-controls-overlay)").matches || navigator.standalone === true) return;
     var want = null;
     try { want = localStorage.getItem("pref-lang"); } catch (e) {}
     if (!want) {
@@ -91,6 +91,17 @@
   })();
 </script>
 
+{{- /* Window Controls Overlay：左邊有沒有 Chrome 的按鈕（macOS 的紅綠燈在左，Windows / Linux 只在右）。
+       左邊沒有（x 約 0，或全螢幕時覆蓋層收起來）就標 data-wco-left="none"，頁首不留左邊那塊空位（css/devlog/10-wco.css）。
+       一樣要在第一次繪製前決定；之後視窗改變的更新在 js/devlog.js */}}
+<script>
+  (function () {
+    var wco = navigator.windowControlsOverlay;
+    if (!wco) return;
+    if (!wco.visible || wco.getTitlebarAreaRect().x < 2) document.documentElement.dataset.wcoLeft = "none";
+  })();
+</script>
+
 {{- /* 字體：設計系統的 tokens/fonts.css 只有一行 @import Google Fonts。直接照載會排成一條鏈
        （fonts.css → Google 的字體 CSS → 字體檔），所以改在這裡直接 <link> 那個網址，並先跟兩個網域建立連線。
        網址從 fonts.css 讀出來，設計系統換字體時這裡不用跟著改；fonts.css 本身不再載入。
@@ -114,6 +125,25 @@
 {{- $css = $css | minify | fingerprint }}
 {{- end }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+
+{{- /* Window Controls Overlay 的 theme-color：Chrome 依它決定右上角按鈕圖示的深淺。上面的黑色配手機的瀏海帶，
+       但 Chrome 按鈕底下的色塊也是這個顏色，所以 WCO 時改成金屬面的顏色（css/devlog/10-wco.css 的 --wco-bar，Bright / Dim 各一個）。
+       放在樣式表之後：腳本會等樣式表載完才跑，讀得到 token，又在第一次繪製之前。
+       WCO 是使用者按標題列的箭頭開關的，頁面不會重新載入，所以要跟著 display-mode 變；Bright / Dim 切換時由 js/devlog.js 再呼叫一次 */}}
+<script>
+  (function () {
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) return;
+    var base = meta.content;
+    var mode = matchMedia("(display-mode: window-controls-overlay)");
+    window.devlogThemeColor = function () {
+      var bar = getComputedStyle(document.documentElement).getPropertyValue("--wco-bar").trim();
+      meta.content = (mode.matches && bar) || base;
+    };
+    mode.addEventListener("change", window.devlogThemeColor);
+    window.devlogThemeColor();
+  })();
+</script>
 
 <script src="{{ "ds/assets/press-latch.js" | relURL }}?v={{ substr (os.ReadFile "static/ds/assets/press-latch.js" | md5) 0 8 }}" defer></script>
 

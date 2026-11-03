@@ -528,7 +528,7 @@
     }
     if (!(state.claims.daily >= today)) state.claims.daily = today;
 
-    const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+    const standalone = matchMedia("(display-mode: standalone), (display-mode: window-controls-overlay)").matches || navigator.standalone === true;
     if (standalone && !state.claims.install) {
       state.claims.install = true;
       grantSeeds(10);

@@ -6,8 +6,33 @@
        同一份內容只是縮小，完整標誌換成簡化標誌、readout 收起、頁面標題與閱讀進度浮現。
        外層 slot 永遠佔住展開時的高度，所以收合不會讓下方內容跳動。 */ -}}
 {{- $brand := site.Params.brand }}
+{{- /* 窄版的標題列：只有 Window Controls Overlay（桌機 PWA 合併標題列）且 ≤ 767 時才顯示（css/devlog/10-wco.css），
+       平常 display: none。它不是另一塊板子：透明地疊在頁首上，只放標題，金屬與接縫都是頁首的。標題的算法跟 <title> 一樣（partials/head.html）：標籤頁全大寫，首頁是「遊戲名: 副標」 */}}
+{{- $barTitle := cond .IsHome (upper (printf "%s: %s" $brand.title $brand.subtitle)) .Title }}
+{{- if eq .Kind "term" }}{{ $barTitle = upper .LinkTitle }}{{ end }}
+{{- if eq $barTitle site.Params.gameName }}
+  {{- range site.Menus.main }}
+    {{- if $.IsMenuCurrent "main" . }}{{ $barTitle = .Name }}{{ end }}
+  {{- end }}
+{{- end }}
 <div class="site-header-slot">
+  <div class="site-titlebar" aria-hidden="true">
+    <span class="site-titlebar__text">{{ $barTitle }}</span>
+  </div>
   <header class="site-header cage-mat-bar" data-site-header>
+    {{- /* 上一頁、下一頁、回首頁：只有 Window Controls Overlay 的 app 視窗才顯示（css/devlog/10-wco.css），那裡沒有瀏覽器的工具列。
+           前後頁的行為與停用狀態在 js/devlog.js */}}
+    <nav class="site-header__keys" aria-label="{{ T "windowNav" }}">
+      <button type="button" class="site-header__key" title="{{ T "goBack" }}" aria-label="{{ T "goBack" }}" data-nav-back><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M7.5 2.5 4 6l3.5 3.5"/></svg></button>
+      <button type="button" class="site-header__key" title="{{ T "goForward" }}" aria-label="{{ T "goForward" }}" data-nav-forward><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6 4.5 9.5"/></svg></button>
+      <a class="site-header__key" href="{{ "" | relLangURL }}" title="{{ T "goHome" }}" aria-label="{{ T "goHome" }}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M1.8 6.2 6 2.5l4.2 3.7M3.2 5.3v4.2h5.6V5.3"/></svg></a>
+    </nav>
+    {{- /* 紅綠燈底下的字（一樣只有 Window Controls Overlay）：展開時是 BUILD，banner 再多疊兩行 */}}
+    <div class="site-header__bay" aria-hidden="true">
+      <span class="site-header__bay-extra">Devlog</span>
+      <span>BUILD {{ site.Params.build }}</span>
+      <span class="site-header__bay-extra">{{ site.Params.stack }}</span>
+    </div>
     <a class="site-header__brand" href="{{ "" | relLangURL }}" aria-label="{{ site.Title }}">
       <span class="site-header__mark" aria-hidden="true">
         <svg class="site-header__mark-full" viewBox="0 34 800 384"><use href="#mkEng"></use></svg>
@@ -26,7 +51,7 @@
       <span class="site-header__title">{{ if not .IsHome }}{{ .Title }}{{ end }}</span>
       <span class="site-header__progress">
         {{- if .IsPage -}}
-          READ <span data-read-progress>0%</span> · {{ partial "reading-time.html" . }} MIN
+          <span class="site-header__progress-label">READ </span><span data-read-progress>0%</span><span class="site-header__progress-sep"> · </span>{{ partial "reading-time.html" . }} MIN
         {{- else -}}
           <span>BUILD {{ site.Params.build }}</span>
         {{- end -}}

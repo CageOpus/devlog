@@ -402,6 +402,14 @@
   }
 }
 
+/* 窄版的標題列、導覽鍵與紅綠燈底下的字（都只有 Window Controls Overlay 才顯示，樣式在 css/devlog/10-wco.css） */
+.site-titlebar,
+.site-header__keys,
+.site-header__bay,
+.site-header__bay-extra {
+  display: none;
+}
+
 /* 狀態列底下的卡片延伸，只在下面的 standalone 直拿版型出現 */
 .status-backdrop {
   display: none;
@@ -411,8 +419,11 @@
    分頁裡 Safari 有自己的網址列，頁首跟著內文捲走；app 模式沒有瀏覽器外框，頁首要隨時叫得回來。
    用 fixed 不用 sticky：回彈時只有內容被拉動，頁首不跟著彈。slot 佔住頁首的高度。
    藏起來時整條退出畫面，連瀏海區那一段也不留。
-   標籤列不固定；橫屏也不固定，高度太珍貴。 */
-@media (display-mode: standalone) and (orientation: portrait) and (max-width: 767px) {
+   標籤列不固定；橫屏也不固定，高度太珍貴。
+   桌機 PWA 把標題列併進頁面（Window Controls Overlay）時 display-mode 不再是 standalone，所以一起列進來；
+   該模式的差異（頁首讓出標題列、不顯示狀態列延伸）寫在 css/devlog/10-wco.css。 */
+@media (display-mode: standalone) and (orientation: portrait) and (max-width: 767px),
+       (display-mode: window-controls-overlay) and (orientation: portrait) and (max-width: 767px) {
   .site-header-slot {
     height: calc(54px + env(safe-area-inset-top, 0px));
   }
@@ -475,7 +486,8 @@
   }
 }
 
-@media (display-mode: standalone) and (orientation: portrait) and (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+@media (display-mode: standalone) and (orientation: portrait) and (max-width: 767px) and (prefers-reduced-motion: no-preference),
+       (display-mode: window-controls-overlay) and (orientation: portrait) and (max-width: 767px) and (prefers-reduced-motion: no-preference) {
   .site-header {
     transition: translate .4s ease;
   }
@@ -796,11 +808,11 @@
     backdrop-filter: saturate(1.1) brightness(.8);
   }
 
-  :is(.site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout, .abbr-tip)) {
+  :is(.site-header, .site-titlebar, body > :not(.site-header-slot, dialog, script, svg, .debug-readout, .abbr-tip)) {
     transition: filter .3s cubic-bezier(.4, 0, .2, 1);
   }
 
-  html:has(:is(.install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog)[open]:not(.is-closing)) :is(.site-header, body > :not(.site-header-slot, dialog, script, svg, .debug-readout, .abbr-tip)) {
+  html:has(:is(.install-dialog, .rss-dialog, .hamster-dialog, .figure-dialog)[open]:not(.is-closing)) :is(.site-header, .site-titlebar, body > :not(.site-header-slot, dialog, script, svg, .debug-readout, .abbr-tip)) {
     filter: blur(4px);
     transition: filter .45s cubic-bezier(.25, .8, .25, 1);
   }

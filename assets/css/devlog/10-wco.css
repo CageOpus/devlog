@@ -1,0 +1,602 @@
+/* ══ Window Controls Overlay ══ 桌機 Chromium 的 PWA 把標題列併進頁面（manifest 的 display_override），
+   Chrome 的按鈕浮在頁面上：macOS 的紅綠燈在左，右上角是選單等按鈕（Windows / Linux 左邊沒有）。
+   頁首因此變成「標題列 + 頁首」同一塊拉絲金屬，高度包含標題列；左邊留一個 bay 放紅綠燈與字，右邊讓開 Chrome 的按鈕，nav 排在按鈕底下。
+   串接在最後，同樣的選擇器才蓋得過前面的檔案。非 WCO（分頁、手機、iOS 主畫面）一條都不套用。
+   Chrome 回報的幾何值（env()）以 CSS px 計：瀏覽器放大時 env 值跟著縮小，Chrome 的按鈕卻一樣大，
+   所以所有高度都加下限（max），不會被壓扁。 */
+
+@media (display-mode: window-controls-overlay) {
+  :root {
+    /* Chrome 的標題列：高度、左邊（紅綠燈）佔掉的寬度、右邊（視窗按鈕）佔掉的寬度。
+       右邊 = 視窗寬 − 可用區左緣 − 可用區寬；env 的備援值照 macOS Chrome 的常見值 */
+    --tb-h: env(titlebar-area-height, 38px);
+    --tb-left: env(titlebar-area-x, 72px);
+    --tb-right: calc(100vw - env(titlebar-area-x, 72px) - env(titlebar-area-width, calc(100vw - 139px)));
+    /* 左邊的 bay：紅綠燈在上、字在下，標誌從 bay 右緣開始；左邊沒有按鈕時（Windows / Linux、全螢幕）一樣留給那些字 */
+    --bay: max(84px, calc(var(--tb-left) + 12px));
+
+    /* 頁首三種高度 = 標題列 + 原本的高度減掉標題列那一段（下限就是原本的高度） */
+    --h-banner: max(118px, calc(var(--tb-h) + 80px));
+    --h-plate: max(66px, calc(var(--tb-h) + 28px));
+    /* 收合時標題列下面要放 nav 與閱讀進度，所以比原本的 52 高 */
+    --h-collapsed: max(66px, calc(var(--tb-h) + 28px));
+    /* 窄版的標題列高度，同樣有下限 */
+    --strip-h: max(var(--tb-h), 24px);
+    /* Chrome 按鈕底下那兩塊的顏色（theme-color，由 partials/head.html 讀這個值）：它們是不透明的純色，
+       金屬面有漸層與紋理，只能取標題列高度內的中間值 */
+    --wco-bar: #E8E5DE;
+    --wco-fade: 120px;
+  }
+
+  :root[data-theme="dark"] {
+    --wco-bar: #353534;
+  }
+
+  /* Chrome 按鈕底下的色塊只能是純色（theme-color），鋁板的紋理與漸層過不去。
+     所以讓色塊周圍的金屬慢慢淡成同一個純色：一片蓋在頁首背景上、內容底下的色片，
+     色塊範圍內不透明，往旁邊與往下淡出，往下正好淡到頁首底緣，不會蓋到頁首外面。兩個遮罩取交集，角落才是圓滑地消失。 */
+  .site-header::before,
+  .site-header::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    z-index: -1;
+    height: 100%;
+    background: var(--wco-bar);
+    pointer-events: none;
+    mask-composite: intersect;
+    /* 不參與拖曳區：色片排在控制項之後，若沿用頁首的 drag，會把底下控制項的 no-drag 又蓋回去，鍵就按不到了 */
+    -webkit-app-region: none;
+    app-region: none;
+  }
+
+  .site-header::before {
+    left: 0;
+    width: calc(var(--tb-left) + var(--wco-fade));
+    mask-image:
+      linear-gradient(to right, #000 var(--tb-left), transparent),
+      linear-gradient(to bottom, #000 var(--tb-h), transparent);
+  }
+
+  .site-header::after {
+    right: 0;
+    width: calc(var(--tb-right) + var(--wco-fade));
+    mask-image:
+      linear-gradient(to left, #000 var(--tb-right), transparent),
+      linear-gradient(to bottom, #000 var(--tb-h), transparent);
+  }
+
+  :root[data-wco-left="none"] .site-header::before {
+    display: none;
+  }
+
+  /* ── 拖曳視窗 ──
+     頁首與窄版標題列是標題列的延伸，空白處拖得動視窗；可點的東西要 no-drag，否則點不到。
+     頁面標題不是控制項，保持可拖。這裡的字也不能反白，跟視窗的標題列一樣。 */
+  .site-header,
+  .site-titlebar {
+    -webkit-app-region: drag;
+    app-region: drag;
+    -webkit-user-select: none;
+    user-select: none;
+    /* 拖得動的地方顯示手掌 */
+    cursor: grab;
+  }
+
+  .site-header :is(a, button, input, select, textarea, label, [role="switch"], [role="button"]),
+  .site-header__brand,
+  .site-header__controls,
+  .site-header__controls * {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+  }
+
+  .site-header__controls {
+    cursor: default;
+  }
+
+  /* 面板開著時，點背景要能關掉面板；頁首若還是拖曳區，點下去會變成拖視窗 */
+  html:has(dialog[open]) :is(.site-header, .site-titlebar) {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+    cursor: default;
+  }
+
+  /* 面板右上角的關閉鍵不能掉到 Chrome 的按鈕底下：上下各多讓出一段標題列（至少維持原本的 16px） */
+  .figure-dialog,
+  .hamster-dialog {
+    max-height: calc(100% - max(32px, 2 * (var(--tb-h) + 8px)));
+  }
+
+  /* 放大面板裡的示意動畫：寬度由可用高度算出來，面板矮了多少這裡就扣多少（css/devlog/09-anim.css） */
+  .figure-dialog > .anim__card {
+    width: min(100%, calc((100dvh - 200px - max(0px, 2 * (var(--tb-h) + 8px) - 32px)) * var(--anim-aspect, 1.7)));
+  }
+}
+
+/* ══ 寬版（≥ 768）：頁首含標題列 ══ */
+@media (display-mode: window-controls-overlay) and (min-width: 768px) {
+  :root {
+    --header-h: var(--h-banner);
+  }
+
+  html {
+    scroll-padding-top: var(--h-collapsed);
+  }
+
+  .site-header {
+    height: var(--h-banner);
+    /* 左邊讓出 bay，右邊讓出 Chrome 的按鈕再加 12px；banner 展開時控制項在 nav 下面，右緣切齊 nav（見下） */
+    padding-left: var(--bay);
+    padding-right: calc(var(--tb-right) + 12px);
+  }
+
+  .site-header.is-compact {
+    height: var(--h-collapsed);
+  }
+
+  /* 右上角的 readout 原本是用來把控制項壓到右下，現在有 Chrome 的按鈕佔著上面，不需要了；BUILD 移到紅綠燈底下 */
+  .site-header__status,
+  .site-header__panel-rule {
+    display: none;
+  }
+
+  /* 標題吃掉中間剩下的空間；太窄時它先縮、先消失，不會擠到標誌或控制項。
+     裁掉溢出的是 context 本身（閱讀進度是絕對定位，不受影響） */
+  .site-header__context {
+    overflow: hidden;
+  }
+
+  .site-header__context .vrule {
+    flex: none;
+  }
+
+  /* 控制項貼著底緣排：banner 展開時在標題列下面（y 約 67–93），plate / 收合時在垂直中央 */
+  .site-header__panel {
+    align-self: flex-end;
+    margin-bottom: 24px;
+  }
+
+  .site-header.is-compact .site-header__panel {
+    margin-bottom: calc(var(--h-collapsed) / 2 - 13px);
+  }
+}
+
+/* plate（768–1199） */
+@media (display-mode: window-controls-overlay) and (min-width: 768px) and (max-width: 1199px) {
+  :root {
+    --header-h: var(--h-plate);
+  }
+
+  .site-header {
+    height: var(--h-plate);
+  }
+
+  .site-header.is-compact {
+    height: var(--h-collapsed);
+  }
+
+  .site-header__panel {
+    margin-bottom: calc(var(--h-plate) / 2 - 13px);
+  }
+
+  .site-header.is-compact .site-header__panel {
+    margin-bottom: calc(var(--h-collapsed) / 2 - 13px);
+  }
+}
+
+/* banner 展開：控制項已經在 nav 下面，右緣切齊 nav 與 Chrome 的 ⋮ */
+@media (display-mode: window-controls-overlay) and (min-width: 1200px) {
+  .site-header:not(.is-compact) {
+    padding-right: 16px;
+  }
+}
+
+@media (display-mode: window-controls-overlay) and (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .site-header {
+    transition: height var(--morph), gap var(--morph);
+  }
+
+  .site-header__panel {
+    transition: margin-bottom var(--morph);
+  }
+}
+
+/* 有封面的文章：標題被封面推到第一屏下面，所以展開時標題也留在頁首（收合時本來就有）。
+   沒有封面的頁面標題就在頁首正下方，再列一次是重複的。閱讀進度仍然只在收合時出現，紅綠燈底下那時是 BUILD */
+@media (display-mode: window-controls-overlay) and (min-width: 768px) {
+  html:has(.post-cover) .site-header:has([data-read-progress]):not(.is-compact) .site-header__context {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  html:has(.post-cover) .site-header:has([data-read-progress]):not(.is-compact) .site-header__progress {
+    visibility: hidden;
+  }
+}
+
+/* banner 右上角有空位：標題靠右排在控制項上方，中線切齊 nav。收合時回到中間那一列，換位置時淡入，不滑過去 */
+@media (display-mode: window-controls-overlay) and (min-width: 1200px) {
+  html:has(.post-cover) .site-header:has([data-read-progress]):not(.is-compact) .site-header__context .vrule {
+    visibility: hidden;
+  }
+
+  html:has(.post-cover) .site-header:has([data-read-progress]):not(.is-compact) .site-header__title {
+    position: absolute;
+    top: calc(var(--tb-h) + 1px);
+    left: calc(var(--bay) + 530px);
+    /* 右緣切齊「關於」鍵：控制項的右緣 16，再加上鍵右邊的分隔線、語言鍵與開關（固定 123，跟語言無關） */
+    right: calc(16px + 123px);
+    line-height: 20px;
+    text-align: right;
+  }
+}
+
+@media (display-mode: window-controls-overlay) and (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
+  html:has(.post-cover) .site-header:has([data-read-progress]):not(.is-compact) .site-header__title {
+    animation: wco-title-expanded .2s .18s backwards;
+  }
+
+  html:has(.post-cover) .site-header.is-compact:has([data-read-progress]) .site-header__title {
+    animation: wco-title-compact .2s .18s backwards;
+  }
+
+  @keyframes wco-title-expanded {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes wco-title-compact {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+@media (display-mode: window-controls-overlay) and (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .site-header__keys {
+    transition: transform .12s ease-out, box-shadow .12s ease-out, background-color .12s ease-out, height .12s ease-out, padding .12s ease-out;
+  }
+}
+
+/* banner 收合分兩段：控制項要從右下角移到 nav 左邊，同時走的話會斜著壓過 nav。
+   收合時先往左、再往上（頁首與其他東西的 --morph 都晚一段才開始）；展開時反過來，先往下、再往右 */
+@media (display-mode: window-controls-overlay) and (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
+  .site-header.is-compact {
+    --morph: .18s cubic-bezier(.2, .7, .2, 1) .18s;
+    transition: height var(--morph), gap var(--morph), padding-right .18s cubic-bezier(.2, .7, .2, 1);
+  }
+
+  .site-header:not(.is-compact) {
+    --morph: .18s cubic-bezier(.2, .7, .2, 1);
+    transition: height var(--morph), gap var(--morph), padding-right .18s cubic-bezier(.2, .7, .2, 1) .18s;
+  }
+}
+
+/* ── nav 與 bay ──
+   Chrome 右邊那排按鈕底下：上一頁、下一頁、回首頁。app 視窗沒有瀏覽器的工具列，又因為標誌改成拖曳區，都靠這三個鍵。
+   常駐在同一個位置，每個版型都不動。外觀比照上面 Chrome 的按鈕：沒有鍵帽的線條圖示，大小、粗細相近，刻在鋁板上（--cut-icon），
+   三顆的中心各自對齊 Chrome 的三顆（間距約 39，macOS 量到的值），滑過才有底色。
+   紅綠燈底下只放字（收合時是閱讀進度，展開時是 BUILD），左右切齊紅綠燈（左緣 13、寬約 60，macOS 固定值）。
+   Chrome 的色塊不透明，所以都排在它下面；左邊沒有按鈕時（Windows / Linux、全螢幕）字改成在頁首高度裡置中。 */
+@media (display-mode: window-controls-overlay) and (min-width: 768px) {
+  .site-header__keys {
+    position: absolute;
+    top: var(--tb-h);
+    right: 0;
+    width: 117px;
+    height: 24px;
+    display: flex;
+    transform-origin: top right;
+    /* 手指按著 nav 滑動是在選鍵，不是捲動頁面（js/devlog.js） */
+    touch-action: none;
+  }
+
+  .site-header__key {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* 滑過時的底色跟 Chrome 的按鈕一樣是圓形，不是整個點擊範圍 */
+  .site-header__key::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin-left: -12px;
+    border-radius: 50%;
+    background: transparent;
+    transform-origin: top center;
+  }
+
+  @media (hover: hover) {
+    .site-header__key:hover::before {
+      background: color-mix(in srgb, currentColor 8%, transparent);
+    }
+  }
+
+  .site-header__key:active::before,
+  .site-header__key.is-touch-target::before {
+    background: color-mix(in srgb, currentColor 16%, transparent);
+  }
+
+  /* 手指按上去：整組一起放大，變成浮在頁面上的一片，有自己的底與陰影；往下長，不被上面 Chrome 的色塊蓋住。
+     手指滑到哪顆，圓形底色就跟到哪顆，放開才執行；滑出這一片再放開就是取消。
+     倍率、位移與高度在 js/devlog.js 也用來算手指選到哪顆，改的話兩邊一起改 */
+  .site-header:has(.site-header__keys.is-touching) {
+    z-index: 1000;
+  }
+
+  .site-header__keys.is-touching {
+    z-index: 10;
+    /* 上下多留白，圓形底色才不會頂到這一片的邊緣 */
+    height: 32px;
+    padding: 4px 0;
+    transform: translate(-6px, 3px) scale(1.4);
+    /* 連續曲率的圓角（G2）；不支援 corner-shape 的瀏覽器退回一般圓弧（G1） */
+    border-radius: 16px;
+    corner-shape: squircle;
+    background: var(--wco-bar);
+    /* 陰影只往下與兩側：往上的話會落到 Chrome 色塊的下緣，被它切出一條線 */
+    box-shadow: 0 0 0 .5px var(--edge), 0 10px 14px -4px rgb(0 0 0 / .22);
+  }
+
+  /* 視窗失去焦點時跟 Chrome 的按鈕一樣變灰 */
+  .is-window-blurred .site-header__key {
+    color: var(--label);
+    opacity: .6;
+  }
+
+  .site-header__key[aria-disabled="true"] {
+    opacity: .35;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .site-header__key svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: var(--cut-icon);
+  }
+
+  /* 收合時的閱讀進度（非文章頁是 BUILD）與展開時的 BUILD 共用同一塊位置與字樣，中線切齊右邊的 nav。
+     60 寬放不下 READ 這個字，進度只留數字；字距撐滿切齊紅綠燈 */
+  .site-header__progress,
+  .site-header__bay {
+    position: absolute;
+    top: calc(var(--tb-h) + 5.5px);
+    left: 13px;
+    width: 60px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    line-height: 11px;
+    letter-spacing: .01em;
+    color: var(--label);
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-align: justify;
+    text-align-last: justify;
+  }
+
+  :root[data-wco-left="none"] :is(.site-header__progress, .site-header__bay) {
+    top: 0;
+    bottom: 0;
+    /* 進度是一般區塊、BUILD 是直向 flex，各自用自己的屬性置中 */
+    align-content: center;
+    justify-content: center;
+  }
+
+  .site-header__progress-label {
+    display: none;
+  }
+
+  /* 百分比固定佔四格（靠右）：進度變成兩位數、三位數時，後面的字不會跳。
+     固定十二格放進 60 寬，多出來的從「·」兩側的空格扣回來，字本身不動 */
+  .site-header__progress:has([data-read-progress]) {
+    letter-spacing: 0;
+    text-align: left;
+    text-align-last: left;
+  }
+
+  .site-header__progress [data-read-progress] {
+    display: inline-block;
+    width: 4ch;
+    text-align: right;
+    text-align-last: right;
+  }
+
+  .site-header__progress-sep {
+    word-spacing: -2.2px;
+  }
+
+  /* 展開時才有 BUILD；收合時由上面的閱讀進度接手 */
+  .site-header__bay {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .site-header.is-compact .site-header__bay {
+    display: none;
+  }
+
+  /* 標誌與刊名不再是回首頁的連結（回首頁改用上面的鍵），變成拖曳區；鍵盤照樣可以聚焦、按 Enter 回首頁 */
+  .site-header .site-header__brand {
+    -webkit-app-region: drag;
+    app-region: drag;
+    cursor: grab;
+  }
+
+  /* 收合：標誌放大，刊名跟著放大維持比例，往下移讓副標的基線與標誌底緣切齊 */
+  .site-header.is-compact .site-header__mark {
+    width: 78px;
+  }
+
+  .site-header.is-compact .site-header__brand {
+    --vrule-h: 34px;
+  }
+
+  .site-header.is-compact .wordmark {
+    gap: 5px;
+    translate: 0 2.5px;
+  }
+
+  .site-header.is-compact .wordmark__title {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: .2em;
+  }
+
+  .site-header.is-compact .wordmark__subtitle {
+    font-size: 10px;
+    line-height: 10px;
+  }
+}
+
+/* plate 與收合同高，尺寸也相同 */
+@media (display-mode: window-controls-overlay) and (min-width: 768px) and (max-width: 1199px) {
+  .site-header .site-header__mark {
+    width: 78px;
+  }
+
+  .site-header .site-header__brand {
+    --vrule-h: 34px;
+  }
+
+  .site-header .wordmark {
+    gap: 5px;
+    translate: 0 2.5px;
+  }
+
+  .site-header .wordmark__title {
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: .2em;
+  }
+
+  .site-header .wordmark__subtitle {
+    font-size: 10px;
+    line-height: 10px;
+  }
+}
+
+/* banner 展開：紅綠燈底下的空間比較大，疊成三行，底緣切齊標誌底緣（標誌高 70，上下置中） */
+@media (display-mode: window-controls-overlay) and (min-width: 1200px) {
+  .site-header__bay {
+    top: calc(var(--h-banner) / 2 + 35px - 33px);
+  }
+
+  .site-header__bay-extra {
+    display: block;
+  }
+}
+
+/* ══ 窄版（≤ 767）：標題列與頁首是同一塊板子 ══
+   頁首（.site-header）是唯一的金屬面：固定在頂端，高度 = 標題列 + 54px，上緣的 padding 就是標題列那一段，
+   所以拉絲材質、高光與接縫都連續，標題列與標誌列之間沒有線。
+   標題列（.site-titlebar）是透明的拖曳區，疊在頁首上，只放標題。
+   收起時板子本身像百葉窗一樣縮到標題列的高度：底緣與陰影往上走，下半的內容被 overflow 裁掉，不用 translate。 */
+@media (display-mode: window-controls-overlay) and (max-width: 767px) {
+  html {
+    scroll-padding-top: var(--strip-h);
+  }
+
+  .site-titlebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 21;
+    height: var(--strip-h);
+    display: flex;
+    align-items: center;
+    padding: 0 calc(var(--tb-right) + 12px) 0 var(--bay);
+  }
+
+  :root[data-wco-left="none"] .site-titlebar {
+    padding-left: 12px;
+  }
+
+  .site-titlebar__text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-cjk);
+    font-size: 12.5px;
+    letter-spacing: .04em;
+    color: var(--label);
+    text-shadow: var(--cut-text);
+  }
+
+  .site-header-slot {
+    height: calc(var(--strip-h) + 54px);
+    padding-top: 0;
+  }
+
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    height: calc(var(--strip-h) + 54px);
+    padding-top: var(--strip-h);
+    align-items: flex-start;
+    overflow: hidden;
+  }
+
+  /* 內容固定 54px 高並貼著標題列下緣：板子縮短時內容不跟著重新置中，只是被裁掉 */
+  .site-header__brand,
+  .site-header__panel {
+    height: 54px;
+  }
+
+  .site-header__panel {
+    justify-content: center;
+  }
+
+  /* 收起 / 收合：只剩標題列那一段（直拿由 js 的 is-hidden 觸發，橫屏由 is-compact）。
+     橫屏的頁首原本會跟內文捲走，那樣會在固定的標題列旁留下接縫，所以改成捲動時收合、回到頂端才展開 */
+  .site-header.is-hidden,
+  .site-header.is-compact {
+    /* 多 1px 給底緣的框線：Chrome 按鈕底下的色塊不透明，框線落在標題列高度內的話，兩端會被色塊蓋掉 */
+    height: calc(var(--strip-h) + 1px);
+    translate: none;
+  }
+
+  /* 狀態列延伸是 iOS 瀏海用的，這裡沒有 */
+  .status-backdrop {
+    display: none;
+  }
+}
+
+@media (display-mode: window-controls-overlay) and (max-width: 767px) and (orientation: landscape) {
+  .site-header {
+    --header-behavior: compact;
+  }
+}
+
+@media (display-mode: window-controls-overlay) and (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .site-header {
+    transition: height .4s ease;
+  }
+}
