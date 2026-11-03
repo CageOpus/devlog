@@ -187,7 +187,7 @@
 
 @media (display-mode: window-controls-overlay) and (min-width: 768px) and (prefers-reduced-motion: no-preference) {
   .site-header {
-    transition: height var(--morph), gap var(--morph);
+    transition: height var(--morph);
   }
 
   .site-header__panel {
@@ -195,26 +195,26 @@
   }
 }
 
-/* 有封面的文章：標題被封面推到第一屏下面，所以展開時標題也留在頁首（收合時本來就有）。
-   沒有封面的頁面標題就在頁首正下方，再列一次是重複的。閱讀進度仍然只在收合時出現，紅綠燈底下那時是 BUILD */
+/* 文章頁展開時標題也留在頁首（收合時本來就有）。閱讀進度仍然只在收合時出現，紅綠燈底下那時是 BUILD */
 @media (display-mode: window-controls-overlay) and (min-width: 768px) {
-  html:has(.post-cover) .site-header:has([data-read-progress]):not(.is-compact) .site-header__context {
+  .site-header:has([data-read-progress]):not(.is-compact) .site-header__context {
     opacity: 1;
     visibility: visible;
   }
 
-  html:has(.post-cover) .site-header:has([data-read-progress]):not(.is-compact) .site-header__progress {
+  .site-header:has([data-read-progress]):not(.is-compact) .site-header__progress {
+    opacity: 0;
     visibility: hidden;
   }
 }
 
 /* banner 右上角有空位：標題靠右排在控制項上方，中線切齊 nav。收合時回到中間那一列，換位置時淡入，不滑過去 */
 @media (display-mode: window-controls-overlay) and (min-width: 1200px) {
-  html:has(.post-cover) .site-header:has([data-read-progress]):not(.is-compact) .site-header__context .vrule {
+  .site-header:has([data-read-progress]):not(.is-compact) .site-header__context .vrule {
     visibility: hidden;
   }
 
-  html:has(.post-cover) .site-header:has([data-read-progress]):not(.is-compact) .site-header__title {
+  .site-header:has([data-read-progress]):not(.is-compact) .site-header__title {
     position: absolute;
     top: calc(var(--tb-h) + 1px);
     left: calc(var(--bay) + 530px);
@@ -226,12 +226,13 @@
 }
 
 @media (display-mode: window-controls-overlay) and (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
-  html:has(.post-cover) .site-header:has([data-read-progress]):not(.is-compact) .site-header__title {
+  .site-header:has([data-read-progress]):not(.is-compact) .site-header__title {
     animation: wco-title-expanded .2s .18s backwards;
   }
 
-  html:has(.post-cover) .site-header.is-compact:has([data-read-progress]) .site-header__title {
-    animation: wco-title-compact .2s .18s backwards;
+  .site-header.is-compact:has([data-read-progress]) .site-header__title {
+    /* 刊名縮完才出現，時間同下面 context 的淡入 */
+    animation: wco-title-compact .09s .27s backwards;
   }
 
   @keyframes wco-title-expanded {
@@ -248,6 +249,23 @@
 }
 
 @media (display-mode: window-controls-overlay) and (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  /* 頁首長到位了才淡入，不然字會先浮在還沒展開的地方。收合時跟閱讀進度交叉淡化 */
+  .site-header__bay {
+    transition: opacity .12s ease-out .18s;
+  }
+
+  .site-header.is-compact .site-header__bay {
+    transition: opacity .12s ease-out, visibility 0s linear .12s;
+  }
+
+  .site-header__progress {
+    transition: opacity .08s ease-out, visibility 0s linear .08s;
+  }
+
+  .site-header.is-compact .site-header__progress {
+    transition: opacity .12s ease-out;
+  }
+
   .site-header__keys {
     transition: transform .12s ease-out, box-shadow .12s ease-out, background-color .12s ease-out, height .12s ease-out, padding .12s ease-out;
   }
@@ -258,12 +276,18 @@
 @media (display-mode: window-controls-overlay) and (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
   .site-header.is-compact {
     --morph: .18s cubic-bezier(.2, .7, .2, 1) .18s;
-    transition: height var(--morph), gap var(--morph), padding-right .18s cubic-bezier(.2, .7, .2, 1);
+    transition: height var(--morph), padding-right .18s cubic-bezier(.2, .7, .2, 1);
   }
 
   .site-header:not(.is-compact) {
     --morph: .18s cubic-bezier(.2, .7, .2, 1);
-    transition: height var(--morph), gap var(--morph), padding-right .18s cubic-bezier(.2, .7, .2, 1) .18s;
+    transition: height var(--morph), padding-right .18s cubic-bezier(.2, .7, .2, 1) .18s;
+  }
+
+  /* 同 02-chrome.css 的 context 淡入，只是整段晚 .18s */
+  .is-compact .site-header__context {
+    transition-duration: .09s;
+    transition-delay: .27s;
   }
 }
 
@@ -427,7 +451,8 @@
   }
 
   .site-header.is-compact .site-header__bay {
-    display: none;
+    opacity: 0;
+    visibility: hidden;
   }
 
   /* 標誌與刊名不再是回首頁的連結（回首頁改用上面的鍵），變成拖曳區；鍵盤照樣可以聚焦、按 Enter 回首頁 */

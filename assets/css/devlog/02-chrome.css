@@ -231,7 +231,7 @@
 
 /* ── 頁首固定與收合（≥ 768）──
    頁首固定在頂端，slot 佔住展開高度。往下捲時 js/devlog.js 加上 .is-compact：
-   高度收到 52，其餘尺寸換成捲動條的值，全部用同一條曲線過渡。 */
+   高度收到 52，其餘尺寸換成捲動條的值。標誌與刊名的尺寸不過渡，由 js 用 transform 補動畫，字才不用逐幀重排。 */
 @media (min-width: 768px) {
   html {
     scroll-padding-top: 52px;
@@ -312,39 +312,53 @@
   }
 }
 
+/* banner 展開的 gap 比收合多 7：context 展開時看不到，把差距補回來，收放時閱讀進度才不會橫移 */
+@media (min-width: 1200px) {
+  .site-header:not(.is-compact) .site-header__context {
+    margin-right: -7px;
+  }
+}
+
 /* 只在 ≥ 768 宣告過渡：手機頁首不收合，換斷點時也不會亂動 */
 @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
   .site-header {
     --morph: .24s cubic-bezier(.2, .7, .2, 1);
-    transition: height var(--morph), gap var(--morph);
-  }
-
-  .site-header__brand {
-    transition: gap var(--morph);
-  }
-
-  .site-header__brand .vrule {
     transition: height var(--morph);
   }
 
-  .site-header__mark {
-    transition: width var(--morph);
+  .site-header__mark,
+  .site-header__brand .vrule,
+  .site-header :is(.wordmark__title, .wordmark__subtitle) {
+    transform-origin: 0 50%;
+  }
+
+  /* js 交叉淡入時，舊的字疊在這裡 */
+  .site-header .wordmark {
+    position: relative;
+  }
+
+  /* 一直留在自己的圖層、字元定位不取整：動畫開始與結束時進出圖層，反鋸齒和字距才不會跳一下 */
+  .site-header :is(.wordmark__title, .wordmark__subtitle) {
+    will-change: transform, opacity;
+    text-rendering: geometricPrecision;
   }
 
   .site-header__mark svg {
     transition: opacity var(--morph);
   }
 
-  .site-header .wordmark {
-    transition: gap var(--morph);
-  }
-
   .site-header :is(.wordmark__title, .wordmark__subtitle) {
-    transition: font-size var(--morph), line-height var(--morph), letter-spacing var(--morph), color var(--morph);
+    transition: color var(--morph);
   }
 
   .site-header__context {
     transition: opacity var(--morph), visibility var(--morph);
+  }
+
+  /* 刊名的版面已經跳到終點，字還在縮：等它讓出來再淡入，不然會疊在一起 */
+  .is-compact .site-header__context {
+    transition-duration: .12s;
+    transition-delay: .12s;
   }
 
   .site-header__status {

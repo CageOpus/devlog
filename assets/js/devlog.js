@@ -191,8 +191,104 @@
   // 瀏覽器按停止載入時頁面收不到通知，所以不能等到換頁才解除
   const LINK_PENDING_MS = 500;
 
+  // 收放時標誌和刊名不逐幀排版（字級一變就要重排文字）：版面直接跳到終點，再用 transform 從原本的位置與大小過渡回來。
+  // 時間跟著 CSS 的 --morph（刊名的 color 過渡），各版型、減少動態效果都不用另外判斷。
+  // 兩邊字距不同（banner .15em、收合 .22em），一份字縮放過去，字形會在第一幀就變：所以留一份舊的字同路淡出，跟新的交叉淡入
+  const brand = header.querySelector(".site-header__brand");
+  const title = header.querySelector(".wordmark__title");
+  const context = header.querySelector(".site-header__context");
+  const morphed = brand ? [...brand.querySelectorAll(".site-header__mark, .vrule, .wordmark__title, .wordmark__subtitle")] : [];
+  const isWordmarkText = (el) => el.matches(".wordmark__title, .wordmark__subtitle");
+  let morphs = [];
+  let morphGhosts = [];
+
+  // 字本身的寬度：副標的盒子被撐到跟主標一樣寬，用盒子算的話新舊兩份字對不起來
+  function textWidth(el) {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    return range.getBoundingClientRect().width;
+  }
+
+  function morphBox(el) {
+    const rect = el.getBoundingClientRect();
+    const brandRect = brand.getBoundingClientRect();
+    // 字的大小看字級：行高在各版型不成比例（banner 副標 17 / 26），用盒子高度算會變形
+    const isText = isWordmarkText(el);
+    return {
+      left: rect.left,
+      centerY: rect.top + rect.height / 2 - (brandRect.top + brandRect.height / 2),
+      width: isText ? textWidth(el) : rect.width,
+      size: isText ? (parseFloat(getComputedStyle(el).fontSize) * rect.height) / el.offsetHeight : rect.height,
+    };
+  }
+
+  // 舊狀態的字：固定字級與字距，疊在刊名的原點，由 morph 帶著走
+  function morphGhost(el) {
+    const style = getComputedStyle(el);
+    const ghost = el.cloneNode(true);
+    ghost.setAttribute("aria-hidden", "true");
+    Object.assign(ghost.style, {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: `${el.offsetWidth}px`,
+      height: `${el.offsetHeight}px`,
+      fontSize: style.fontSize,
+      lineHeight: style.lineHeight,
+      letterSpacing: style.letterSpacing,
+      color: style.color,
+      textShadow: style.textShadow,
+      pointerEvents: "none",
+    });
+    return ghost;
+  }
+
+  function setCompact(on) {
+    if (header.classList.contains("is-compact") === on) return;
+    const from = morphed.map(morphBox);
+    const contextLeft = context.getBoundingClientRect().left;
+    context.style.marginLeft = "";
+    const ghosts = morphed.map((el) => (isWordmarkText(el) ? morphGhost(el) : null));
+    morphs.forEach((a) => a.cancel());
+    morphGhosts.forEach((ghost) => ghost.remove());
+    morphGhosts = [];
+    header.classList.toggle("is-compact", on);
+
+    const timing = getComputedStyle(title);
+    const duration = parseFloat(timing.transitionDuration) * 1000;
+    if (!duration) return (morphs = []);
+    const delay = parseFloat(timing.transitionDelay) * 1000;
+    const options = { duration, delay, easing: timing.transitionTimingFunction, fill: "backwards" };
+    const wordmark = title.parentElement;
+    const brandRect = brand.getBoundingClientRect();
+    const wordmarkRect = wordmark.getBoundingClientRect();
+    morphs = morphed.flatMap((el, i) => {
+      const to = morphBox(el);
+      const transform = `translate(${from[i].left - to.left}px, ${from[i].centerY - to.centerY}px) scale(${from[i].width / to.width}, ${from[i].size / to.size})`;
+      if (!ghosts[i]) return [el.animate([{ transform }, { transform: "none" }], options)];
+
+      const ghost = ghosts[i];
+      wordmark.append(ghost);
+      morphGhosts.push(ghost);
+      const width = textWidth(ghost);
+      const height = parseFloat(ghost.style.height);
+      const size = parseFloat(ghost.style.fontSize);
+      const originY = wordmarkRect.top - (brandRect.top + brandRect.height / 2) + height / 2;
+      const place = (box) => `translate(${box.left - wordmarkRect.left}px, ${box.centerY - originY}px) scale(${box.width / width}, ${box.size / size})`;
+      const fadeOut = ghost.animate([{ transform: place(from[i]), opacity: 1 }, { transform: place(to), opacity: 0 }], options);
+      fadeOut.onfinish = () => ghost.remove();
+      return [el.animate([{ transform, opacity: 0 }, { transform: "none", opacity: 1 }], options), fadeOut];
+    });
+
+    // 展開時刊名的版面一下子變寬，會把還在淡出的頁面標題推走：淡出的這段讓它留在原位
+    if (!on) {
+      context.style.marginLeft = `${contextLeft - context.getBoundingClientRect().left}px`;
+      morphs[0].onfinish = () => (context.style.marginLeft = "");
+    }
+  }
+
   function updateCompact(y) {
-    header.classList.toggle("is-compact", y > COMPACT_AFTER);
+    setCompact(y > COMPACT_AFTER);
   }
 
   function updateAutohide(y) {
@@ -255,7 +351,8 @@
 
     event.preventDefault();
     expandingForLink = true;
-    header.classList.remove("is-compact", "is-hidden");
+    setCompact(false);
+    header.classList.remove("is-hidden");
     // 減少動態效果時沒有 transition，這裡就是空的，會直接換頁
     const transitions = header.getAnimations({ subtree: true }).filter((a) => a instanceof CSSTransition);
     await Promise.race([
