@@ -20,7 +20,7 @@
     {{- end }}
   </div>
   <span class="tag-strip__note">
-    {{- if .IsPage }}{{ .Date.Format "2006 · 01 · 02" }}{{ else }}{{ T "postCount" (len $posts) }}{{ end -}}
+    {{- if .IsPage }}{{ .Date.Format "2006-01-02" }}{{ else }}{{ T "postCount" (len $posts) }}{{ end -}}
   </span>
 </div>
 {{- end }}
