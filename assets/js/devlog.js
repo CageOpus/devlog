@@ -77,15 +77,16 @@
     forward.setAttribute("aria-disabled", String(!navigation.canGoForward));
   }
 
-  // 按完就放掉焦點：回到 bfcache 還原的頁面時，鍵上不會留著焦點框
-  back.addEventListener("click", () => {
-    back.blur();
-    window.devlogTraverse(-1);
-  });
-  forward.addEventListener("click", () => {
-    forward.blur();
-    window.devlogTraverse(1);
-  });
+  // 按完就放掉焦點：回到 bfcache 還原的頁面時，鍵上不會留著焦點框。
+  // 頁首可能要等動畫才換頁，這段時間鍵是停用的，最多 500ms（同點連結，瀏覽器按停止時頁面收不到通知）
+  function traverse(key, delta) {
+    key.blur();
+    key.setAttribute("aria-disabled", "true");
+    setTimeout(sync, 500);
+    window.devlogTraverse(delta);
+  }
+  back.addEventListener("click", () => traverse(back, -1));
+  forward.addEventListener("click", () => traverse(forward, 1));
   // 從上一頁回來時頁面可能是 bfcache 還原的，狀態要重算
   window.addEventListener("pageshow", sync);
   sync();
@@ -400,7 +401,7 @@
     setTimeout(() => (expandingForLink = false), LINK_PENDING_MS);
   }
 
-  // nav 的上下頁（瀏覽器自己的上下頁鍵攔不到）。沒記過的歷史就是從沒收合過
+  // nav 的上下頁（瀏覽器自己的上下頁鍵擋不下來：navigate 事件的 cancelable 是 false）。沒記過的歷史就是從沒收合過
   window.devlogTraverse = (delta) => {
     if (expandingForLink) return;
     const go = () => history.go(delta);
