@@ -1,4 +1,5 @@
 {{- /* 密技面板：連按狀態列的版號或版權（[data-cheat-tap]）二十下才會跳出來，輸入密技按 Enter（js/devlog.js）。
+       輸入欄請求沒有選字的英數鍵盤（inputmode="url"，順便有 / 鍵）；網頁沒辦法強制關掉輸入法，桌機的輸入法要自己切。
        目前只有 /debug：開關右上角的除錯讀數（更新率、夯姆的狀態、電量）。樣式與 RSS 面板共用（css/devlog/02-chrome.css）。 */ -}}
 <dialog class="cheat-dialog cage-panel" aria-labelledby="cheat-dialog-title" tabindex="-1" data-cheat-dialog
   data-cheat-unknown="{{ T "cheatUnknown" }}" data-cheat-debug-on="{{ T "cheatDebugOn" }}" data-cheat-debug-off="{{ T "cheatDebugOff" }}">
@@ -9,7 +10,7 @@
     </form>
   </div>
   <form class="cage-panel__body" data-cheat-form>
-    <input class="rss-dialog__url cheat-dialog__input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" aria-label="{{ T "cheatTitle" }}" data-cheat-input>
+    <input class="rss-dialog__url cheat-dialog__input" type="text" inputmode="url" lang="en" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="go" aria-label="{{ T "cheatTitle" }}" data-cheat-input>
     <p class="install-dialog__intro cheat-dialog__result" aria-live="polite" data-cheat-result></p>
   </form>
 </dialog>

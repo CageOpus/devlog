@@ -1057,11 +1057,13 @@
   visibility: visible;
 }
 
-/* 狀態列的版號與版權可以連按（密技面板的入口）：連點時不要選到字、不要被當成雙擊放大 */
+/* 狀態列的版號與版權可以連按（密技面板的入口）：連點時不要選到字、不要被當成雙擊放大。
+   這是秘密，手機上點下去也不能閃灰底，看起來要跟一般的字一樣 */
 [data-cheat-tap] {
   -webkit-user-select: none;
   user-select: none;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* 密技面板：輸入欄沿用 RSS 網址欄的樣子；16px 以上 iOS 聚焦時才不會自動放大畫面 */
