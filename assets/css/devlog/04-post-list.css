@@ -81,11 +81,16 @@
   text-wrap: pretty;
 }
 
+/* 每個標籤前面都帶分隔點，整排往左移一個分隔點的寬度，再用 clip-path 切掉超出左緣的部分：
+   行首的分隔點剛好被切掉，所以第一個標籤和換行後的行首都不會有點，文字也對齊左緣。 */
 .post-row__tags {
+  --tag-sep: 13.6px;
   grid-area: tags;
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
+  margin-left: calc(-1 * var(--tag-sep));
+  clip-path: inset(0 0 0 var(--tag-sep));
   font-family: var(--font-mono);
   font-size: 10.5px;
   letter-spacing: .06em;
@@ -94,13 +99,20 @@
 
 /* 只有原文、沒有這個語言譯本的文章：語言名稱壓成一顆小標 */
 .post-row__lang {
+  margin-left: var(--tag-sep);
   padding: 0 5px;
   border: 1px solid var(--edge);
   border-radius: var(--radius-slot);
   color: var(--label);
 }
 
+.post-row__tag {
+  white-space: nowrap;
+}
+
 .post-row__sep {
+  display: inline-block;
+  width: var(--tag-sep);
   color: var(--rule);
 }
 
@@ -184,7 +196,10 @@
     line-height: 1.75;
   }
 
+  /* 分隔點是等寬字，本身就佔一格（約 6.6px），兩側只再加 1px */
   .post-row__tags {
+    --tag-sep: 7.6px;
+    gap: 4px 1px;
     font-size: 10px;
   }
 }

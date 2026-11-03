@@ -10,8 +10,8 @@
   <p class="post-row__summary">{{ .Description | default (.Summary | plainify | htmlUnescape) }}</p>
   <span class="post-row__tags">
     {{- if $fallback }}<span class="post-row__lang">{{ .Language.Label }}</span>{{ end }}
-    {{- range $i, $tag := .Params.tags }}
-    {{- if or $i $fallback }}<span class="post-row__sep">·</span>{{ end }}<span>{{ $tag | upper }}</span>
+    {{- range .Params.tags }}
+    <span class="post-row__tag"><span class="post-row__sep">·</span>{{ . | upper }}</span>
     {{- end -}}
   </span>
   <span class="post-row__time">{{ partial "reading-time.html" . }} MIN</span>
