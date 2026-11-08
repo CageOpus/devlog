@@ -1,4 +1,4 @@
-{{- /* 作者卡：鍵帽上刻簡化標誌 + 名字與身分。
+{{- /* 作者卡：鍵帽上刻簡化標誌 + 名字；橫式時右邊再接 Not By AI 徽章。
        側邊欄裡是直式；側邊欄收起來（< 1100）時同一份 DOM 改成橫式（見 css/devlog/03-layout.css）。 */ -}}
 <div class="author-card cage-well">
   <div class="author-card__label cage-well__label">{{ T "writtenBy" }}</div>
@@ -6,5 +6,5 @@
     <svg viewBox="276 38 501 384"><use href="#mkSEng"></use></svg>
   </div>
   <div class="author-card__name">{{ site.Params.author }}</div>
-  <div class="author-card__role">{{ site.Params.authorRole }}</div>
+  {{- partial "not-by-ai.html" (dict "page" . "inCard" true) }}
 </div>

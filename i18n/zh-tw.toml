@@ -11,6 +11,7 @@ noTranslation = "這一頁沒有翻譯"
 
 posts = "文章"
 tags = "標籤"
+notByAITitle = "Not by AI（開新分頁）"
 writtenBy = "作者"
 
 latest = "最新"

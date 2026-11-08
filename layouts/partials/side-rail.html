@@ -1,4 +1,4 @@
-{{- /* 右側欄 252px：標籤索引 + 作者 + 倉鼠籠。
+{{- /* 右側欄 252px：標籤索引 + 作者 + Not By AI（文章有 notByAI 才有）+ 倉鼠籠。
        < 1100 時整欄移到主欄下方，標籤索引隱藏（改由 tag-strip 呈現），只剩作者卡與倉鼠籠。 */ -}}
 <aside class="page__rail">
   {{- with site.Taxonomies.tags }}
@@ -8,5 +8,6 @@
   </div>
   {{- end }}
   {{- partial "author-card.html" . }}
+  {{- partial "not-by-ai.html" (dict "page" . "inCard" false) }}
   {{- partial "hamster.html" . }}
 </aside>

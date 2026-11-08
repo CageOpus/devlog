@@ -12,7 +12,6 @@ hasCJKLanguage = true
   # 加到主畫面時圖示下的名稱（約 12 字元以內才不會被截）；manifest 也用這個（layouts/home.webmanifest）
   shortName = "CAGE — Devlog"
   author = "Ray Chung"
-  authorRole = "SOLO DEV · TAIPEI"
   build = "0.0.1"
   stack = "RUST + WGPU"
   disableThemeToggle = false

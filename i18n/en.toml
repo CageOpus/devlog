@@ -12,6 +12,7 @@ noTranslation = "No translation for this page"
 # 區段與卡片的標籤，每個語言只印自己的一個
 posts = "Posts"
 tags = "Tags"
+notByAITitle = "Not by AI (opens in a new tab)"
 writtenBy = "Written by"
 
 latest = "Latest"
