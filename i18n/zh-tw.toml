@@ -47,6 +47,10 @@ rssCopy = "複製網址"
 rssCopied = "已複製"
 rssOpenApp = "用 App 開啟"
 
+# 文章底部的分享鍵
+share = "分享"
+shareCopied = "已複製"
+
 notFoundText = "這個路段不在計畫圖上。"
 backHome = "回到首頁"
 

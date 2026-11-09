@@ -46,6 +46,10 @@ rssCopy = "Copy address"
 rssCopied = "Copied"
 rssOpenApp = "Open in app"
 
+# 文章底部的分享鍵
+share = "Share"
+shareCopied = "Copied"
+
 notFoundText = "This road isn't on the plan."
 backHome = "Back to home"
 

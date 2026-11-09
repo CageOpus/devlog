@@ -68,6 +68,71 @@
   gap: 6px;
 }
 
+/* 標籤在左、分享鍵靠右；窄到放不下時分享鍵換到下一行，仍靠右 */
+.article__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline; /* 按鈕比標籤大，但兩邊的文字基線要對齊 */
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* 按鈕的樣式（.cage-btn），尺寸與旁邊的標籤（.cage-tag）一樣 */
+.article__actions .article__share {
+  /* 比標籤上下各大 1px；負的 margin 把多出來的部分吃掉，不推動下面的版面 */
+  margin: -1px 0 -1px auto;
+  display: inline-grid;
+  justify-items: center;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 8px 0 5px; /* 圖示本身帶留白，左邊少一點，視覺重心才會在中間 */
+  font-size: var(--text-label);
+  line-height: 1;
+}
+
+/* 高度不寫死：藏一個標籤字體的「A」撐高，上下各補標籤的 2px padding 再加 1px，
+   加上按鈕自己的 1px 框，總高比旁邊的標籤多 2px（不管實際字體量出來是多少） */
+.article__share-probe {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  border: 0;
+  padding: 3px 0;
+  line-height: normal;
+  width: 0;
+  overflow: hidden;
+}
+
+/* 「圖示＋分享」與「已複製」疊在同一格，鍵寬取較寬的那個，換字時不會跳；已複製時圖示跟著第一組一起隱藏 */
+.article__share-icon {
+  flex: none;
+  align-self: center; /* 圖示對著整行的中線，不跟文字基線走 */
+  width: 13px;
+  height: 13px;
+  margin: -2px 0; /* 圖示比行高大，用負 margin 避免撐高按鈕 */
+  fill: currentColor;
+}
+
+.article__share-label {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+/* 只有文字參與基線對齊，所以整顆鍵的基線就是文字的基線 */
+.article__share-text {
+  align-self: baseline;
+}
+
+.article__share .article__share-label[aria-hidden="true"],
+.article__share.is-copied .article__share-label:first-child {
+  visibility: hidden;
+}
+
+.article__share.is-copied .article__share-label[aria-hidden="true"] {
+  visibility: visible;
+}
+
 /* ── 上一篇 / 下一篇：較舊的在左、較新的在右；標題太長時換行，不撐破版面 ── */
 .post-pager {
   display: flex;

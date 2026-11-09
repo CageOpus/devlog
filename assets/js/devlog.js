@@ -680,6 +680,34 @@
   });
 })();
 
+(function initShare() {
+  // 文章底部的分享鍵：有 Web Share API（手機、Safari）就叫出系統分享面板，否則複製網址並在鍵上短暫顯示「已複製」
+  const button = document.querySelector("[data-share]");
+  if (!button) return;
+  let timer;
+  button.addEventListener("click", async () => {
+    const { shareTitle: title, shareUrl: url } = button.dataset;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+      } catch (e) {} // 使用者取消，不用處理
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch (e) {
+      const input = Object.assign(document.createElement("input"), { value: url });
+      document.body.append(input);
+      input.select();
+      document.execCommand("copy");
+      input.remove();
+    }
+    button.classList.add("is-copied");
+    clearTimeout(timer);
+    timer = setTimeout(() => button.classList.remove("is-copied"), 1600);
+  });
+})();
+
 (function initCheats() {
   // 連按狀態列的版號或版權（[data-cheat-tap]）二十下（每下間隔不到一秒）跳出密技面板；目前只有 /debug（見 partials/cheat-dialog.html）
   const dialog = document.querySelector("[data-cheat-dialog]");

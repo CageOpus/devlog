@@ -19,13 +19,22 @@
     </div>
 
     <footer class="article__footer">
-      {{- with .GetTerms "tags" }}
-      <div class="article__tags">
-        {{- range . }}
-        <a class="cage-tag" href="{{ .RelPermalink }}">{{ .LinkTitle | upper }}</a>
-        {{- end }}
+      <div class="article__actions">
+        <div class="article__tags">
+          {{- range .GetTerms "tags" }}
+          <a class="cage-tag" href="{{ .RelPermalink }}">{{ .LinkTitle | upper }}</a>
+          {{- end }}
+        </div>
+        {{- /* 分享：有 Web Share API 就叫出系統分享面板，否則複製網址（js/devlog.js initShare） */}}
+        <button type="button" class="article__share cage-btn cage-face cage-btn--sm" data-share data-share-title="{{ .Title }}" data-share-url="{{ .Permalink }}">
+          <span class="article__share-label">
+            <svg class="article__share-icon" viewBox="0 0 12 12" aria-hidden="true"><path d="M7.2 1.8 11.2 5.6 7.2 9.4V7.1C4.4 7.1 2.7 8 1.3 10 1.7 6.7 3.7 4.3 7.2 4Z"/></svg>
+            <span class="article__share-text">{{ T "share" }}</span>
+          </span>
+          <span class="article__share-label" aria-hidden="true">{{ T "shareCopied" }}</span>
+          <span class="article__share-probe cage-tag" aria-hidden="true">A</span>
+        </button>
       </div>
-      {{- end }}
       {{- partial "post-pager.html" . }}
     </footer>
   </article>
