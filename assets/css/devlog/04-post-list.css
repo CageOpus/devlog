@@ -76,7 +76,7 @@
   -webkit-line-clamp: 3;
   font-family: var(--font-cjk);
   font-size: 15px;
-  line-height: 1.85;
+  line-height: 1.5;
   color: var(--label);
   text-wrap: pretty;
 }
@@ -326,8 +326,7 @@
   }
 
   .post-row__summary {
-    font-size: 13px;
-    line-height: 1.75;
+    font-size: 14px;
   }
 
   /* 分隔點是等寬字，本身就佔一格（約 6.6px），兩側只再加 1px */

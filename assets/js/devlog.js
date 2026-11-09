@@ -1227,9 +1227,16 @@ window.DevlogZoom = (() => {
     row.classList.toggle("post-row--tags-wide", tags.scrollHeight > tags.clientHeight + 1);
     const title = row.querySelector(".post-row__title");
     const summary = row.querySelector(".post-row__summary");
-    const oneLine = title.offsetHeight < parseFloat(getComputedStyle(title).lineHeight) * 1.5;
-    if (phone.matches && oneLine) summary.style.setProperty("-webkit-line-clamp", "2");
-    else summary.style.removeProperty("-webkit-line-clamp");
+    const thumb = row.querySelector(".post-row__thumb")
+    const sumOff = summary.getBoundingClientRect().top - title.getBoundingClientRect().top
+    const sumLh = parseFloat(getComputedStyle(title).lineHeight);
+
+    // count lines
+    const nrLines = ~~((thumb.clientHeight - sumOff + 20) / sumLh);
+    const newLh = (thumb.clientHeight - sumOff) / nrLines;
+    summary.style.setProperty('-webkit-line-clamp', nrLines)
+    summary.style.setProperty('line-height', newLh + "px")
+    // else summary.style.removeProperty("-webkit-line-clamp");
   };
   const fitAll = () => rows.forEach(fit);
   // 視窗變寬會改變標題的尺寸，所以看標題；字體載入可能只改變標籤的寬度，另外補一次
