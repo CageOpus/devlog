@@ -4,7 +4,7 @@ draft = false
 title = 'CAGE 道路使用規則：一種基於道路空間協調之百萬實例級平行交通模擬系統'
 description = 'A GPU accelerated traffic simulation system'
 milestone = 'M0'
-tags = ['devlog', 'simulation', 'gpu']
+tags = ['simulation', 'gpu']
 +++
 
 <!--

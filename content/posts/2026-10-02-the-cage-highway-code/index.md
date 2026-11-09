@@ -4,7 +4,7 @@ draft = false
 title = 'The CAGE Highway Code — A Million in Parallel'
 description = 'A GPU accelerated traffic simulation system'
 milestone = 'M0'
-tags = ['devlog', 'simulation', 'gpu']
+tags = ['simulation', 'gpu']
 +++
 
 This article explains our general traffic mechanism, which allows us to maintain
