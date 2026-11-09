@@ -83,6 +83,7 @@
   align-items: baseline;
   gap: 13px;
   margin-bottom: 17px;
+  padding: 11px 21px 0;
 }
 
 .section-head__label {
@@ -130,6 +131,7 @@
 @media (max-width: 1199px) {
   .section-head {
     gap: 11px;
+    padding: 2px 21px 0;
     margin-bottom: 15px;
   }
 }
@@ -137,6 +139,7 @@
 @media (max-width: 767px) {
   .section-head {
     gap: 9px;
+    padding: 2px 15px 0;
     margin-bottom: 13px;
   }
 
@@ -208,6 +211,7 @@
 .section-head__clear {
   flex: none;
   padding: 3px 9px;
+  margin-right: -9px;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: .06em;
