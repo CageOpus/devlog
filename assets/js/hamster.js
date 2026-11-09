@@ -1626,9 +1626,9 @@
 
   // ═══ 省電 ═══
   // 網頁讀不到瀏覽器的省電模式，用電池狀態近似。只有 Chromium 有 navigator.getBattery；Safari、Firefox 讀不到就照常。
-  //   沒在充電、電量不到 50%：復古模式，動畫鎖在一秒 15 格，一直到換頁
-  //   沒在充電、電量 ≤ 20%（Chrome 預設在這時自動開節約能源）：倉鼠回窩裡睡，動畫迴圈與 CSS 動畫全部停下；
-  //   訪客碰一下籠子才醒，醒了之後這一頁就不再進省電睡眠
+  //   沒在充電、電量不到 50%：復古模式，動畫鎖在一秒 15 格
+  //   沒在充電、電量 ≤ 20%（Chrome 預設在這時自動開節約能源）：倉鼠回窩裡睡，動畫迴圈與 CSS 動畫全部停下
+  // 訪客碰一下籠子（點、按鍵）兩種都解除：睡著的會醒，復古模式回到跟著螢幕走；之後這一頁都不再自己進去
   let powerNap = false;
   let wokenByUser = false;
 
@@ -1661,8 +1661,16 @@
     plan([act("rub", 1.4)], true);
   }
 
-  root.addEventListener("pointerdown", wakeFromNap, true);
-  root.addEventListener("keydown", wakeFromNap, true);
+  // 沒在省電時碰籠子（餵食、摸摸）不算，之後照樣會進省電
+  function leavePowerSaving() {
+    if (!powerNap && !retro) return;
+    wokenByUser = true;
+    wakeFromNap();
+    leaveRetro();
+  }
+
+  root.addEventListener("pointerdown", leavePowerSaving, true);
+  root.addEventListener("keydown", leavePowerSaving, true);
 
   // 復古模式的 CSS 動畫（腳步、晃動、呼吸……）：全部停住，由動畫迴圈每一格撥一下，跟倉鼠的位置一起一格一格跳。
   // 不照真實時間取樣：跑步的腳步一圈只有 0.14 秒，一秒 15 格去抽，一圈只抽得到 2.1 格，
@@ -1684,11 +1692,23 @@
     }
   }
 
-  // 只進不出：一路鎖到換頁。下一格起改用計時器排程（見 schedule）
+  // 自己不會退出，一路鎖到換頁或訪客碰籠子（見 leavePowerSaving）。下一格起改用計時器排程（見 schedule）
   function enterRetro() {
-    if (retro) return;
+    if (retro || wokenByUser) return;
     retro = true;
     root.classList.add("is-retro");
+  }
+
+  // 停住的 CSS 動畫放回去照真實時間跑；排好的那一格計時器跑完，下一格起就回到 requestAnimationFrame。
+  // 更新率從頭量（復古模式期間沒在量）
+  function leaveRetro() {
+    if (!retro) return;
+    retro = false;
+    root.classList.remove("is-retro");
+    for (const anim of svg.getAnimations({ subtree: true })) anim.play();
+    prevTick = 0;
+    ticks.length = 0;
+    slowStreak = 0;
   }
 
   // 什麼時候進復古模式：電量讀得到又不到一半，或是瀏覽器自己把更新率壓低了。
