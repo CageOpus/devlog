@@ -7,7 +7,7 @@ milestone = 'M1'
 tags = ['devlog', 'roads']
 images = ['cover.webp']
 coverDark = 'cover.dark.webp'
-coverAlt = '十字路口的素描，斜俯視角，工程圖'
+coverAlt = 'sketch of an intersection'
 notByAI = true
 +++
 
@@ -25,7 +25,7 @@ Intersections are more complicated then corridors. Let's start with it.
 
 A intersection is defined by a set of connected traffic movements. Players can customize the connections, and we'll fill the remaining areas with channelizing markings to guide traffic.
 
-![槽化線](channelization.svg "A intersection with channelizing markings")
+![Channelization](channelization.svg "A intersection with channelizing markings")
 
 
 ### Refuge Islands
